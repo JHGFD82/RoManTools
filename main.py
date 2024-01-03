@@ -1,9 +1,9 @@
-# PACKAGE DEPENDENCIES
+# PACKAGE DEPENDENCIES #
 import csv
 import re
 import numpy as np
 
-# REFERENCE DATA
+# REFERENCE DATA #
 # List of Pinyin initials, finals
 PY = np.genfromtxt('data/pinyinDF.csv', delimiter=',', dtype=str)
 PY_init_list = list(PY[1:, 0])
@@ -22,7 +22,7 @@ WG_ar = WG[1:, 1:] == '1'
 with open('data/stopwords.txt', 'r') as f:
     stopwords = f.read().splitlines()
 
-# REFERENCE VARIABLES
+# REFERENCE VARIABLES #
 # Vowel List
 vowel = ['a', 'e', 'i', 'o',
          'u', 'ü', 'v', 'ê', 'ŭ']  # for detecting switch from initial to final
@@ -32,7 +32,7 @@ symbol_replacements = {'—': '-', '–': '-', '\'': '’', '`': '’',
                        '\u3000': ' '}
 
 
-# SYLLABLE PART FUNCTIONS
+# SYLLABLE PART FUNCTIONS #
 # INITIALS #
 def find_initial(text, **kwargs):
     """Identify the initial of the syllable."""
@@ -59,7 +59,7 @@ def find_initial(text, **kwargs):
         return result
 
 
-# FINALS
+# FINALS #
 def find_final(text, **kwargs):
     """Identify the final of the syllable."""
 
@@ -85,7 +85,7 @@ def find_final(text, **kwargs):
         # consonant
         elif c not in vowel:
 
-            # EXCEPTIONS
+            # EXCEPTIONS #
             # reference variable to identify end of text
             remainder = len(text) - i - 1
 
@@ -117,7 +117,7 @@ def find_final(text, **kwargs):
             return result
 
 
-# CONVERSION FUNCTION
+# CONVERSION FUNCTION #
 def convert_romanization(text, method):
     """Convert given text using provided method in parameters."""
 
@@ -138,40 +138,64 @@ def convert_romanization(text, method):
     return converted
 
 
-# SYLLABLE CLASS
+# SYLLABLE CLASS #
 class Syllable:
     """Properties of an initial/final pair."""
 
-    def __init__(self, initial, final, init_list, fin_list, ar):
+    def __init__(self, **kwargs):
 
-        # BASIC INFORMATION
-        self.initial = initial
-        self.final = final
+        # BASIC INFORMATION #
+        self.initial = kwargs['initial']
+        self.final = kwargs['final']
         self.full_syl = (self.initial + self.final if self.initial[0] != 'ø'
                          else self.initial[1:] + self.final)
         self.length = len(self.full_syl)
-        self.valid = self.validate_syllable(init_list, fin_list, ar)
 
-        # SYLLABLE VALIDATION
-    def validate_syllable(self, init_list, fin_list, ar):
+        # SYLLABLE VALIDATION #
         try:
-            result = ar[
-                init_list.index(self.initial),
-                fin_list.index(self.final)]
+            result = kwargs['ar'][
+                kwargs['init_list'].index(self.initial),
+                kwargs['fin_list'].index(self.final)]
         except ValueError:
-            return False
+            self.valid = False
         else:
-            return result
+            self.valid = result
 
 
-def process_chunks(chunks, method, crumbs, error_collect):
-    result = []
-    words = []
+# SYLLABLE COUNTER FUNCTION #
+
+
+def syllable_count(text, skip_count=False, method='PY', method_report=False,
+                   crumbs=False, error_skip=False, error_report=False,
+                   convert='', cherry_pick=False):
+    """Produce the count of syllables from any given romanized Chinese text.
+    ----------------
+    Parameters allowed for additional features:
+    * skip_count = "True" to exclude the whole point of this function (no, seriously)
+    * method = "PY" (pinyin) as default, but "WG" (Wade-Giles) also supported
+    * method_report = "True" to include romanization method in output
+    * crumbs = "True" to include step-by-step analysis in output
+    * error_skip = "True" to not abort function on invalid text and instead skip to next word
+    * error_report = "True" to include error messages in output
+    * convert = "PYWG" using from-to structure, "WGPY" also supported
+    * cherry_pick = "PYWG" or "WGPY" to convert only identified, valid syllables
+        (best for converting paragraphs with multiple languages)"""
+
+    print('# Analyzing ' + text + ' #') if crumbs else ''
+
+    try:
+        if cherry_pick:
+            chunks = re.findall(r'\'s[^a-zA-Z]|\'t[^a-zA-Z]|[\w]+|[^a-zA-Z]+', text)
+        else:
+            chunks = text.split()
+    except ValueError:
+        return [0]
+
+    # ESTABLISH LIST/ARRAY PARAMETERS #
     if method == 'PY':
         method_values = ['PY', PY_init_list, PY_fin_list, PY_ar]
     else:
         method_values = ['WG', WG_init_list, WG_fin_list, WG_ar]
-
     method_params = dict(zip(['method', 'init_list', 'fin_list', 'ar'], method_values))
 
     result = []
@@ -180,7 +204,7 @@ def process_chunks(chunks, method, crumbs, error_collect):
 
     for chunk in chunks:
 
-        # FUNCTION VARIABLES
+        # FUNCTION VARIABLES #
         syls = []
         more_text = True
         next_syl_start = 0
@@ -189,7 +213,7 @@ def process_chunks(chunks, method, crumbs, error_collect):
         is_cap = True if chunk[0].isupper() else False
         chunk = chunk.lower()
 
-        # WORD EVALUATION: MAIN FUNCTION
+        # WORD EVALUATION: MAIN FUNCTION #
         while more_text and not error_found:
 
             syl_index += 1
@@ -233,7 +257,7 @@ def process_chunks(chunks, method, crumbs, error_collect):
         # Append syllable list to word list
         words.append(syls)
 
-        # REPORTING/ERRORS
+        # REPORTING/ERRORS #
         # Print all processing steps and errors, return 0 if skipping parameter not set
         if crumbs:
             for syl in syls:
@@ -249,7 +273,7 @@ def process_chunks(chunks, method, crumbs, error_collect):
         elif error_found and error_report:
             error_collect.append(error_found)
 
-    # DELIVERING RESULTS
+    # DELIVERING RESULTS #
     # Syllable Count
     if not skip_count:
         result.append([len(w) for w in words if all(s.valid for s in w)])
@@ -277,37 +301,3 @@ def process_chunks(chunks, method, crumbs, error_collect):
         result.append(converted_string.strip())
 
     return result
-
-
-# SYLLABLE COUNTER FUNCTION
-
-def syllable_count(text, skip_count=False, method='PY', method_report=False,
-                   crumbs=False, error_skip=False, error_report=False,
-                   convert='', cherry_pick=False):
-    """Produce the count of syllables from any given romanized Chinese text.
-    ----------------
-    Parameters allowed for additional features:
-    * skip_count = "True" to exclude the whole point of this function (no, seriously)
-    * method = "PY" (pinyin) as default, but "WG" (Wade-Giles) also supported
-    * method_report = "True" to include romanization method in output
-    * crumbs = "True" to include step-by-step analysis in output
-    * error_skip = "True" to not abort function on invalid text and instead skip to next word
-    * error_report = "True" to include error messages in output
-    * convert = "PYWG" using from-to structure, "WGPY" also supported
-    * cherry_pick = "PYWG" or "WGPY" to convert only identified, valid syllables
-        (best for converting paragraphs with multiple languages)"""
-
-    print('# Analyzing ' + text + ' #') if crumbs else ''
-    try:
-        if cherry_pick:
-            chunks = re.findall(r'\'s[^a-zA-Z]|\'t[^a-zA-Z]|\w+|[^a-zA-Z]+', text)
-        else:
-            chunks = text.split()
-    except ValueError:
-        return [0]
-
-    error_collect = []
-    result = process_chunks(chunks, method, crumbs, error_collect)
-    return result
-
-syllable_count(input('Enter your text: '))
