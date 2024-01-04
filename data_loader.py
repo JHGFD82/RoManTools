@@ -1,6 +1,8 @@
 import numpy as np
+import csv
 from typing import Tuple, List
-from config import PINYIN_DATA_FILE, WADEGILES_DATA_FILE, STOPWORDS_FILE
+from config import (PINYIN_DATA_FILE, WADEGILES_DATA_FILE, STOPWORDS_FILE, PINYIN_WADEGILES_CONVERSION_FILE,
+                    WADEGILES_PINYIN_CONVERSION_FILE)
 
 
 def load_csv_data(file_path: str) -> np.ndarray:
@@ -36,6 +38,35 @@ def prepare_reference_data(csv_data: np.ndarray) -> Tuple[List[str], List[str], 
     fin_list = list(csv_data[0, 1:])
     array: np.ndarray = csv_data[1:, 1:] == '1'
     return init_list, fin_list, array
+
+
+def load_conversion_map(conversion_type: str) -> dict:
+    """
+    Loads a conversion map from a specified CSV file.
+
+    Parameters:
+        conversion_type (str): The type of conversion map to load (e.g., 'PYWG' or 'WGPY').
+
+    Returns:
+        dict: A dictionary with the conversion map.
+    """
+    file_paths = {
+        'PYWG': PINYIN_WADEGILES_CONVERSION_FILE,
+        'WGPY': WADEGILES_PINYIN_CONVERSION_FILE
+    }
+
+    file_path = file_paths.get(conversion_type)
+    if not file_path:
+        raise ValueError(f"Invalid conversion type: {conversion_type}")
+
+    conversion_map = {}
+    with open(file_path, 'r', encoding='utf-8') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            if len(row) == 2:
+                source_syllable, target_syllable = row
+                conversion_map[source_syllable] = target_syllable
+    return conversion_map
 
 
 def load_stopwords(file_path: str) -> List[str]:
