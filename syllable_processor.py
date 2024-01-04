@@ -34,61 +34,71 @@ def find_initial(text: str, init_list: list) -> dict:
         return result
 
 
-def find_final(text: str, fin_list: list) -> dict:
+def find_final(text: str, fin_list: list, syllable_validator) -> str:
     """
-    Identify the final of the syllable.
+    Identify the final part of the syllable, handling special cases and exceptions.
 
     Parameters:
-        text (str): The text to analyze for final.
+        text (str): The text to analyze for the final part.
         fin_list (list): The list of valid finals.
+        syllable_validator (function): Function to validate a syllable.
 
     Returns:
-        dict: Dictionary with final and possible error message.
+        str: The final part of the syllable.
     """
-    result = {}
-    vowel = ['a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ']  # Vowel list
+    final = ''
 
     for i, c in enumerate(text):
-        if c in vowel and i + 1 == len(text):
-            result.update({'final': text})
-            return result
-        elif c in vowel and i > 0:
-            test_finals = [f_item for f_item in fin_list if f_item.startswith(text[:i + 1])]
-            if not any(test_finals):
-                result.update({'final': text[:i], 'error': f'{text[:i]}: invalid final'})
-                return result
-        elif c not in vowel:
+        if c in vowel:
+            if i + 1 == len(text):  # Ending vowel
+                final = text
+                break
 
-            # EXCEPTIONS #
-            # reference variable to identify end of text
+            # Check for valid multi-vowel combinations
+            elif i > 0:
+                test_finals = [f_item for f_item in fin_list if f_item.startswith(text[:i + 1])]
+                if not any(syllable_validator(text[:i + 1], f_item) for f_item in test_finals):
+                    final = text[:i]
+                    break
+
+        else:  # Consonant
             remainder = len(text) - i - 1
 
-            # er, erh #
-            # if syllable before "er", return it, else return "er"
-            if (text[i - 1:i + 1] == 'er' and
-                    (not remainder or text[i + 1] not in vowel)):
+            # Handle 'er', 'erh'
+            if text[i - 1:i + 1] == 'er' and (not remainder or text[i + 1] not in vowel):
                 final = text[:-2] if len(text[:i]) > 1 else text[:i - 1]
 
-            # n, ng #
+            # Handle 'n', 'ng'
             elif c == 'n':
-                # if there's potential text for final or an invalid "n" final, return "ng", else return "n"
-                if remainder and text[i + 1] == 'g':
-                    kwargs.update({'final': text[:i + 1]})
-                    final = text[:i + 2] if (remainder < 2 or text[i + 2] not in vowel or
-                                             not Syllable(**kwargs).valid) else text[:i + 1]
-
-                # if there's potential text for final or an invalid final without "n", return "n"
+                if remainder and text[i + 1] == 'g' and not syllable_validator(text, text[:i + 2]):
+                    final = text[:i + 2]
                 else:
-                    kwargs.update({'final': text[:i]})
-                    final = text[:i + 1] if (not remainder or text[i + 1] not in vowel or
-                                             not Syllable(**kwargs).valid) else text[:i]
+                    final = text[:i + 1] if not remainder or text[i + 1] not in vowel else text[:i]
 
-            # stop at all other consonants
-            else:
+            else:  # Other consonants
                 final = text[:i]
 
-            result.update({'final': final})
+            break
 
-    return result
+    return final
 
-# Additional functionalities specific to syllable processing can be added here
+
+def split_syllable(text: str, init_list: list, fin_list: list) -> tuple:
+    """
+    Splits a given syllable into its initial and final parts using find_initial and find_final.
+
+    Parameters:
+        text (str): The syllable to split.
+        init_list (list): List of valid initials.
+        fin_list (list): List of valid finals.
+
+    Returns:
+        tuple: The initial and final parts of the syllable.
+    """
+    initial_result = find_initial(text, init_list=init_list)
+    final_result = find_final(text, fin_list=fin_list)
+
+    initial = initial_result.get('initial', '')
+    final = final_result.get('final', '')
+
+    return initial, final
