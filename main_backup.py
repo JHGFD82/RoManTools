@@ -2,15 +2,18 @@
 import csv
 import re
 import numpy as np
+import os
+
+current_directory = os.path.dirname(os.path.abspath(__file__))
 
 # REFERENCE DATA #
 # List of Pinyin initials, finals
-PY = np.genfromtxt('data/pinyinDF.csv', delimiter=',', dtype=str)
+PY = np.genfromtxt(os.path.join(current_directory, 'data/pinyinDF.csv'), delimiter=',', dtype=str)
 PY_init_list = list(PY[1:, 0])
 PY_fin_list = list(PY[0, 1:])
 
 # List of Wade-Giles initials, finals
-WG = np.genfromtxt('data/wadegilesDF.csv', delimiter=',', dtype=str)
+WG = np.genfromtxt(os.path.join(current_directory, 'data/wadegilesDF.csv'), delimiter=',', dtype=str)
 WG_init_list = list(WG[1:, 0])
 WG_fin_list = list(WG[0, 1:])
 
@@ -19,7 +22,7 @@ PY_ar = PY[1:, 1:] == '1'
 WG_ar = WG[1:, 1:] == '1'
 
 # Import stopwords from text file (stopword-generation process detailed in section 5)
-with open('data/stopwords.txt', 'r') as f:
+with open(os.path.join(current_directory, 'data/stopwords.txt'), 'r') as f:
     stopwords = f.read().splitlines()
 
 # REFERENCE VARIABLES #
@@ -128,7 +131,7 @@ def convert_romanization(text, method):
     if method not in accepted_methods:
         return text + '(!)'
 
-    source_file = 'data/' + f'{method}.csv'
+    source_file = os.path.join(current_directory, 'data/' + f'{method}.csv')
 
     with open(source_file) as file:
         r = csv.reader(file)
