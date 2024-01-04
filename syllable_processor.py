@@ -1,3 +1,8 @@
+from syllable import Syllable
+
+vowel = ['a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ']  # Vowel list
+
+
 def find_initial(text: str, init_list: list) -> dict:
     """
     Identify the initial of the syllable.
@@ -11,8 +16,6 @@ def find_initial(text: str, init_list: list) -> dict:
     """
     initial = ''
     result = {}
-
-    vowel = ['a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ']  # Vowel list
 
     for i, c in enumerate(text):
         if c in vowel:
