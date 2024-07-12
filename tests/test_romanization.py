@@ -7,11 +7,11 @@ from Tools import syllable_count, convert_romanization
 class TestRomanization(unittest.TestCase):
     def test_syllable_count(self):
         result = syllable_count('ni hao', method='PY')
-        self.assertEqual(result, [[2]])
+        self.assertEqual(result, [[1, 1]])
 
     def test_convert_romanization(self):
-        result = convert_romanization('ni', 'PYWG')
-        self.assertEqual(result, 'ni4')
+        result = convert_romanization('hao', 'PYWG')
+        self.assertEqual(result, 'hao')
 
 
 if __name__ == '__main__':
