@@ -1,7 +1,7 @@
 # tests/test_romanization.py
 
 import unittest
-from romanization import syllable_count, convert_romanization
+from Tools import syllable_count, convert_romanization
 
 
 class TestRomanization(unittest.TestCase):
