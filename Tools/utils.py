@@ -4,6 +4,8 @@ import re
 import os
 from .syllable import Syllable, find_initial, find_final
 from .conversion import convert_romanization
+from .data_loader import load_romanization_data, load_stopwords
+
 
 def syllable_count(text, skip_count=False, method='PY', method_report=False,
                    crumbs=False, error_skip=False, error_report=False,
@@ -15,6 +17,18 @@ def syllable_count(text, skip_count=False, method='PY', method_report=False,
     method = 'pinyinDF' if method == 'PY' else 'wadegilesDF'
 
     init_list, fin_list, ar = load_romanization_data(os.path.join(base_path, 'data', f'{method}.csv'))
+
+    method_params = {
+        'method': method,
+        'init_list': init_list,
+        'fin_list': fin_list,
+        'ar': ar
+    }
+
+    result = []
+    words = []
+    error_collect = []
+
     try:
         if cherry_pick:
             chunks = re.findall(r'\'s[^a-zA-Z]|\'t[^a-zA-Z]|[\w]+|[^a-zA-Z]+', text)
@@ -22,11 +36,6 @@ def syllable_count(text, skip_count=False, method='PY', method_report=False,
             chunks = text.split()
     except ValueError:
         return [0]
-
-
-    result = []
-    words = []
-    error_collect = []
 
     for chunk in chunks:
         syls = []
