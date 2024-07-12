@@ -1,6 +1,6 @@
 import argparse
 from data_loader import load_csv_data, prepare_reference_data, load_stopwords
-from syllable_processor import find_initial, find_final
+from syllable_processor import find_initial, find_final, split_syllable
 from text_processor import convert_romanization, syllable_count
 from utils import clean_text, log_error, display_options
 import config
@@ -32,14 +32,29 @@ def main():
 
 def run_interactive_mode():
     print("Interactive Mode")
-    # Implement the interactive mode logic
-    # This could involve prompting the user for input, displaying results, etc.
+    while True:
+        user_input = input("Enter a syllable to process (or 'exit' to quit): ")
+        if user_input.lower() == 'exit':
+            break
+
+        # Process the user input here (e.g., identify initials and finals, convert syllables)
+        # For example:
+        initial, final = split_syllable(user_input, init_list, fin_list)
+        print(f"Initial: {initial}, Final: {final}")
+
+        # Depending on your application's functionality, add additional processing and output here
 
 
-def run_batch_mode():
+def run_batch_mode(input_file: str, output_file: str):
     print("Batch Mode")
-    # Implement the batch processing logic
-    # This could involve reading from files, processing in bulk, etc.
+    with open(input_file, 'r') as infile, open(output_file, 'w') as outfile:
+        for line in infile:
+            # Process each line (which could contain one or more syllables)
+            # For example, split syllables, convert them, etc.
+            processed_line = process_line(line)  # process_line is a hypothetical function
+            outfile.write(processed_line + '\n')
+
+    print(f"Processing complete. Output saved to {output_file}")
 
 
 if __name__ == "__main__":

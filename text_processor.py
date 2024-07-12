@@ -55,18 +55,27 @@ def syllable_count(text: str, method: str = 'PY', convert: bool = False, error_r
     syllables = re.findall(r'[a-zA-ZüÜ]+', text)  # Regex to split text into syllables
     valid_syllable_count = 0
     errors = []
+    result = []
 
     for syl_text in syllables:
         # Splitting the syllable into initial and final might require a separate function or logic
-        initial, final = split_syllable(syl_text)  # Assuming this function exists
+        initial, final = split_syllable(syl_text, init_list, fin_list)  # Assuming this function exists
         syllable = Syllable(initial, final, init_list, fin_list, ar)
 
         if syllable.valid:
             valid_syllable_count += 1
             if convert:
-                # Convert the syllable if conversion is required
-                # Assuming conversion function and logic exist
-                syl_text = convert_romanization(syl_text, method)
+                converted_string = ''
+                for word in words:
+                    adjusted_word = ''.join(syl.full_syl for syl in word)
+                    valid_word = all(syl.valid for syl in word)
+                    if valid_word and adjusted_word not in stopwords:
+                        adjusted_word = ('-'.join(convert_romanization(syl.full_syl, convert)
+                                                  for syl in word))
+                    converted_string += (adjusted_word.capitalize()
+                                         if 'cap' in word[0].__dict__ else adjusted_word)
+
+                result.append(converted_string.strip())
         else:
             if error_report:
                 errors.append(f"Invalid syllable: {syl_text}")

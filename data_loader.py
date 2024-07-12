@@ -21,7 +21,7 @@ def load_csv_data(file_path: str) -> np.ndarray:
         raise FileNotFoundError(f"File not found: {file_path}")
 
 
-def prepare_reference_data(csv_data: np.ndarray) -> Tuple[List[str], List[str], np.ndarray]:
+def prepare_reference_data(csv_data: np.ndarray) -> Tuple[List[str], List[str], np.ndarray | bool]:
     """
     Prepare reference data from a CSV file.
 
@@ -36,7 +36,7 @@ def prepare_reference_data(csv_data: np.ndarray) -> Tuple[List[str], List[str], 
     """
     init_list = list(csv_data[1:, 0])
     fin_list = list(csv_data[0, 1:])
-    array: np.ndarray = csv_data[1:, 1:] == '1'
+    array = csv_data[1:, 1:] == '1'
     return init_list, fin_list, array
 
 

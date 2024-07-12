@@ -77,11 +77,11 @@ def find_final(text, **kwargs):
 
         # if more than one vowel, detect invalid multi-vowel, check if valid syllable
         elif c in vowel and i > 0:
-            test_syls = []
-            for f_item in list(l for l in kwargs['fin_list'] if l.startswith(text[:i + 1])):
+            test_syllables = []
+            for f_item in list(mul for mul in kwargs['fin_list'] if mul.startswith(text[:i + 1])):
                 kwargs.update({'final': f_item})
-                test_syls.append(Syllable(**kwargs).valid)
-            if True not in test_syls:
+                test_syllables.append(Syllable(**kwargs).valid)
+            if True not in test_syllables:
                 result.update({'final': text[:i]})
                 return result
 
@@ -153,6 +153,7 @@ class Syllable:
         self.full_syl = (self.initial + self.final if self.initial[0] != 'ø'
                          else self.initial[1:] + self.final)
         self.length = len(self.full_syl)
+        self.cap = False
 
         # SYLLABLE VALIDATION #
         try:
@@ -188,7 +189,7 @@ def syllable_count(text, skip_count=False, method='PY', method_report=False,
 
     try:
         if cherry_pick:
-            chunks = re.findall(r'\'s[^a-zA-Z]|\'t[^a-zA-Z]|[\w]+|[^a-zA-Z]+', text)
+            chunks = re.findall(r'\'s[^a-zA-Z]|\'t[^a-zA-Z]|\w+|[^a-zA-Z]+', text)
         else:
             chunks = text.split()
     except ValueError:
@@ -208,7 +209,7 @@ def syllable_count(text, skip_count=False, method='PY', method_report=False,
     for chunk in chunks:
 
         # FUNCTION VARIABLES #
-        syls = []
+        syllables = []
         more_text = True
         next_syl_start = 0
         syl_index = -1
@@ -236,38 +237,38 @@ def syllable_count(text, skip_count=False, method='PY', method_report=False,
                 final_len = len(syl_parts['final'])
 
             # Append syllable list with syllable object using found parts
-            syls.append(Syllable(**syl_parts))
+            syllables.append(Syllable(**syl_parts))
 
             # Set capitalization attribute for first syllable
             if is_cap and syl_index < 1:
-                syls[syl_index].cap = True
+                syllables[syl_index].cap = True
 
             # Set next syl starting point for reference
             next_syl_start += initial_len + final_len
 
             # If syllable not valid, set correct error message, set remaining text to new syllable,
             # otherwise check if there is more text
-            if not syls[syl_index].valid:
+            if not syllables[syl_index].valid:
                 if not error_found:
-                    error_found = 'invalid syllable: ' + syls[syl_index].full_syl
+                    error_found = 'invalid syllable: ' + syllables[syl_index].full_syl
                 if len(chunk[next_syl_start:]) > 0:
                     syl_parts.update({'initial': chunk[next_syl_start:], 'final': ''})
-                    syls.append(Syllable(**syl_parts))
+                    syllables.append(Syllable(**syl_parts))
             else:
                 if len(chunk[next_syl_start:]) < 1:
                     more_text = False
 
         # Append syllable list to word list
-        words.append(syls)
+        words.append(syllables)
 
         # REPORTING/ERRORS #
         # Print all processing steps and errors, return 0 if skipping parameter not set
         if crumbs:
-            for syl in syls:
+            for syl in syllables:
                 print(syl.initial + ' [initial]' + '\n' +
                       syl.initial + '|' + syl.final + ' [final]' + '\n' +
                       syl.full_syl + ' valid: ' + str(syl.valid))
-            (print(chunk + ' syllable count: ' + str(len(syls)))
+            (print(chunk + ' syllable count: ' + str(len(syllables)))
              if not error_found else print(error_found))
             print('-----------')
 

@@ -34,7 +34,7 @@ def find_initial(text: str, init_list: list) -> dict:
         return result
 
 
-def find_final(text: str, fin_list: list, syllable_validator) -> str:
+def find_final(text: str, fin_list: list) -> str:
     """
     Identify the final part of the syllable, handling special cases and exceptions.
 
@@ -57,7 +57,7 @@ def find_final(text: str, fin_list: list, syllable_validator) -> str:
             # Check for valid multi-vowel combinations
             elif i > 0:
                 test_finals = [f_item for f_item in fin_list if f_item.startswith(text[:i + 1])]
-                if not any(syllable_validator(text[:i + 1], f_item) for f_item in test_finals):
+                if not any(Syllable.validate_syllable(text[:i + 1], f_item) for f_item in test_finals):
                     final = text[:i]
                     break
 
@@ -70,7 +70,7 @@ def find_final(text: str, fin_list: list, syllable_validator) -> str:
 
             # Handle 'n', 'ng'
             elif c == 'n':
-                if remainder and text[i + 1] == 'g' and not syllable_validator(text, text[:i + 2]):
+                if remainder and text[i + 1] == 'g' and not (text, text[:i + 2]):
                     final = text[:i + 2]
                 else:
                     final = text[:i + 1] if not remainder or text[i + 1] not in vowel else text[:i]
