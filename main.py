@@ -2,7 +2,7 @@
 
 import argparse
 from Tools.utils import syllable_count, convert_romanization
-from Tools.data_loader import load_pinyin_data, load_wadegiles_data, load_stopwords
+from Tools.data_loader import load_romanization_data, load_wadegiles_data, load_stopwords
 
 
 def main():
