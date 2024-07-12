@@ -61,7 +61,7 @@ def find_final(text, **kwargs):
 
         elif c not in vowel:
             remainder = len(text) - i - 1
-            if (text[i - 1:i + 1] == 'er' and (not remainder or text[i + 1] not in vowel)):
+            if text[i - 1:i + 1] == 'er' and (not remainder or text[i + 1] not in vowel):
                 final = text[:-2] if len(text[:i]) > 1 else text[:i - 1]
             elif c == 'n':
                 if remainder and text[i + 1] == 'g':
