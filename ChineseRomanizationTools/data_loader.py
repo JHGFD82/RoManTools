@@ -2,6 +2,7 @@
 
 import numpy as np
 
+
 def load_pinyin_data(file_path):
     data = np.genfromtxt(file_path, delimiter=',', dtype=str)
     init_list = list(data[1:, 0])

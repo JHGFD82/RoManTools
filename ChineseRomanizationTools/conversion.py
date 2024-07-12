@@ -2,6 +2,7 @@
 
 import csv
 
+
 def convert_romanization(text, method):
     accepted_methods = ['PYWG', 'WGPY']
 

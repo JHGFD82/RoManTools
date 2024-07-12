@@ -4,6 +4,7 @@ import numpy as np
 
 vowel = ['a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ']
 
+
 class Syllable:
     def __init__(self, **kwargs):
         self.initial = kwargs['initial']
