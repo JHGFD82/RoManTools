@@ -14,7 +14,7 @@ class Syllable:
 
         try:
             result = kwargs['ar'][kwargs['init_list'].index(self.initial),
-                                  kwargs['fin_list'].index(self.final)]
+            kwargs['fin_list'].index(self.final)]
         except ValueError:
             self.valid = False
         else:
