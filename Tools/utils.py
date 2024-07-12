@@ -1,6 +1,7 @@
 # utils.py
 
 import re
+import os
 from .syllable import Syllable, find_initial, find_final
 from .conversion import convert_romanization
 
@@ -9,6 +10,11 @@ def syllable_count(text, skip_count=False, method='PY', method_report=False,
                    convert='', cherry_pick=False):
     print('# Analyzing ' + text + ' #') if crumbs else ''
 
+    base_path = os.path.dirname(__file__)
+
+    method = 'pinyinDF' if method == 'PY' else 'wadegilesDF'
+
+    init_list, fin_list, ar = load_romanization_data(os.path.join(base_path, 'data', f'{method}.csv'))
     try:
         if cherry_pick:
             chunks = re.findall(r'\'s[^a-zA-Z]|\'t[^a-zA-Z]|[\w]+|[^a-zA-Z]+', text)
@@ -17,9 +23,6 @@ def syllable_count(text, skip_count=False, method='PY', method_report=False,
     except ValueError:
         return [0]
 
-    method_values = {'PY': ('PY', PY_init_list, PY_fin_list, PY_ar),
-                     'WG': ('WG', WG_init_list, WG_fin_list, WG_ar)}
-    method_params = dict(zip(['method', 'init_list', 'fin_list', 'ar'], method_values[method]))
 
     result = []
     words = []

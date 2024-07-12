@@ -1,6 +1,7 @@
 # conversion.py
 
 import csv
+import os
 
 
 def convert_romanization(text, method):
@@ -9,7 +10,8 @@ def convert_romanization(text, method):
     if method not in accepted_methods:
         return text + '(!)'
 
-    source_file = 'data/' + f'{method}.csv'
+    base_path = os.path.dirname(__file__)
+    source_file = os.path.join(base_path, 'data', f'{method}.csv')
 
     with open(source_file) as file:
         r = csv.reader(file)
