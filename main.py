@@ -1,8 +1,8 @@
 # main.py
 
 import argparse
-from Tools.utils import syllable_count, convert_romanization
-from Tools.data_loader import load_romanization_data, load_wadegiles_data, load_stopwords
+from Tools.utils import syllable_count
+from Tools.conversion import RomanizationConverter
 
 
 def main():
@@ -42,7 +42,8 @@ def main():
         if not args.convert:
             print("Error: Conversion method (--convert) is required for the convert action.")
         else:
-            result = convert_romanization(args.text, args.convert)
+            converter = RomanizationConverter()  # Initialize only when needed
+            result = converter.convert(args.text, args.convert)
             print(result)
 
 
