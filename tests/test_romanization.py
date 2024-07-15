@@ -1,7 +1,7 @@
 # tests/test_romanization.py
 
 import unittest
-from Tools import syllable_count, convert_romanization
+from Tools import syllable_count, RomanizationConverter
 from io import StringIO
 from unittest.mock import patch
 
@@ -28,8 +28,9 @@ class TestRomanization(unittest.TestCase):
         self.assertEqual(mock_stdout.getvalue(), expected_output)
 
     def test_convert_romanization(self):
-        result = convert_romanization('hao', 'PYWG')
-        self.assertEqual(result, 'hao')
+        converter = RomanizationConverter()  # Initialize only when needed
+        result = converter.convert('chang', 'PYWG')
+        self.assertEqual(result, 'ch’ang')
 
 
 if __name__ == '__main__':

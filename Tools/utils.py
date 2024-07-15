@@ -3,7 +3,7 @@
 import re
 import os
 from .syllable import Syllable, find_initial, find_final
-from .conversion import convert_romanization
+from .conversion import RomanizationConverter
 from .data_loader import load_romanization_data, load_stopwords
 base_path = os.path.dirname(__file__)
 
