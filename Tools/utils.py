@@ -147,6 +147,6 @@ def convert_words(words, convert, converter):
         if 'cap' in word[0].__dict__:
             adjusted_word = adjusted_word.capitalize()
 
-        converted_string += adjusted_word
+        converted_words.append(adjusted_word)
 
-    return converted_string.strip()
+    return ' '.join(converted_words)
