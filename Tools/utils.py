@@ -83,59 +83,59 @@ def _print_crumbs(syls, chunk, error_found):
     print('-----------')
 
 
-def syllable_count(config):
-    if config['crumbs']:
-        print(f'# Analyzing {config["text"]} #')
+def syllable_count(text, skip_count=False, method='PY', method_report=False, crumbs=False,
+                   error_skip=False, error_report=False, convert='', cherry_pick=False):
+    if crumbs:
+        print(f'# Analyzing {text} #')
 
-    method_params = get_method_params(config['method'])
-    error_collect = []
+    method_params = get_method_params(method)
 
-    words, error_collect = process_chunks(config, method_params)
+    words, error_collect = process_chunks(text, method_params, cherry_pick, error_skip, error_report, crumbs)
 
-    result = compile_results(words, error_collect, config)
+    result = compile_results(words, error_collect, method, skip_count, method_report, error_report)
 
-    if config.get('convert'):
+    if convert:
         converter = RomanizationConverter()  # Initialize only when needed
-        result.append(convert_words(words, config['convert'], converter))
+        result.append(convert_words(words, convert, converter))
 
     return result
 
 
-def process_chunks(config, method_params):
-    chunks = split_text_into_chunks(config['text'], config.get['cherry_pick'])
+def process_chunks(text, method_params, cherry_pick, error_skip, error_report, crumbs):
+    chunks = split_text_into_chunks(text, cherry_pick)
     words = []
     error_collect = []
 
     for chunk in chunks:
-        syls, error_found, words = analyze_chunk(chunk, method_params, words, config['crumbs'])
+        syls, error_found, words = analyze_chunk(chunk, method_params, words, crumbs)
 
         if error_found:
-            if not config.get('error_skip'):
+            if not error_skip:
                 return [], [0]
-            if config.get('error_report'):
+            if error_report:
                 error_collect.append(error_found)
 
     return words, error_collect
 
 
-def compile_results(words, error_collect, config):
+def compile_results(words, error_collect, method, skip_count, method_report, error_report):
     result = []
 
-    if not config.get('skip_count'):
+    if not skip_count:
         result.append([len(w) for w in words if all(s.valid for s in w)])
 
-    if config.get('error_report') and error_collect:
+    if error_report and error_collect:
         result.append(error_collect)
 
-    if config.get('method_report'):
-        result.append('Pinyin' if config['method'] == 'PY' else 'Wade-Giles')
+    if method_report:
+        result.append('Pinyin' if method == 'PY' else 'Wade-Giles')
 
     return result
 
 
 def convert_words(words, convert, converter):
     stopwords = load_stopwords(os.path.join(base_path, 'data', 'stopwords.txt'))
-    converted_string = ''
+    converted_words = []
 
     for word in words:
         adjusted_word = ''.join(syl.full_syl for syl in word)
