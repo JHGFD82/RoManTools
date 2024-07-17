@@ -24,18 +24,10 @@ def main():
 
     args = parser.parse_args()
 
+    config = vars(args)  # Convert argparse Namespace to dictionary
+
     if args.action == 'count_syllables':
-        result = syllable_count(
-            text=args.text,
-            skip_count=args.skip_count,
-            method=args.method,
-            method_report=args.method_report,
-            crumbs=args.crumbs,
-            error_skip=args.error_skip,
-            error_report=args.error_report,
-            convert=args.convert,
-            cherry_pick=args.cherry_pick
-        )
+        result = syllable_count(config)
         print(result)
 
     elif args.action == 'convert':
