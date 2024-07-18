@@ -25,11 +25,11 @@ def get_method_params(method: str) -> dict:
 def split_text_into_chunks(text: str, cherry_pick: bool = False) -> list:
     try:
         if cherry_pick:
-            return re.findall(r'\'s[^a-zA-Z]|\'t[^a-zA-Z]|\w+|[^a-zA-Z]+', text)
+            return re.findall(r'\'s(?=[^a-zA-Z\s])|\'t(?=[^a-zA-Z\s])|\'|\w+|[^a-zA-Z\s\']+', text)
         else:
             return text.split()
     except ValueError:
-        return []
+        return [0]
 
 
 def analyze_chunk(chunk: str, method_params: dict, words: list, crumbs: bool) -> tuple[list[Syllable], str, list]:
@@ -103,6 +103,7 @@ def syllable_count(text, skip_count=False, method='PY', method_report=False, cru
 
 def process_chunks(text, method_params, cherry_pick, error_skip, error_report, crumbs):
     chunks = split_text_into_chunks(text, cherry_pick)
+    print(chunks)
     words = []
     error_collect = []
 
