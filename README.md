@@ -1,13 +1,22 @@
-# PinyinWGConvert (to be renamed)
-
-## Origin
-This project is an attempt to reproduce the syllable_count function used in conjunction with the Tang History Database, helmed by Anna Shields, Professor of East Asian Studies, Princeton University. The eventual goal is to package the process of syllable analysis and make it publicly available as a Python package. This code originally appears as a Jupyter Notebook, with additional drafting notes in a separate project.
+# RoManTools - Romanized Mandarin Tools
+This package comprises a set of tools designed to facilitate the handling of large datasets of romanized Mandarin text. It is currently under active development by Jeff Heller, Digital Project Specialist for the Department of East Asian Studies at Princeton University.
 
 ## Features
-The main function analyzed romanized Chinese text and compared the number of syllables to supplied Chinese text. The original goal was to validate text entry of names of Chinese figures during the Tang dynasty. With time, more features were included such as error catching, detection of romanization systems Pinyin and Wade-Giles, and translation between both systems individually and within English text.
+The primary function analyzed romanized Mandarin text by comparing the syllable count to the provided Chinese text. Initially, the goal was to validate the text entry of names of figures from the Tang dynasty. Over time, additional features were incorporated, including error handling, detection of Pinyin and Wade-Giles romanization systems, and translation between these systems, both individually and within English text.
 
-## Goals
-1. Translate Jupyter Notebook code into modules.
-2. Verify working order of all original features.
-3. Make publicly available.
-4. Field requests from community for more features.
+---
+## Features Planned for Version 1.0
+
+Version 1.0 of this project will include the following features:
+
+- **Conversion between Romanization Standards**: Support for converting between Pinyin and Wade-Giles (with Yale and additional standards to be added in future versions).
+- **Cherry Pick**: Converts only identified romanized Chinese terms, excluding any English words or those in a stopword list.
+- **Tone Mark**: Converts various types of tone markings.
+- **Pronunciation**: Converts text into the International Phonetic Alphabet (IPA) standard.
+- **Text Segmentation**: Segments text into meaningful chunks, a feature that will be utilized by other actions and also available for direct use by the user.
+- **Syllable Count**: Counts the number of syllables per word and provides a report to the user.
+- **Method Detect**: Identifies the romanization standard used in the input text and returns the detected standard(s) to the user as either a single standard or a list of multiple standards.
+---
+
+## Origin
+This project originated as the `syllable_count` function developed for use with the Tang History Database, led by Professor Anna Shields of the Department of East Asian Studies at Princeton University. The primary objective was to validate user input of romanized Mandarin, facilitating the incorporation of names from Harvard's Chinese Biographical Database (CBDB), under the direction of Professors Peter Bol and Michael Fuller, into our database.
