@@ -8,26 +8,44 @@ def main():
 
     # REQUIRED PARAMETERS
 
-    parser.add_argument('text', type=str, help='Text to process')
-    parser.add_argument('action', choices=['count_syllables', 'convert', 'convert_between'], help='Action to perform')
+    parser.add_argument('text', type=str,
+                        help='Text to process')
+    parser.add_argument('action', choices=[
+        'convert',
+        'cherry_pick',
+        'tone_mark',
+        'pronunciation',
+        'segment',
+        'syllable_count',
+        'detect_method'
+    ], help='Action to perform')
 
     # TOOL SELECTION PARAMETERS
 
-    parser.add_argument('--skip_count', action='store_true', help='Skip counting syllables')
-    parser.add_argument('--method_report', action='store_true', help='Report the romanization method in the output')
-    parser.add_argument('--cherry_pick', type=str, choices=['pinyin', 'wade-giles', 'yale'], help='Convert only identified, valid syllables (enables --error_skip)')
+    parser.add_argument('--method_report', action='store_true',
+                        help='Report the romanization method in the output')
+    parser.add_argument('--cherry_pick', type=str, choices=['pinyin', 'wade-giles'],
+                        help='Convert only identified, valid syllables (enables --error_skip)')
+    parser.add_argument('--tone_mark', type=str, choices=['numeric', 'marked'],
+                        help='Convert tone markings from either the numeric or Unicode standard')
 
     # CONDITIONAL PARAMETERS
 
-    parser.add_argument('--method', type=str, choices=['pinyin', 'wade-giles', 'yale'], help='Romanization method (default: Pinyin)')
-    parser.add_argument('--from_method', type=str, choices=['pinyin', 'wade-giles', 'yale'], help='Source romanization method (required for convert_between)')
-    parser.add_argument('--to_method', type=str, choices=['pinyin', 'wade-giles', 'yale'], help='Target romanization method (required for convert_between)')
+    parser.add_argument('--method', type=str, choices=['pinyin', 'wade-giles'], defaulty='pinyin',
+                        help='Romanization method (default: Pinyin)')
+    parser.add_argument('--from_method', type=str, choices=['pinyin', 'wade-giles'],
+                        help='Source romanization method (required for convert_between)')
+    parser.add_argument('--to_method', type=str, choices=['pinyin', 'wade-giles'],
+                        help='Target romanization method (required for convert_between)')
 
     # OPTIONAL DEBUG PARAMETERS
 
-    parser.add_argument('--crumbs', action='store_true', help='Include step-by-step analysis in the output')
-    parser.add_argument('--error_skip', action='store_true', help='Skip errors instead of aborting (default: True if --cherry_pick is used)')
-    parser.add_argument('--error_report', action='store_true', help='Include error messages in the output')
+    parser.add_argument('--crumbs', action='store_true',
+                        help='Include step-by-step analysis in the output')
+    parser.add_argument('--error_skip', action='store_true',
+                        help='Skip errors instead of aborting (default: True if --cherry_pick is used)')
+    parser.add_argument('--error_report', action='store_true',
+                        help='Include error messages in the output')
 
     args = parser.parse_args()
 
