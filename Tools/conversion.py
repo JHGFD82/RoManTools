@@ -3,31 +3,30 @@ import csv
 
 
 class RomanizationConverter:
-    def __init__(self):
+    def __init__(self, method):
         self.conversion_dicts = {}
-        self.load_conversion_data()
+        self.load_conversion_data(method)
 
-    def load_conversion_data(self):
+    def load_conversion_data(self, method):
         base_path = os.path.dirname(__file__)
         accepted_methods = ['py_wg', 'wg_py']
-        for method in accepted_methods:
+        if method in accepted_methods:
             source_file = os.path.join(base_path, 'data', f'{method}.csv')
             with open(source_file) as file:
                 r = csv.reader(file)
-                self.conversion_dicts[method] = {rows[0]: rows[1] for rows in r}
+                self.conversion_dicts = {rows[0]: rows[1] for rows in r}
+        else:
+            raise ValueError(f'Method {method} not supported.')
 
-    def convert(self, text: str, method: str) -> str:
+    def convert(self, text: str) -> str:
         """
         Converts text from one romanization method to another.
 
         Args:
             text (str): The text to be converted.
-            method (str): The romanization method to convert to. Accepted methods are 'py_wg' and 'wg_py'.
 
         Returns:
             str: The converted text, if the method is valid. Otherwise, the original text with '(!)' appended.
         """
-        if method not in self.conversion_dicts:
-            return text + '(!)'
 
-        return self.conversion_dicts[method].get(text, text + '(!)')
+        return self.conversion_dicts.get(text, text + '(!)')
