@@ -9,7 +9,7 @@ class RomanizationConverter:
 
     def load_conversion_data(self):
         base_path = os.path.dirname(__file__)
-        accepted_methods = ['PYWG', 'WGPY']
+        accepted_methods = ['py_wg', 'wg_py']
         for method in accepted_methods:
             source_file = os.path.join(base_path, 'data', f'{method}.csv')
             with open(source_file) as file:
@@ -22,7 +22,7 @@ class RomanizationConverter:
 
         Args:
             text (str): The text to be converted.
-            method (str): The romanization method to convert to. Accepted methods are 'PYWG' and 'WGPY'.
+            method (str): The romanization method to convert to. Accepted methods are 'py_wg' and 'wg_py'.
 
         Returns:
             str: The converted text, if the method is valid. Otherwise, the original text with '(!)' appended.
