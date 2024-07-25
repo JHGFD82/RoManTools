@@ -71,8 +71,8 @@ def main():
         if not args.convert_from or not args.convert_to:
             parser.error("--convert_from and --convert_to are required for convert action")
         method_combination = f"{args.convert_from}_{args.convert_to}"
-        converter = RomanizationConverter()
-        result = converter.convert(args.text, method_combination)
+        converter = RomanizationConverter(method_combination)
+        result = converter.convert(args.text)
         print(result)
 
     elif args.action == 'cherry_pick':
