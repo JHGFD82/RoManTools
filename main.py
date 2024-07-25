@@ -4,7 +4,7 @@ from Tools.conversion import RomanizationConverter
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Chinese Romanization Tools')
+    parser = argparse.ArgumentParser(description='RoManTools: Romanized Mandarin Tools')
 
     # REQUIRED PARAMETERS
 
