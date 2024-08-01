@@ -28,8 +28,8 @@ class TestRomanization(unittest.TestCase):
         self.assertEqual(mock_stdout.getvalue(), expected_output)
 
     def test_convert_romanization(self):
-        converter = RomanizationConverter()  # Initialize only when needed
-        result = converter.convert('chang', 'PYWG')
+        converter = RomanizationConverter('py_wg')  # Initialize only when needed
+        result = converter.convert('chang')
         self.assertEqual(result, 'ch’ang')
 
 

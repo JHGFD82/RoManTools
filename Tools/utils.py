@@ -95,7 +95,7 @@ def syllable_count(text, skip_count=False, method='PY', method_report=False, cru
     result = compile_results(words, error_collect, method, skip_count, method_report, error_report)
 
     if convert:
-        converter = RomanizationConverter()  # Initialize only when needed
+        converter = RomanizationConverter(convert)  # Initialize only when needed
         result.append(convert_words(words, convert, converter))
 
     return result
