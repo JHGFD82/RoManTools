@@ -64,22 +64,15 @@ def _print_crumbs(syls, chunk, error_found):
     print('-----------')
 
 
-def syllable_count(text, skip_count=False, method='PY', method_report=False, crumbs=False,
-                   error_skip=False, error_report=False, convert='', cherry_pick=False):
+def syllable_count(text, method='PY', crumbs=False, error_report=False):
     if crumbs:
         print(f'# Analyzing {text} #')
 
     method_params = get_method_params(method)
 
-    words, error_collect = process_chunks(text, method_params, cherry_pick, error_skip, error_report, crumbs)
     processor = TextChunkProcessor(text)
     chunks = processor.get_chunks()
 
-    result = compile_results(words, error_collect, method, skip_count, method_report, error_report)
-
-    if convert:
-        converter = RomanizationConverter(convert)  # Initialize only when needed
-        result.append(convert_words(words, convert, converter))
     result = count_syllables_in_text(chunks, **method_params)
 
     return result
@@ -89,15 +82,6 @@ def count_syllables_in_text(chunks, init_list, fin_list, ar):
 
     # Map chunks to syllables and validate them
     result = []
-
-    if not skip_count:
-        result.append([len(w) for w in words if all(s.valid for s in w)])
-
-    if error_report and error_collect:
-        result.append(error_collect)
-
-    if method_report:
-        result.append('Pinyin' if method == 'PY' else 'Wade-Giles')
     for chunk in chunks:
         if isinstance(chunk, list):  # Multi-syllable word
             words = []
