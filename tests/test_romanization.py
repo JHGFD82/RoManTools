@@ -1,7 +1,8 @@
 # tests/test_romanization.py
 
 import unittest
-from Tools import syllable_count, RomanizationConverter
+from Tools.utils import syllable_count
+from Tools.conversion import RomanizationConverter
 from io import StringIO
 from unittest.mock import patch
 
@@ -9,7 +10,7 @@ from unittest.mock import patch
 class TestRomanization(unittest.TestCase):
     def test_syllable_count(self):
         result = syllable_count('ni hao', method='PY')
-        self.assertEqual(result, [[1, 1]])
+        self.assertEqual(result, [1, 1])
 
     @patch('sys.stdout', new_callable=StringIO)
     def test_syllable_count_output(self, mock_stdout):

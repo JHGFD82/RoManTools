@@ -4,7 +4,7 @@ from __future__ import annotations
 import re
 import os
 
-from .syllable import Syllable, find_initial, find_final
+from .syllable import Syllable
 from .conversion import RomanizationConverter
 from .data_loader import load_romanization_data, load_stopwords
 
@@ -46,7 +46,6 @@ def get_method_params(method: str) -> dict:
     method = 'pinyinDF' if method == 'PY' else 'wadegilesDF'
     init_list, fin_list, ar = load_romanization_data(os.path.join(base_path, 'data', f'{method}.csv'))
     return {
-        'method': method,
         'init_list': init_list,
         'fin_list': fin_list,
         'ar': ar
