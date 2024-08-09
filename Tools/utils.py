@@ -11,6 +11,37 @@ from .data_loader import load_romanization_data, load_stopwords
 base_path = os.path.dirname(__file__)
 
 
+class TextChunkProcessor:
+    def __init__(self, text):
+        self.text = text
+        self.chunks = []
+        self.process_chunks()  # Automatically process chunks upon initialization
+
+    @staticmethod
+    def split_pinyin_word(word):
+        # Split word based on apostrophes or dashes
+        if re.search(r"[‘’'ʼ`\-–—]", word):  # Escape the hyphen here with a backslash
+            # Split the word at apostrophes or dashes
+            syllables = re.split(r"[‘’'ʼ`\-–—]", word)
+            return [syllable for syllable in syllables if syllable]  # Return list, removing any empty strings
+        else:
+            # If no split is needed, return the word as a string
+            return word
+
+    def process_chunks(self):
+        # Find all words, including those separated by apostrophes or dashes
+        pattern = r"[a-zA-ZüÜ]+(?:['’ʼ`\-–—][a-zA-ZüÜ]+)?"
+        words = re.findall(pattern, self.text)
+
+        # Process each word to either split or return as is
+        for word in words:
+            chunk = self.split_pinyin_word(word)
+            self.chunks.append(chunk)
+
+    def get_chunks(self):
+        return self.chunks
+
+
 def get_method_params(method: str) -> dict:
     method = 'pinyinDF' if method == 'PY' else 'wadegilesDF'
     init_list, fin_list, ar = load_romanization_data(os.path.join(base_path, 'data', f'{method}.csv'))
@@ -20,56 +51,6 @@ def get_method_params(method: str) -> dict:
         'fin_list': fin_list,
         'ar': ar
     }
-
-
-def split_text_into_chunks(text: str, cherry_pick: bool = False) -> list:
-    try:
-        if cherry_pick:
-            return re.findall(r'\'s(?=[^a-zA-Z\s])|\'t(?=[^a-zA-Z\s])|\'|\w+|[^a-zA-Z\s\']+', text)
-        else:
-            return text.split()
-    except ValueError:
-        return [0]
-
-
-def analyze_chunk(chunk: str, method_params: dict, words: list, crumbs: bool) -> tuple[list[Syllable], str, list]:
-    syls = []
-    next_syl_start = 0
-    chunk = chunk.lower()
-
-    while True:
-        next_syl_start, syl_parts, error_found = _get_next_syllable(chunk, next_syl_start, method_params)
-
-        if error_found:
-            break
-
-        syls.append(Syllable(**syl_parts))
-
-        if next_syl_start >= len(chunk):
-            break
-
-    words.append(syls)
-
-    if crumbs:
-        _print_crumbs(syls, chunk, error_found)
-
-    return syls, error_found, words
-
-
-# new private function to handle getting the next syllable details
-def _get_next_syllable(chunk, next_syl_start, method_params):
-    syl_parts = dict(method_params)
-    syl_parts.update(find_initial(chunk[next_syl_start:], **syl_parts))
-    initial_len = 0 if syl_parts['initial'] == 'ø' else len(syl_parts['initial'])
-    error_found = ''
-
-    if 'error' in syl_parts:
-        syl_parts.update({'final': ''})
-        error_found = syl_parts['error']
-    else:
-        syl_parts.update(find_final(chunk[next_syl_start + initial_len:], **syl_parts))
-    next_syl_start += initial_len + len(syl_parts['final'])
-    return next_syl_start, syl_parts, error_found
 
 
 # new private function to handle the logging of 'crumbs'
@@ -91,35 +72,22 @@ def syllable_count(text, skip_count=False, method='PY', method_report=False, cru
     method_params = get_method_params(method)
 
     words, error_collect = process_chunks(text, method_params, cherry_pick, error_skip, error_report, crumbs)
+    processor = TextChunkProcessor(text)
+    chunks = processor.get_chunks()
 
     result = compile_results(words, error_collect, method, skip_count, method_report, error_report)
 
     if convert:
         converter = RomanizationConverter(convert)  # Initialize only when needed
         result.append(convert_words(words, convert, converter))
+    result = count_syllables_in_text(chunks, **method_params)
 
     return result
 
 
-def process_chunks(text, method_params, cherry_pick, error_skip, error_report, crumbs):
-    chunks = split_text_into_chunks(text, cherry_pick)
-    print(chunks)
-    words = []
-    error_collect = []
+def count_syllables_in_text(chunks, init_list, fin_list, ar):
 
-    for chunk in chunks:
-        syls, error_found, words = analyze_chunk(chunk, method_params, words, crumbs)
-
-        if error_found:
-            if not error_skip:
-                return [], [0]
-            if error_report:
-                error_collect.append(error_found)
-
-    return words, error_collect
-
-
-def compile_results(words, error_collect, method, skip_count, method_report, error_report):
+    # Map chunks to syllables and validate them
     result = []
 
     if not skip_count:
@@ -130,6 +98,25 @@ def compile_results(words, error_collect, method, skip_count, method_report, err
 
     if method_report:
         result.append('Pinyin' if method == 'PY' else 'Wade-Giles')
+    for chunk in chunks:
+        if isinstance(chunk, list):  # Multi-syllable word
+            words = []
+            for syllable in chunk:
+                # Create a Syllable object
+                syllable_obj = Syllable(syllable, ar=ar, init_list=init_list, fin_list=fin_list)
+                words.append(syllable_obj)
+            # Check if all syllables are valid and count them
+            if all(s.valid for s in words):
+                result.append(len(words))
+            else:
+                result.append(0)  # Or handle invalid syllables as needed
+        else:  # Single-syllable word
+            syllable_obj = Syllable(chunk, ar=ar, init_list=init_list, fin_list=fin_list)
+
+            if syllable_obj.valid:
+                result.append(1)
+            else:
+                result.append(0)  # Or handle invalid syllables as needed
 
     return result
 
