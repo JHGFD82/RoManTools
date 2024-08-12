@@ -3,7 +3,7 @@ from Tools.utils import syllable_count
 from Tools.conversion import RomanizationConverter
 
 
-def normalize_method(method, context='romanization'):
+def normalize_method(method, context):
     method = method.lower()
     romanization_methods = ['pinyin', 'py', 'wade-giles', 'wg']
     tone_methods = ['numeric', 'unicode']
