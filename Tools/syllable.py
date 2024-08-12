@@ -1,12 +1,13 @@
 # syllable.py
-
+from typing import Tuple, Any, List
 import numpy as np
+import copy
 
 vowel = ['a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ']
 
 
 class Syllable:
-    def __init__(self, text, ar, init_list, fin_list):
+    def __init__(self, text: str, config: Any, ar: np.ndarray, init_list: List[str], fin_list: List[str]):
         self.text = text
         self.init_list = init_list
         self.fin_list = fin_list
@@ -18,7 +19,7 @@ class Syllable:
         self.length = len(self.full_syl)
         self.valid = self._validate_syllable(ar, init_list, fin_list)
 
-    def _find_initial_and_final(self):
+    def _find_initial_and_final(self) -> Tuple[str, str]:
         initial = self._find_initial(self)
         if self.config.crumbs:
             print(f"{initial} [initial]")
@@ -28,7 +29,7 @@ class Syllable:
         return initial, final
 
     @staticmethod
-    def _find_initial(self):
+    def _find_initial(self) -> str:
         for i, c in enumerate(self.text):
             if c in vowel:
                 if i == 0:
@@ -39,8 +40,7 @@ class Syllable:
                 return initial
 
     @staticmethod
-    def _find_final(self, text):
-        length = len(text)
+    def _find_final(self, text) -> str:
         recursive_config = self._prepare_recursive_config()
 
         # Check if the final syllable is a vowel-based or a special case like 'er', 'ng'

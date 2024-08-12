@@ -7,7 +7,7 @@ class RomanizationConverter:
         self.conversion_dicts = {}
         self.load_conversion_data(method)
 
-    def load_conversion_data(self, method):
+    def load_conversion_data(self, method: str):
         base_path = os.path.dirname(__file__)
         accepted_methods = ['py_wg', 'wg_py']
         if method in accepted_methods:

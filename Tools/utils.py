@@ -1,9 +1,8 @@
 # utils.py
-from __future__ import annotations
-
 import re
 import os
-
+from typing import Dict, Union, List
+import numpy as np
 from .syllable import Syllable
 from .conversion import RomanizationConverter
 from .data_loader import load_romanization_data, load_stopwords
@@ -19,13 +18,13 @@ class Config:
 
 
 class TextChunkProcessor:
-    def __init__(self, text):
+    def __init__(self, text: str):
         self.text = text
         self.chunks = []
         self.process_chunks()  # Automatically process chunks upon initialization
 
     @staticmethod
-    def split_pinyin_word(word):
+    def split_pinyin_word(word: str) -> Union[List[str], str]:
         # Split word based on apostrophes or dashes
         if re.search(r"[‘’'ʼ`\-–—]", word):  # Escape the hyphen here with a backslash
             # Split the word at apostrophes or dashes
@@ -45,13 +44,13 @@ class TextChunkProcessor:
             chunk = self.split_pinyin_word(word)
             self.chunks.append(chunk)
 
-    def get_chunks(self):
+    def get_chunks(self) -> Union[List[str], str]:
         return self.chunks
 
 
-def get_method_params(method: str) -> dict:
-    method = 'pinyinDF' if method == 'PY' else 'wadegilesDF'
-    init_list, fin_list, ar = load_romanization_data(os.path.join(base_path, 'data', f'{method}.csv'))
+def get_method_params(method: str, config: Config) -> Dict[str, Union[List, np.ndarray]]:
+    method_file = 'pinyinDF' if method == 'py' else 'wadegilesDF'
+    init_list, fin_list, ar = load_romanization_data(os.path.join(base_path, 'data', f'{method_file}.csv'))
     if config and config.crumbs:
         print(f"# {str.upper(method)} romanization data loaded #")
     return {
@@ -61,6 +60,8 @@ def get_method_params(method: str) -> dict:
     }
 
 
+def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False)\
+        -> list[int]:
     config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
 
     if config.crumbs:
@@ -76,7 +77,8 @@ def get_method_params(method: str) -> dict:
     return result
 
 
-def count_syllables_in_text(chunks, init_list, fin_list, ar):
+def count_syllables_in_text(chunks: list, config: Config, init_list: np.ndarray, fin_list, ar):
+    def process_syllables(syllables: list) -> int:
         """Process a list of syllables, validate them, and handle crumbs."""
         for syllable in syllables:
             syllable_obj = Syllable(syllable, config, ar=ar, init_list=init_list, fin_list=fin_list)
@@ -112,7 +114,7 @@ def count_syllables_in_text(chunks, init_list, fin_list, ar):
     return result
 
 
-def convert_words(words, convert, converter):
+def convert_words(words: List, convert, converter):
     stopwords = load_stopwords(os.path.join(base_path, 'data', 'stopwords.txt'))
     converted_words = []
 
