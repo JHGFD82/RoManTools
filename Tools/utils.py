@@ -61,15 +61,6 @@ def get_method_params(method: str) -> dict:
     }
 
 
-# new private function to handle the logging of 'crumbs'
-def _print_crumbs(syls, chunk, error_found):
-    for syl in syls:
-        print(syl.initial + ' [initial]' + '\n' +
-              syl.initial + '|' + syl.final + ' [final]' + '\n' +
-              syl.full_syl + ' valid: ' + str(syl.valid))
-    (print(chunk + ' syllable count: ' + str(len(syls)))
-     if not error_found else print(error_found))
-    print('-----------')
     config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
 
     if config.crumbs:
