@@ -39,17 +39,15 @@ def main():
                         help='Text to process')
 
     # CONDITIONAL PARAMETERS (BASED ON CHOSEN ACTION)
+    parser.add_argument('--method', type=lambda x: normalize_method(x, 'romanization'),
+                        help='Romanization method for functions (pinyin/PY, wade-giles/WG)')
     parser.add_argument('--convert_from', type=lambda x: normalize_method(x, 'romanization'),
-                        choices=['pinyin', 'wade-giles'],
                         help='Source romanization method for convert and cherry_pick actions (pinyin/PY, wade-giles/WG)')
     parser.add_argument('--convert_to', type=lambda x: normalize_method(x, 'romanization'),
-                        choices=['pinyin', 'wade-giles'],
                         help='Target romanization method for convert and cherry_pick actions (pinyin/PY, wade-giles/WG)')
     parser.add_argument('--tone_from', type=lambda x: normalize_method(x, 'tone'),
-                        choices=['numeric', 'unicode'],
                         help='Source tone format for tone marking (numeric, unicode)')
     parser.add_argument('--tone_to', type=lambda x: normalize_method(x, 'tone'),
-                        choices=['numeric', 'unicode'],
                         help='Target tone format for tone marking (numeric, unicode)')
 
     # OPTIONAL DEBUG PARAMETERS
