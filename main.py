@@ -60,10 +60,6 @@ def main():
 
     args = parser.parse_args()
 
-    # Handle dependencies and defaults
-    if args.action == 'cherry_pick':
-        args.error_skip = True
-
     # Validate and execute actions
     if args.action == 'convert':
         if not args.convert_from or not args.convert_to:
@@ -74,9 +70,10 @@ def main():
         print(result)
 
     elif args.action == 'cherry_pick':
+        args.error_skip = True
         if not args.convert_from or not args.convert_to:
             parser.error("--convert_from and --convert_to are required for cherry_pick action")
-        result = syllable_count(
+        result = cherry_pick(
             text=args.text,
             method=args.convert_from + args.convert_to
         )
