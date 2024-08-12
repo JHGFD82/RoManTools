@@ -77,28 +77,37 @@ def get_method_params(method: str) -> dict:
 
 
 def count_syllables_in_text(chunks, init_list, fin_list, ar):
+        """Process a list of syllables, validate them, and handle crumbs."""
+        for syllable in syllables:
+            syllable_obj = Syllable(syllable, config, ar=ar, init_list=init_list, fin_list=fin_list)
+            if config.crumbs:
+                print(f"{syllable_obj.full_syl} valid: {syllable_obj.valid}")
+            syllable_objects.append(syllable_obj)
 
-    # Map chunks to syllables and validate them
+        if all(s.valid for s in syllable_objects):
+            return len(syllable_objects)
+        return 0
+
+    def handle_crumbs(word: str, count: int):
+        """Handle crumbs output for multi-syllable words."""
+        if config.crumbs:
+            print(f"{word} syllable count: {count}")
+            print('-----------')
+
     result = []
     for chunk in chunks:
-        if isinstance(chunk, list):  # Multi-syllable word
-            words = []
-            for syllable in chunk:
-                # Create a Syllable object
-                syllable_obj = Syllable(syllable, ar=ar, init_list=init_list, fin_list=fin_list)
-                words.append(syllable_obj)
-            # Check if all syllables are valid and count them
-            if all(s.valid for s in words):
-                result.append(len(words))
-            else:
-                result.append(0)  # Or handle invalid syllables as needed
-        else:  # Single-syllable word
-            syllable_obj = Syllable(chunk, ar=ar, init_list=init_list, fin_list=fin_list)
+        syllable_objects = []
 
-            if syllable_obj.valid:
-                result.append(1)
-            else:
-                result.append(0)  # Or handle invalid syllables as needed
+        if isinstance(chunk, list):  # Multi-syllable word
+            full_word = ''.join(chunk)
+            syllables_count = process_syllables(chunk)
+            result.append(syllables_count)
+            handle_crumbs(full_word, syllables_count)
+
+        else:  # Single-syllable word
+            syllables_count = process_syllables([chunk])
+            result.append(syllables_count)
+            handle_crumbs(chunk, syllables_count)
 
     return result
 
