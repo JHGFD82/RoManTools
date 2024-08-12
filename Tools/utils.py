@@ -45,6 +45,8 @@ class TextChunkProcessor:
 def get_method_params(method: str) -> dict:
     method = 'pinyinDF' if method == 'PY' else 'wadegilesDF'
     init_list, fin_list, ar = load_romanization_data(os.path.join(base_path, 'data', f'{method}.csv'))
+    if config and config.crumbs:
+        print(f"# {str.upper(method)} romanization data loaded #")
     return {
         'init_list': init_list,
         'fin_list': fin_list,

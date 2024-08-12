@@ -16,6 +16,7 @@ class TestRomanization(unittest.TestCase):
     def test_syllable_count_output(self, mock_stdout):
         syllable_count('ni hao', method='PY', crumbs=True)
         expected_output = ('# Analyzing ni hao #\n'
+                           '# PY romanization data loaded #\n'
                            'n [initial]\n'
                            'n|i [final]\n'
                            'ni valid: True\n'
