@@ -1,7 +1,7 @@
 # tests/test_romanization.py
 
 import unittest
-from Tools.utils import syllable_count
+from Tools.utils import Config, syllable_count
 from Tools.conversion import RomanizationConverter
 from io import StringIO
 from unittest.mock import patch

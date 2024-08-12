@@ -11,6 +11,7 @@ class Syllable:
         self.init_list = init_list
         self.fin_list = fin_list
         self.ar = ar
+        self.config = config
         self.initial, self.final = self._find_initial_and_final()
         self.full_syl = (self.initial + self.final if self.initial[0] != 'ø'
                          else self.initial[1:] + self.final)
@@ -19,7 +20,11 @@ class Syllable:
 
     def _find_initial_and_final(self):
         initial = self._find_initial(self)
+        if self.config.crumbs:
+            print(f"{initial} [initial]")
         final = self._find_final(self, self.text[len(initial):])
+        if self.config.crumbs:
+            print(f"{initial}|{final} [final]")
         return initial, final
 
     @staticmethod

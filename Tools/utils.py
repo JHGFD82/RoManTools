@@ -11,6 +11,13 @@ from .data_loader import load_romanization_data, load_stopwords
 base_path = os.path.dirname(__file__)
 
 
+class Config:
+    def __init__(self, crumbs: bool = False, error_skip: bool = False, error_report: bool = False):
+        self.crumbs = crumbs
+        self.error_skip = error_skip
+        self.error_report = error_report
+
+
 class TextChunkProcessor:
     def __init__(self, text):
         self.text = text
@@ -63,18 +70,17 @@ def _print_crumbs(syls, chunk, error_found):
     (print(chunk + ' syllable count: ' + str(len(syls)))
      if not error_found else print(error_found))
     print('-----------')
+    config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
 
-
-def syllable_count(text, method='PY', crumbs=False, error_report=False):
-    if crumbs:
+    if config.crumbs:
         print(f'# Analyzing {text} #')
 
-    method_params = get_method_params(method)
+    method_params = get_method_params(method, config)
 
     processor = TextChunkProcessor(text)
     chunks = processor.get_chunks()
 
-    result = count_syllables_in_text(chunks, **method_params)
+    result = count_syllables_in_text(chunks, config, **method_params)
 
     return result
 
