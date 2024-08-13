@@ -47,7 +47,7 @@ class Syllable:
         for i, c in enumerate(text):
             if c in vowel:
                 return self._handle_vowel_case(text, i, recursive_config)
-            return self._handle_non_vowel_case(text, i, recursive_config)
+            return self._handle_non_vowel_case(text, i, c, recursive_config)
         return text
 
     def _prepare_recursive_config(self) -> Any:
@@ -66,7 +66,7 @@ class Syllable:
 
         return text
 
-    def _handle_non_vowel_case(self, text: str, i: int, recursive_config: Any):
+    def _handle_non_vowel_case(self, text: str, i: int, c: str, recursive_config: Any):
         remainder = len(text) - i - 1
 
         if text[i - 1:i + 1] == 'er' and (remainder == 0 or text[i + 1] not in vowel):
