@@ -49,10 +49,12 @@ class TextChunkProcessor:
 
 
 def get_method_params(method: str, config: Config) -> Dict[str, Union[List[str], np.ndarray]]:
-    method_file = 'pinyinDF' if method == 'py' else 'wadegilesDF'
+    method_file = f'{method.lower()}DF'
     init_list, fin_list, ar = load_romanization_data(os.path.join(base_path, 'data', f'{method_file}.csv'))
-    if config and config.crumbs:
-        print(f"# {str.upper(method)} romanization data loaded #")
+
+    if config.crumbs:
+        print(f"# {method.upper()} romanization data loaded #")
+
     return {
         'init_list': init_list,
         'fin_list': fin_list,
@@ -60,27 +62,25 @@ def get_method_params(method: str, config: Config) -> Dict[str, Union[List[str],
     }
 
 
+def process_text(text: str, config: Config) -> List[Union[List[str], str]]:
+    processor = TextChunkProcessor(text)
+    if config.crumbs:
+        print(f'# Analyzing {text} #')
+    return processor.get_chunks()
+
+
 def convert_text(text: str, method_combination: str, crumbs: bool = False, error_skip: bool = False,
                  error_report: bool = False) -> str:
     config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
 
-    if config.crumbs:
-        print(f'# Analyzing {text} #')
-
-    processor = TextChunkProcessor(text)
-    chunks = processor.get_chunks()
-
+    chunks = process_text(text, config)
     converter = RomanizationConverter(method_combination)
-    result = ''
 
-    for chunk in chunks:
-        if isinstance(chunk, list):  # Multi-syllable word
-            converted_text = ''.join(converter.convert(t) for t in chunk)
-
-        else:  # Single-syllable word
-            converted_text = converter.convert(chunk)
-
-        result += converted_text + ' '
+    result = ' '.join(
+        ''.join(converter.convert(syllable) for syllable in chunk) if isinstance(chunk, list)
+        else converter.convert(chunk)
+        for chunk in chunks
+    )
 
     return result.strip()
 
@@ -108,13 +108,8 @@ def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: boo
         -> list[int]:
     config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
 
-    if config.crumbs:
-        print(f'# Analyzing {text} #')
-
+    chunks = process_text(text, config)
     method_params = get_method_params(method, config)
-
-    processor = TextChunkProcessor(text)
-    chunks = processor.get_chunks()
 
     result = count_syllables_in_text(chunks, config, **method_params)
 
