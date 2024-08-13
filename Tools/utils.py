@@ -60,6 +60,50 @@ def get_method_params(method: str, config: Config) -> Dict[str, Union[List[str],
     }
 
 
+def convert_text(text: str, method_combination: str, crumbs: bool = False, error_skip: bool = False,
+                 error_report: bool = False) -> str:
+    config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
+
+    if config.crumbs:
+        print(f'# Analyzing {text} #')
+
+    processor = TextChunkProcessor(text)
+    chunks = processor.get_chunks()
+
+    converter = RomanizationConverter(method_combination)
+    result = ''
+
+    for chunk in chunks:
+        if isinstance(chunk, list):  # Multi-syllable word
+            converted_text = ''.join(converter.convert(t) for t in chunk)
+
+        else:  # Single-syllable word
+            converted_text = converter.convert(chunk)
+
+        result += converted_text + ' '
+
+    return result.strip()
+
+
+def cherry_pick(words: List, convert, converter):
+    stopwords = load_stopwords(os.path.join(base_path, 'data', 'stopwords.txt'))
+    converted_words = []
+
+    for word in words:
+        adjusted_word = ''.join(syl.full_syl for syl in word)
+        valid_word = all(syl.valid for syl in word)
+
+        if valid_word and adjusted_word not in stopwords:
+            adjusted_word = '-'.join(converter.convert(syl.full_syl, convert) for syl in word)
+
+        if 'cap' in word[0].__dict__:
+            adjusted_word = adjusted_word.capitalize()
+
+        converted_words.append(adjusted_word)
+
+    return ' '.join(converted_words)
+
+
 def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False)\
         -> list[int]:
     config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
@@ -113,22 +157,3 @@ def count_syllables_in_text(chunks: list, config: Config, init_list: List[str], 
             handle_crumbs(chunk, syllables_count)
 
     return result
-
-
-def convert_words(words: List, convert, converter):
-    stopwords = load_stopwords(os.path.join(base_path, 'data', 'stopwords.txt'))
-    converted_words = []
-
-    for word in words:
-        adjusted_word = ''.join(syl.full_syl for syl in word)
-        valid_word = all(syl.valid for syl in word)
-
-        if valid_word and adjusted_word not in stopwords:
-            adjusted_word = '-'.join(converter.convert(syl.full_syl, convert) for syl in word)
-
-        if 'cap' in word[0].__dict__:
-            adjusted_word = adjusted_word.capitalize()
-
-        converted_words.append(adjusted_word)
-
-    return ' '.join(converted_words)

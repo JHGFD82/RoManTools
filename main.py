@@ -1,6 +1,7 @@
 import argparse
 from Tools.utils import syllable_count
 from Tools.conversion import RomanizationConverter
+from Tools.utils import convert_text, cherry_pick, syllable_count
 
 
 def normalize_method(method: str, context: str) -> str:
@@ -65,8 +66,7 @@ def main():
         if not args.convert_from or not args.convert_to:
             parser.error("--convert_from and --convert_to are required for convert action")
         method_combination = f"{args.convert_from}_{args.convert_to}"
-        converter = RomanizationConverter(method_combination)
-        result = converter.convert(args.text)
+        result = convert_text(args.text, method_combination, args.crumbs, args.error_skip, args.error_report)
         print(result)
 
     elif args.action == 'cherry_pick':
