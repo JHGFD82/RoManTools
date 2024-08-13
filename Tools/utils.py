@@ -48,7 +48,7 @@ class TextChunkProcessor:
         return self.chunks
 
 
-def get_method_params(method: str, config: Config) -> Dict[str, Union[List, np.ndarray]]:
+def get_method_params(method: str, config: Config) -> Dict[str, Union[List[str], np.ndarray]]:
     method_file = 'pinyinDF' if method == 'py' else 'wadegilesDF'
     init_list, fin_list, ar = load_romanization_data(os.path.join(base_path, 'data', f'{method_file}.csv'))
     if config and config.crumbs:
