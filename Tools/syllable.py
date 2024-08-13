@@ -48,7 +48,6 @@ class Syllable:
             if c in vowel:
                 return self._handle_vowel_case(text, i, recursive_config)
             return self._handle_non_vowel_case(text, i, recursive_config)
-
         return text
 
     def _prepare_recursive_config(self) -> Any:
@@ -65,7 +64,7 @@ class Syllable:
                 if Syllable(f_item, recursive_config, self.ar, self.init_list, self.fin_list).valid:
                     return f_item
 
-        return text[:i]
+        return text
 
     def _handle_non_vowel_case(self, text: str, i: int, recursive_config: Any):
         remainder = len(text) - i - 1
@@ -81,7 +80,7 @@ class Syllable:
         if c == 'n':
             return text[:i + 1] if remainder == 0 or text[i + 1] not in vowel else text[:i]
 
-        return text[:i]
+        return text
 
     def _validate_syllable(self, ar: np.ndarray, init_list: List[str], fin_list: List[str]) -> bool:
         try:
