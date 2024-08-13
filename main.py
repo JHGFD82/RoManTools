@@ -35,7 +35,7 @@ def main():
         'syllable_count',
         'detect_method'
     ], help='Action to perform')
-    parser.add_argument('text', type=str,
+    parser.add_argument('-i', '--input', type=str, dest='text', required=True,
                         help='Text to process')
 
     # CONDITIONAL PARAMETERS (BASED ON CHOSEN ACTION)
