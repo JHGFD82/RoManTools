@@ -77,7 +77,8 @@ def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: boo
     return result
 
 
-def count_syllables_in_text(chunks: list, config: Config, init_list: np.ndarray, fin_list, ar):
+def count_syllables_in_text(chunks: list, config: Config, init_list: List[str], fin_list: List[str], ar: np.ndarray)\
+        -> list[int]:
     def process_syllables(syllables: list) -> int:
         """Process a list of syllables, validate them, and handle crumbs."""
         for syllable in syllables:
