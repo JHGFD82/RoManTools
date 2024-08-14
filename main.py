@@ -50,11 +50,11 @@ def main():
                         help='Target tone format for tone marking (numeric, unicode)')
 
     # OPTIONAL DEBUG PARAMETERS
-    parser.add_argument('--crumbs',
+    parser.add_argument('--crumbs', action='store_true',
                         help='Include step-by-step analysis in the output')
-    parser.add_argument('--error_skip',
+    parser.add_argument('--error_skip', action='store_true',
                         help='Skip errors instead of aborting (defaulted to True if --cherry_pick is used)')
-    parser.add_argument('--error_report',
+    parser.add_argument('--error_report', action='store_true',
                         help='Include error messages in the output')
 
     args = parser.parse_args()
