@@ -18,33 +18,46 @@ class Config:
 
 
 class TextChunkProcessor:
-    def __init__(self, text: str):
+    def __init__(self, text: str, config: Config, ar: np.ndarray, init_list: List[str], fin_list: List[str]):
         self.text = text
+        self.config = config
+        self.ar = ar
+        self.init_list = init_list
+        self.fin_list = fin_list
         self.chunks = []
-        self.process_chunks()  # Automatically process chunks upon initialization
-
-    @staticmethod
-    def split_pinyin_word(word: str) -> Union[List[str], str]:
-        # Split word based on apostrophes or dashes
-        if re.search(r"[‘’'ʼ`\-–—]", word):  # Escape the hyphen here with a backslash
-            # Split the word at apostrophes or dashes
-            syllables = re.split(r"[‘’'ʼ`\-–—]", word)
-            return [syllable for syllable in syllables if syllable]  # Return list, removing any empty strings
-        else:
-            # If no split is needed, return the word as a string
-            return word
+        self.process_chunks()
 
     def process_chunks(self):
-        # Find all words, including those separated by apostrophes or dashes
-        pattern = r"[a-zA-ZüÜ]+(?:['’ʼ`\-–—][a-zA-ZüÜ]+)?"
-        words = re.findall(pattern, self.text)
+        words = re.findall(r"[a-zA-ZüÜ]+(?:['’ʼ`\-–—][a-zA-ZüÜ]+)?", self.text)
 
-        # Process each word to either split or return as is
         for word in words:
-            chunk = self.split_pinyin_word(word)
-            self.chunks.append(chunk)
+            split_words = self.split_pinyin_word(word)
+            self._process_split_words(split_words)
 
-    def get_chunks(self) -> Union[List[str], str]:
+    def _process_split_words(self, split_words: Union[str, List[str]]):
+        syllables = []
+
+        if isinstance(split_words, list):
+            for i, part in enumerate(split_words):
+                remainder = split_words[i + 1] if i < len(split_words) - 1 else ""
+                syllables.append(Syllable(part, self.config, self.ar, self.init_list, self.fin_list, remainder))
+        else:
+            remaining_text = split_words
+            while remaining_text:
+                syllable_obj = Syllable(remaining_text, self.config, self.ar, self.init_list, self.fin_list)
+                syllables.append(syllable_obj)
+                remaining_text = syllable_obj.remainder
+                if not syllable_obj.remainder:
+                    break
+
+        self.chunks.append(syllables if len(syllables) > 1 else syllables[0])
+
+    @staticmethod
+    def split_pinyin_word(word: str) -> Union[str, List[str]]:
+        split_words = re.split(r"[‘’'ʼ`\-–—]", word)
+        return split_words if len(split_words) > 1 else word
+
+    def get_chunks(self) -> List[Union[str, List[Syllable]]]:
         return self.chunks
 
 
@@ -56,16 +69,16 @@ def get_method_params(method: str, config: Config) -> Dict[str, Union[List[str],
         print(f"# {method.upper()} romanization data loaded #")
 
     return {
+        'ar': ar,
         'init_list': init_list,
-        'fin_list': fin_list,
-        'ar': ar
+        'fin_list': fin_list
     }
 
 
-def process_text(text: str, config: Config) -> List[Union[List[str], str]]:
-    processor = TextChunkProcessor(text)
+def process_text(text: str, method: str, config: Config) -> List[Union[List[Syllable], Syllable]]:
     if config.crumbs:
         print(f'# Analyzing {text} #')
+    processor = TextChunkProcessor(text, config, **get_method_params(method, config))
     return processor.get_chunks()
 
 
@@ -73,7 +86,7 @@ def convert_text(text: str, method_combination: str, crumbs: bool = False, error
                  error_report: bool = False) -> str:
     config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
 
-    chunks = process_text(text, config)
+    chunks = process_text(text, method_combination[:2], config)
     converter = RomanizationConverter(method_combination)
 
     result = ' '.join(
