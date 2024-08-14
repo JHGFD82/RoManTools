@@ -104,16 +104,14 @@ def cherry_pick(words: List, convert, converter):
     return ' '.join(converted_words)
 
 
-def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False)\
-        -> list[int]:
+def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False)\
+        -> List[Union[List[Syllable], Syllable]]:
     config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
 
-    chunks = process_text(text, config)
-    method_params = get_method_params(method, config)
+    chunks = process_text(text, method, config)
 
-    result = count_syllables_in_text(chunks, config, **method_params)
-
-    return result
+    return [chunk.full_syllable if isinstance(chunk, Syllable) else [syllable.full_syllable for syllable in chunk]
+            for chunk in chunks]
 
 
 def count_syllables_in_text(chunks: list, config: Config, init_list: List[str], fin_list: List[str], ar: np.ndarray)\

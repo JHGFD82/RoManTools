@@ -1,5 +1,5 @@
 import argparse
-from Tools.utils import convert_text, cherry_pick, syllable_count
+from Tools.utils import convert_text, cherry_pick, segment_text, syllable_count
 
 
 def normalize_method(method: str, context: str) -> str:
@@ -89,7 +89,7 @@ def main():
         print(result)
 
     elif args.action == 'segment':
-        result = segment_text(args.text)
+        result = segment_text(args.text, args.method)
         print(result)
 
     elif args.action == 'syllable_count':

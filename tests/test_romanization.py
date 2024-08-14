@@ -1,7 +1,7 @@
 # tests/test_romanization.py
 
 import unittest
-from Tools.utils import convert_text, syllable_count
+from Tools.utils import convert_text, segment_text, syllable_count
 from Tools.conversion import RomanizationConverter
 from io import StringIO
 from unittest.mock import patch
@@ -12,6 +12,10 @@ class TestRomanization(unittest.TestCase):
     def test_convert_text(self):
         result = convert_text('ni hao chang\'an yuan', method_combination='py_wg')
         self.assertEqual(result, 'ni hao ch’angan yüan')
+
+    def test_segment_text(self):
+        result = segment_text('ni hao chang\'an yuan')
+        self.assertEqual(result, ['ni', 'hao', ['chang', 'an'], 'yuan'])
 
     def test_syllable_count(self):
         result = syllable_count('ni hao', method='PY')
