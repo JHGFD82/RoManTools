@@ -21,6 +21,10 @@ class TestRomanization(unittest.TestCase):
         result = syllable_count('ni hao', method='PY')
         self.assertEqual(result, [1, 1])
 
+    def test_syllable_count_multi(self):
+        result = syllable_count('chang\'an yuan', method='PY')
+        self.assertEqual(result, [2, 1])
+
     @patch('sys.stdout', new_callable=StringIO)
     def test_syllable_count_output(self, mock_stdout):
         syllable_count('ni hao', method='PY', crumbs=True)

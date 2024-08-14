@@ -95,7 +95,7 @@ def main():
     elif args.action == 'syllable_count':
         if not args.method:
             parser.error("--method is required for syllable_count action")
-        result = syllable_count(args.text, args.method)
+        result = syllable_count(args.text, args.method, args.crumbs, args.error_skip, args.error_report)
         print(result)
 
     elif args.action == 'detect_method':

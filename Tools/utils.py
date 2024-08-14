@@ -114,39 +114,11 @@ def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool 
             for chunk in chunks]
 
 
-def count_syllables_in_text(chunks: list, config: Config, init_list: List[str], fin_list: List[str], ar: np.ndarray)\
+def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False)\
         -> list[int]:
-    def process_syllables(syllables: list) -> int:
-        """Process a list of syllables, validate them, and handle crumbs."""
-        for syllable in syllables:
-            syllable_obj = Syllable(syllable, config, ar=ar, init_list=init_list, fin_list=fin_list)
-            if config.crumbs:
-                print(f"{syllable_obj.full_syl} valid: {syllable_obj.valid}")
-            syllable_objects.append(syllable_obj)
+    config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
 
-        if all(s.valid for s in syllable_objects):
-            return len(syllable_objects)
-        return 0
+    chunks = process_text(text, method, config)
+    print(chunks)
 
-    def handle_crumbs(word: str, count: int):
-        """Handle crumbs output for multi-syllable words."""
-        if config.crumbs:
-            print(f"{word} syllable count: {count}")
-            print('-----------')
-
-    result = []
-    for chunk in chunks:
-        syllable_objects = []
-
-        if isinstance(chunk, list):  # Multi-syllable word
-            full_word = ''.join(chunk)
-            syllables_count = process_syllables(chunk)
-            result.append(syllables_count)
-            handle_crumbs(full_word, syllables_count)
-
-        else:  # Single-syllable word
-            syllables_count = process_syllables([chunk])
-            result.append(syllables_count)
-            handle_crumbs(chunk, syllables_count)
-
-    return result
+    return [(len(chunk) for chunk in chunks) if isinstance(chunks, list) else 1]
