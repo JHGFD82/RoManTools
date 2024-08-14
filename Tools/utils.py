@@ -85,7 +85,7 @@ def convert_text(text: str, method_combination: str, crumbs: bool = False, error
     return result.strip()
 
 
-def cherry_pick(words: List, convert, converter):
+def cherry_pick(words: str, convert, converter):
     stopwords = load_stopwords(os.path.join(base_path, 'data', 'stopwords.txt'))
     converted_words = []
 
