@@ -3,8 +3,10 @@ import numpy as np
 
 vowel = ['a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ']
 
+
 class Syllable:
-    def __init__(self, text: str, config: Any, ar: np.ndarray, init_list: List[str], fin_list: List[str], remainder: str = ""):
+    def __init__(self, text: str, config: Any, ar: np.ndarray, init_list: List[str], fin_list: List[str],
+                 remainder: str = ""):
         self.text = text
         self.remainder = remainder
         self.init_list = init_list
