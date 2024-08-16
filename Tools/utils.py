@@ -90,9 +90,8 @@ def convert_text(text: str, method_combination: str, crumbs: bool = False, error
     converter = RomanizationConverter(method_combination)
 
     result = ' '.join(
-        ''.join(converter.convert(syllable) for syllable in chunk) if isinstance(chunk, list)
-        else converter.convert(chunk)
-        for chunk in chunks
+        ''.join(converter.convert(syllable.full_syllable) for syllable in chunk) if isinstance(chunk, list)
+        else converter.convert(chunk.full_syllable) for chunk in chunks
     )
 
     return result.strip()
