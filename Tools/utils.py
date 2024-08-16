@@ -50,7 +50,7 @@ class TextChunkProcessor:
                 if not syllable_obj.remainder:
                     break
 
-        self.chunks.append(syllables if len(syllables) > 1 else syllables[0])
+        self.chunks.append(syllables)
 
     @staticmethod
     def split_pinyin_word(word: str) -> Union[str, List[str]]:
