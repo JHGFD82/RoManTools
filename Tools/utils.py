@@ -122,8 +122,7 @@ def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool 
 
     chunks = process_text(text, method, config)
 
-    return [chunk.full_syllable if isinstance(chunk, Syllable) else [syllable.full_syllable for syllable in chunk]
-            for chunk in chunks]
+    return [[chunk.full_syllable for chunk in chunks] for chunks in chunks]
 
 
 def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False)\
