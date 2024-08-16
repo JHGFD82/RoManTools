@@ -47,43 +47,45 @@ class Syllable:
     def _find_final(self, text: str, initial: str) -> str:
         for i, c in enumerate(text):
             if c in vowel:
-                return self._handle_vowel_final(text, i)
+                final = self._handle_vowel_case(text, i, initial)
             else:
-                return self._handle_consonant_final(text, i, c, initial)
+                return self._handle_consonant_case(text, i, initial)
         return text
 
-    def _handle_vowel_final(self, text: str, i: int) -> str:
+    def _handle_vowel_case(self, text: str, i: int, initial: str) -> str:
         if i + 1 == len(text):
-            return text
+            return text  # This is a simple final with no further characters to process.
 
+        # Iterate over the list of potential finals that start with the current vowel.
+        test_finals = []
         for f_item in self.fin_list:
-            if f_item.startswith(text[:i + 1]) and self._validate_final(f_item):
-                return f_item
-        return text[:i + 1]
+            if f_item.startswith(text[:i + 1]) and self._validate_final(initial, f_item):
+                test_finals.append(f_item)
 
-    def _handle_consonant_final(self, text: str, i: int, c: str, initial: str) -> str:
+        if not test_finals:
+            return text[:i]
+
+    def _handle_consonant_case(self, text: str, i: int, initial: str) -> str:
         remainder = len(text) - i - 1
 
+        # Handle "er" and "erh"
         if text[i - 1:i + 1] == 'er' and (remainder == 0 or text[i + 1] not in vowel):
             return text[:i] if len(text[:i]) > 1 else text[:i - 1]
 
-        if c == 'n':
-            return self._handle_n_final(text, i, initial, remainder)
+        # Handle "n" and "ng"
+        elif text[i] == 'n':
+            if remainder > 0 and text[i + 1] == 'g':
+                if self._validate_final(initial, text[:i + 1]):
+                    return text[:i + 2] if (remainder == 1 or text[i + 2] not in vowel) else text[:i + 1]
+                return text[:i + 1]
+            elif self._validate_final(initial, text[:i]):
+                return text[:i + 1] if (remainder == 0 or text[i + 1] not in vowel) else text[:i]
 
+        # Default case: handle all other consonants
         return text[:i]
 
-    def _handle_n_final(self, text: str, i: int, initial: str, remainder: int) -> str:
-        if remainder and text[i + 1] == 'g':
-            if remainder < 2 or text[i + 2] not in vowel:
-                return text[:i + 2]
-            return text[:i + 1]
-
-        if not remainder or text[i + 1] not in vowel:
-            return text[:i + 1]
-        return text[:i]
-
-    def _validate_final(self, final: str) -> bool:
-        initial_index = self.init_list.index(self.initial) if self.initial in self.init_list else -1
+    def _validate_final(self, initial, final: str) -> bool:
+        initial_index = self.init_list.index(initial) if initial in self.init_list else -1
         final_index = self.fin_list.index(final) if final in self.fin_list else -1
 
         if initial_index == -1 or final_index == -1:
@@ -92,4 +94,4 @@ class Syllable:
         return bool(self.ar[initial_index, final_index])
 
     def _validate_syllable(self) -> bool:
-        return self._validate_final(self.final)
+        return self._validate_final(self.initial, self.final)
