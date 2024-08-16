@@ -132,6 +132,5 @@ def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: boo
     config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
 
     chunks = process_text(text, method, config)
-    print(chunks)
 
-    return [(len(chunk) for chunk in chunks) if isinstance(chunks, list) else 1]
+    return [lengths if all(syllable.valid for syllable in chunk) else 0 for chunk in chunks for lengths in [len(chunk)]]
