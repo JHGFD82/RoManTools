@@ -70,16 +70,22 @@ class Syllable:
 
         # Handle "er" and "erh"
         if text[i - 1:i + 1] == 'er' and (remainder == 0 or text[i + 1] not in vowel):
-            return text[:i] if len(text[:i]) > 1 else text[:i - 1]
+            return text[:-2] if len(text[:i]) > 1 else text[:i - 1]
 
         # Handle "n" and "ng"
         elif text[i] == 'n':
-            if remainder > 0 and text[i + 1] == 'g':
-                if self._validate_final(initial, text[:i + 1]):
-                    return text[:i + 2] if (remainder == 1 or text[i + 2] not in vowel) else text[:i + 1]
-                return text[:i + 1]
-            elif self._validate_final(initial, text[:i]):
-                return text[:i + 1] if (remainder == 0 or text[i + 1] not in vowel) else text[:i]
+            # Determine whether we are dealing with "ng" or just "n"
+            next_char_is_g = remainder > 0 and text[i + 1] == 'g'
+            valid_ng = next_char_is_g and (
+                        remainder == 1 or text[i + 2] not in vowel or not self._validate_final(initial, text[:i + 1]))
+
+            if valid_ng:
+                return text[:i + 2]  # Return "ng"
+            elif next_char_is_g:
+                return text[:i + 1]  # Return just "n" if the "g" isn't valid
+            else:
+                valid_n = remainder == 0 or text[i + 1] not in vowel or not self._validate_final(initial, text[:i + 1])
+                return text[:i + 1] if valid_n else text[:i]  # Return "n" or fall back
 
         # Default case: handle all other consonants
         return text[:i]
