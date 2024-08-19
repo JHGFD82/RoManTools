@@ -68,6 +68,8 @@ class TestRomanization(unittest.TestCase):
     def test_segment_text_multi_syllable_edge_case_er_n_ng(self):
         result = segment_text('zhuangyuan wenxiang gangren', method='PY')
         self.assertEqual(result, [['zhuang', 'yuan'], ['wen', 'xiang'], ['gang', 'ren']])
+
+    # ROMANIZATON CONVERSION TESTING #
     def test_convert_text(self):
         result = convert_text('ni hao chang\'an yuan', method_combination='py_wg')
         self.assertEqual(result, 'ni hao ch’angan yüan')
@@ -76,6 +78,7 @@ class TestRomanization(unittest.TestCase):
         result = segment_text('ni hao chang\'an yuan')
         self.assertEqual(result, ['ni', 'hao', ['chang', 'an'], 'yuan'])
 
+    # SYLLABLE_COUNT TESTING #
     def test_syllable_count(self):
         result = syllable_count('ni hao', method='PY')
         self.assertEqual(result, [1, 1])
