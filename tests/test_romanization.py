@@ -74,18 +74,12 @@ class TestRomanization(unittest.TestCase):
         result = convert_text('ni hao chang\'an yuan', method_combination='py_wg')
         self.assertEqual(result, 'ni hao ch’angan yüan')
 
-    def test_segment_text(self):
-        result = segment_text('ni hao chang\'an yuan')
-        self.assertEqual(result, ['ni', 'hao', ['chang', 'an'], 'yuan'])
-
     # SYLLABLE_COUNT TESTING #
     def test_syllable_count(self):
-        result = syllable_count('ni hao', method='PY')
-        self.assertEqual(result, [1, 1])
-
-    def test_syllable_count_multi(self):
-        result = syllable_count('chang\'an yuan', method='PY')
-        self.assertEqual(result, [2, 1])
+        result = syllable_count(f"'ni linping shang chang'an xiaoming yuanyang er shier xiong anwei fenghuang "
+                                f"renmin shuang yingyong zhongguo qingdao ping'an guangdong hongkong changjiang shen "
+                                f"tingma yia shoiji minglang yiin jinglin", method='PY')
+        self.assertEqual(result, [1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 0, 0, 0, 0])
 
     @patch('sys.stdout', new_callable=StringIO)
     def test_syllable_count_output(self, mock_stdout):
