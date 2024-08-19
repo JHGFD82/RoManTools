@@ -82,6 +82,15 @@ def process_text(text: str, method: str, config: Config) -> List[Union[List[Syll
     return processor.get_chunks()
 
 
+def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False)\
+        -> List[Union[List[Syllable], Syllable]]:
+    config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
+
+    chunks = process_text(text, method, config)
+
+    return [[chunk.full_syllable for chunk in chunks] for chunks in chunks]
+
+
 def convert_text(text: str, method_combination: str, crumbs: bool = False, error_skip: bool = False,
                  error_report: bool = False) -> str:
     config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
@@ -114,15 +123,6 @@ def cherry_pick(words: str, convert, converter):
         converted_words.append(adjusted_word)
 
     return ' '.join(converted_words)
-
-
-def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False)\
-        -> List[Union[List[Syllable], Syllable]]:
-    config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
-
-    chunks = process_text(text, method, config)
-
-    return [[chunk.full_syllable for chunk in chunks] for chunks in chunks]
 
 
 def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False)\
