@@ -78,7 +78,7 @@ class Syllable:
 
         # Handle "er" and "erh"
         if text[i - 1:i + 1] == 'er' and (remainder == 0 or text[i + 1] not in vowel):
-            return text[:-2] if len(text[:i]) > 1 else text[:i - 1]
+            return text[:i + 1]
 
         # Handle "n" and "ng"
         elif text[i] == 'n':
