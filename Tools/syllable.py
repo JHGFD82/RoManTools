@@ -92,7 +92,7 @@ class Syllable:
             elif next_char_is_g:
                 return text[:i + 1]  # Return just "n" if the "g" isn't valid
             else:
-                valid_n = remainder == 0 or text[i + 1] not in vowel or not self._validate_final(initial, text[:i + 1])
+                valid_n = remainder == 0 or text[i + 1] not in vowel or not self._validate_final(initial, text[:i])
                 return text[:i + 1] if valid_n else text[:i]  # Return "n" or fall back
 
         # Default case: handle all other consonants
