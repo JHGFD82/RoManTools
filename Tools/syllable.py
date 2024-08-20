@@ -42,9 +42,9 @@ class Syllable:
                     return 'ø'
                 initial = text[:i]
                 if initial not in self.init_list:
-                    return 'ø'
+                    return text[:i]
                 return initial
-        return 'ø'
+        return text
 
     def _find_final(self, text: str, initial: str) -> str:
         for i, c in enumerate(text):
@@ -102,4 +102,7 @@ class Syllable:
         return bool(self.ar[initial_index, final_index])
 
     def _validate_syllable(self) -> bool:
-        return self._validate_final(self.initial, self.final)
+        if self.initial == '':
+            return self._validate_final('ø', self.final)
+        else:
+            return self._validate_final(self.initial, self.final)
