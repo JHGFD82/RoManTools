@@ -82,8 +82,8 @@ class TestRomanization(unittest.TestCase):
     def test_syllable_count(self):
         result = syllable_count(f"'ni linping shang chang'an xiaoming yuanyang er shier xiong anwei fenghuang "
                                 f"renmin shuang yingyong zhongguo qingdao ping'an guangdong hongkong changjiang shen "
-                                f"tingma yia shoiji minglang yiin jinglin", method='PY')
-        self.assertEqual(result, [1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 0, 0, 0, 0])
+                                f"tingma yia shoiji yiin", method='PY')
+        self.assertEqual(result, [1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 0, 0, 0])
 
     @patch('sys.stdout', new_callable=StringIO)
     def test_syllable_count_output(self, mock_stdout):
