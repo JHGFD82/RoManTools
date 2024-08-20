@@ -67,9 +67,11 @@ class Syllable:
         for f_item in self.fin_list:
             if f_item.startswith(text[:i + 1]) and self._validate_final(initial, f_item):
                 test_finals.append(f_item)
-
         if not test_finals:
-            return text[:i]
+            if i == 0:
+                pass
+            else:
+                return text[:i]
 
     def _handle_consonant_case(self, text: str, i: int, initial: str) -> str:
         remainder = len(text) - i - 1
