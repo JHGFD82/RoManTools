@@ -19,11 +19,11 @@ class TestRomanization(unittest.TestCase):
 
     def test_segment_text_complex_finals_er_n_ng(self):
         result = segment_text('han xiang ran ling er', method='PY')
-        self.assertEqual(result,  [['han'], ['xiang'], ['ran'], ['ling'], ['er']])
+        self.assertEqual(result, [['han'], ['xiang'], ['ran'], ['ling'], ['er']])
 
     def test_segment_text_complex_edge_cases(self):
         result = segment_text('chen chong zhen', method='PY')
-        self.assertEqual(result,  [['chen'], ['chong'], ['zhen']])
+        self.assertEqual(result, [['chen'], ['chong'], ['zhen']])
 
     def test_segment_text_multi_syllable_no_apostrophe(self):
         result = segment_text('xiaoming changan wenxin liangxiao', method='PY')
