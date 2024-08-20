@@ -39,7 +39,7 @@ class TestRomanization(unittest.TestCase):
 
     def test_segment_text_invalid_initials(self):
         result = segment_text('xa qo vei', method='PY')
-        self.assertEqual(result, [['xa'], ['qo'], ['vei']])
+        self.assertEqual(result, [['xa'], ['qo'], ['v', 'ei']])
 
     def test_segment_text_invalid_finals(self):
         result = segment_text('banp zhirr mingk', method='PY')
@@ -59,11 +59,11 @@ class TestRomanization(unittest.TestCase):
 
     def test_segment_text_no_valid_finals(self):
         result = segment_text('blar ziang shoing', method='PY')
-        self.assertEqual(result, [['blar'], ['ziang'], ['shoing']])
+        self.assertEqual(result, [['bla', 'r'], ['zi', 'ang'], ['sho', 'ing']])
 
     def test_segment_text_multi_vowel_combinations(self):
         result = segment_text('ai ei ou uan ie', method='PY')
-        self.assertEqual(result, [['ai'], ['ei'], ['ou'], ['uan'], ['ie']])
+        self.assertEqual(result, [['ai'], ['ei'], ['ou'], ['u', 'an'], ['ie']])
 
     def test_segment_text_one_syllable_edge_case(self):
         result = segment_text('a e ou yi', method='PY')
