@@ -26,11 +26,13 @@ class Syllable:
     def _find_initial_final(self, text: str) -> Tuple[str, str, str, str]:
         initial = self._find_initial(text)
         if initial == 'ø':
-            return 'ø', text, text, ''
-
-        final = self._find_final(text[len(initial):], initial)
+            final = self._find_final(text, initial)
+            initial = ''
+        else:
+            final = self._find_final(text[len(initial):], initial)
         full_syllable = initial + final
         remainder = text[len(initial) + len(final):]
+
         return initial, final, full_syllable, remainder
 
     def _find_initial(self, text: str) -> str:
