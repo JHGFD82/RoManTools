@@ -50,6 +50,10 @@ class Syllable:
         for i, c in enumerate(text):
             if c in vowel:
                 final = self._handle_vowel_case(text, i, initial)
+                if final is None:
+                    pass
+                else:
+                    return final
             else:
                 return self._handle_consonant_case(text, i, initial)
         return text
