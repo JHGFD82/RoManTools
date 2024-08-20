@@ -33,6 +33,10 @@ class TestRomanization(unittest.TestCase):
         result = segment_text("chang'an shan'er li'an", method='PY')
         self.assertEqual(result, [['chang', 'an'], ['shan', 'er'], ['li', 'an']])
 
+    def test_segment_text_multi_syllable_vowel_start(self):
+        result = segment_text('anwei aiai ouyang ewei', method='PY')
+        self.assertEqual(result, [['an', 'wei'], ['ai', 'ai'], ['ou', 'yang'], ['e', 'wei']])
+
     def test_segment_text_invalid_initials(self):
         result = segment_text('xa qo vei', method='PY')
         self.assertEqual(result, [['xa'], ['qo'], ['vei']])
