@@ -58,7 +58,9 @@ class TextChunkProcessor:
             # For Pinyin or other systems, split on a broader range of delimiters
             split_words = re.split(r"[‘’'ʼ`\-–—]", word)
 
-    def get_chunks(self) -> List[Union[str, List[Syllable]]]:
+        return split_words if len(split_words) > 1 else [word]
+
+    def get_chunks(self) -> List[List[Syllable]]:
         return self.chunks
 
 
