@@ -1,7 +1,7 @@
 # tests/test_romanization.py
 
 import unittest
-from Tools.utils import convert_text, segment_text, syllable_count
+from Tools.utils import convert_text, segment_text, syllable_count, detect_method
 from io import StringIO
 from unittest.mock import patch
 
@@ -84,6 +84,48 @@ class TestRomanization(unittest.TestCase):
                                 f"renmin shuang yingyong zhongguo qingdao ping'an guangdong hongkong changjiang shen "
                                 f"tingma yia shoiji yiin", method='PY')
         self.assertEqual(result, [1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 0, 0, 0])
+
+    def test_detect_method_py(self):
+        result = detect_method(f"'ni linping shang chang'an xiaoming yuanyang er shier xiong anwei fenghuang renmin "
+                               f"shuang yingyong zhongguo qingdao ping'an guangdong hongkong changjiang shen tingma")
+        self.assertEqual(result, ['py'])
+
+    def test_detect_method_wg(self):
+        result = detect_method(
+            f"ni linp’ing shang ch’angan hsiaoming yüanyang erh shiherh hsiung anwei fenghuang jenmin "
+            f"shuang yingyung chungkuo ch’ingtao p’ingan kuangtung hungk’ung ch’angchiang shen t’ingma")
+        self.assertEqual(result, ['wg'])
+
+    def test_detect_method_per_word(self):
+        result = detect_method(f"ni linping shang chang'an xiaoming yuanyang er shier xiong anwei fenghuang "
+                               f"renmin shuang yingyong zhongguo qingdao ping'an guangdong hongkong changjiang shen "
+                               f"tingma yia shoiji yiin", per_word=True)
+        self.assertEqual(result, [{'word': 'ni', 'methods': ['py', 'wg']},
+                                  {'word': 'linping', 'methods': ['py', 'wg']},
+                                  {'word': 'shang', 'methods': ['py', 'wg']},
+                                  {'word': "chang'an", 'methods': ['py']},
+                                  {'word': 'xiaoming', 'methods': ['py']},
+                                  {'word': 'yuanyang', 'methods': ['py', 'wg']},
+                                  {'word': 'er', 'methods': ['py']},
+                                  {'word': 'shier', 'methods': ['py']},
+                                  {'word': 'xiong', 'methods': ['py']},
+                                  {'word': 'anwei', 'methods': ['py', 'wg']},
+                                  {'word': 'fenghuang', 'methods': ['py', 'wg']},
+                                  {'word': 'renmin', 'methods': ['py']},
+                                  {'word': 'shuang', 'methods': ['py', 'wg']},
+                                  {'word': 'yingyong', 'methods': ['py']},
+                                  {'word': 'zhongguo', 'methods': ['py']},
+                                  {'word': 'qingdao', 'methods': ['py']},
+                                  {'word': "ping'an", 'methods': ['py']},
+                                  {'word': 'guangdong', 'methods': ['py']},
+                                  {'word': 'hongkong', 'methods': ['py']},
+                                  {'word': 'changjiang', 'methods': ['py']},
+                                  {'word': 'shen', 'methods': ['py', 'wg']},
+                                  {'word': 'tingma', 'methods': ['py', 'wg']},
+                                  {'word': 'yia', 'methods': []},
+                                  {'word': 'shoiji', 'methods': []},
+                                  {'word': 'yiin', 'methods': []}]
+                         )
 
     @patch('sys.stdout', new_callable=StringIO)
     def test_syllable_count_output(self, mock_stdout):
