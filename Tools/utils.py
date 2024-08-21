@@ -18,12 +18,14 @@ class Config:
 
 
 class TextChunkProcessor:
-    def __init__(self, text: str, config: Config, ar: np.ndarray, init_list: List[str], fin_list: List[str]):
+    def __init__(self, text: str, config: Config, ar: np.ndarray, init_list: List[str], fin_list: List[str],
+                 method: str):
         self.text = text
         self.config = config
         self.ar = ar
         self.init_list = init_list
         self.fin_list = fin_list
+        self.method = method
         self.chunks = []
         self.process_chunks()
 
