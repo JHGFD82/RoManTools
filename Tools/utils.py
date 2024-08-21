@@ -136,3 +136,32 @@ def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: boo
     chunks = process_text(text, method, config)
 
     return [lengths if all(syllable.valid for syllable in chunk) else 0 for chunk in chunks for lengths in [len(chunk)]]
+
+
+def detect_method(text: str, per_word: bool = False, crumbs: bool = False, error_skip: bool = False,
+                  error_report: bool = False) -> Union[List[str], List[Dict[str, List[str]]]]:
+    config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
+    methods = ['py', 'wg']
+
+    def detect_for_chunk(chunk: str) -> List[str]:
+        """Detect valid methods for a given chunk of text."""
+        result = []
+        for method in methods:
+            chunks = process_text(chunk, method, config)
+            if all(syllable.valid for chunk in chunks for syllable in chunk):
+                result.append(method)
+        return result
+
+    if per_word:
+        # Perform detection per word
+        words = text.split()  # Split by spaces
+        results = []
+        for word in words:
+            valid_methods = detect_for_chunk(word)
+            results.append({"word": word, "methods": valid_methods})
+        return results
+    else:
+        # Perform detection for the whole text
+        valid_methods = detect_for_chunk(text)
+        return valid_methods
+
