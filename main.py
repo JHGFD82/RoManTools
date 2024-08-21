@@ -1,5 +1,5 @@
 import argparse
-from Tools.utils import convert_text, cherry_pick, segment_text, syllable_count
+from Tools.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
 
 
 def normalize_method(method: str, context: str) -> str:
@@ -32,7 +32,8 @@ def main():
         'pronunciation',
         'segment',
         'syllable_count',
-        'detect_method'
+        'detect_method',
+        'validator'
     ], help='Action to perform')
     parser.add_argument('-i', '--input', type=str, dest='text', required=True,
                         help='Text to process')
@@ -104,6 +105,9 @@ def main():
     elif args.action == 'detect_method':
         result = detect_method(args.text, args.per_word)
         print(result)
+
+    elif args.action == 'validator':
+        result = validator(args.text, args.method)
         print(result)
 
 
