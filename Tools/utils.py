@@ -72,7 +72,8 @@ def get_method_params(method: str, config: Config) -> Dict[str, Union[List[str],
     return {
         'ar': ar,
         'init_list': init_list,
-        'fin_list': fin_list
+        'fin_list': fin_list,
+        'method': method
     }
 
 
