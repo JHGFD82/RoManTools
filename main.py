@@ -48,6 +48,9 @@ def main():
                         help='Source tone format for tone marking (numeric, unicode)')
     parser.add_argument('--tone_to', type=lambda x: normalize_method(x, 'tone'),
                         help='Target tone format for tone marking (numeric, unicode)')
+    parser.add_argument('--per-word', action='store_true',
+                        help='Perform action on each word within a multi-word string (currently only supported for '
+                             'detect_method process)')
 
     # OPTIONAL DEBUG PARAMETERS
     parser.add_argument('--crumbs', action='store_true',
@@ -99,7 +102,8 @@ def main():
         print(result)
 
     elif args.action == 'detect_method':
-        result = detect_method(args.text)
+        result = detect_method(args.text, args.per_word)
+        print(result)
         print(result)
 
 
