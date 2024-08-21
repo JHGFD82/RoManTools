@@ -55,9 +55,13 @@ class TextChunkProcessor:
         self.chunks.append(syllables)
 
     @staticmethod
-    def split_pinyin_word(word: str) -> Union[str, List[str]]:
-        split_words = re.split(r"[‘’'ʼ`\-–—]", word)
-        return split_words if len(split_words) > 1 else word
+    def split_word(self, word: str) -> List[str]:
+        if self.method == "wg":
+            # For Wade-Giles, split words using hyphens (including en-dash and em-dash)
+            split_words = re.split(r"[\-–—]", word)
+        else:
+            # For Pinyin or other systems, split on a broader range of delimiters
+            split_words = re.split(r"[‘’'ʼ`\-–—]", word)
 
     def get_chunks(self) -> List[Union[str, List[Syllable]]]:
         return self.chunks
