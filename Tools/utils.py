@@ -63,7 +63,7 @@ class TextChunkProcessor:
 
 
 def get_method_params(method: str, config: Config) -> Dict[str, Union[List[str], np.ndarray]]:
-    method_file = f'{method.lower()}DF'
+    method_file = f'{method}DF'
     init_list, fin_list, ar = load_romanization_data(os.path.join(base_path, 'data', f'{method_file}.csv'))
 
     if config.crumbs:
