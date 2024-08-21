@@ -5,13 +5,14 @@ vowel = ['a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ']
 
 
 class Syllable:
-    def __init__(self, text: str, config: Any, ar: np.ndarray, init_list: List[str], fin_list: List[str],
+    def __init__(self, text: str, config: Any, ar: np.ndarray, init_list: List[str], fin_list: List[str], method: str,
                  remainder: str = ""):
         self.text = text
         self.remainder = remainder
         self.init_list = init_list
         self.fin_list = fin_list
         self.ar = ar
+        self.method = method
         self.config = config
         self.initial = ""
         self.final = ""
