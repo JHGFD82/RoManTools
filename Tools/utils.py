@@ -165,3 +165,11 @@ def detect_method(text: str, per_word: bool = False, crumbs: bool = False, error
         valid_methods = detect_for_chunk(text)
         return valid_methods
 
+
+def validator(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False)\
+        -> List[List[bool]]:
+    config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
+
+    chunks = process_text(text, method, config)
+
+    return [[syllable.valid for syllable in chunk] for chunk in chunks]
