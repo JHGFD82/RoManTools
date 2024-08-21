@@ -78,8 +78,11 @@ class Syllable:
         remainder = len(text) - i - 1
 
         # Handle "er" and "erh"
-        if text[i - 1:i + 1] == 'er' and (remainder == 0 or text[i + 1] not in vowel):
-            return text[:i + 1]
+        if text[i - 1:i + 1] == 'er':
+            if remainder == 0 and text[i + 1] not in vowel:
+                return text[:i + 1]
+            elif self.method == 'wg' and remainder == 1 and text[i + 1] == 'h':
+                return text[:i + 2]
 
         # Handle "n" and "ng"
         elif text[i] == 'n':
