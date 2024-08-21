@@ -33,24 +33,19 @@ class TextChunkProcessor:
         words = re.findall(r"[a-zA-ZüÜ]+(?:['’ʼ`\-–—][a-zA-ZüÜ]+)?", self.text)
 
         for word in words:
-            split_words = self.split_pinyin_word(word)
+            split_words = self.split_word(self, word)
             self._process_split_words(split_words)
 
-    def _process_split_words(self, split_words: Union[str, List[str]]):
+    def _process_split_words(self, split_words: List[str]):
         syllables = []
+        for syllable in split_words:
+            remaining_text = syllable
 
-        if isinstance(split_words, list):
-            for i, part in enumerate(split_words):
-                remainder = split_words[i + 1] if i < len(split_words) - 1 else ""
-                syllables.append(Syllable(part, self.config, self.ar, self.init_list, self.fin_list, remainder))
-        else:
-            remaining_text = split_words
             while remaining_text:
-                syllable_obj = Syllable(remaining_text, self.config, self.ar, self.init_list, self.fin_list)
+                syllable_obj = Syllable(remaining_text, self.config, self.ar, self.init_list, self.fin_list,
+                                        self.method)
                 syllables.append(syllable_obj)
                 remaining_text = syllable_obj.remainder
-                if not syllable_obj.remainder:
-                    break
 
         self.chunks.append(syllables)
 
