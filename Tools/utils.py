@@ -1,7 +1,7 @@
 # utils.py
 import re
 import os
-from typing import Dict, Union, List
+from typing import Dict, Union, List, Tuple
 import numpy as np
 from .syllable import Syllable
 from .conversion import RomanizationConverter
@@ -86,20 +86,24 @@ def process_text(text: str, method: str, config: Config) -> List[Union[List[Syll
     return processor.get_chunks()
 
 
-def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False)\
-        -> List[Union[List[Syllable], Syllable]]:
+def setup_and_process(text: str, method: str, crumbs: bool = False, error_skip: bool = False,
+                      error_report: bool = False) -> Tuple[Config, List[Union[List[Syllable], Syllable]]]:
     config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
-
     chunks = process_text(text, method, config)
+    return config, chunks
+
+
+def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False) \
+        -> List[Union[List[Syllable], Syllable]]:
+    config, chunks = setup_and_process(text, method, crumbs, error_skip, error_report)
 
     return [[chunk.full_syllable for chunk in chunks] for chunks in chunks]
 
 
 def convert_text(text: str, method_combination: str, crumbs: bool = False, error_skip: bool = False,
                  error_report: bool = False) -> str:
-    config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
+    config, chunks = setup_and_process(text, method_combination[:2], crumbs, error_skip, error_report)
 
-    chunks = process_text(text, method_combination[:2], config)
     converter = RomanizationConverter(method_combination)
 
     result = ' '.join(
@@ -129,11 +133,9 @@ def cherry_pick(words: str, convert, converter):
     return ' '.join(converted_words)
 
 
-def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False)\
+def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False) \
         -> list[int]:
-    config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
-
-    chunks = process_text(text, method, config)
+    config, chunks = setup_and_process(text, method, crumbs, error_skip, error_report)
 
     return [lengths if all(syllable.valid for syllable in chunk) else 0 for chunk in chunks for lengths in [len(chunk)]]
 
@@ -165,12 +167,10 @@ def detect_method(text: str, per_word: bool = False, crumbs: bool = False, error
         valid_methods = detect_for_chunk(text)
         return valid_methods
 
-_
+
 def validator(text: str, method: str, per_word: bool = False, crumbs: bool = False, error_skip: bool = False,
               error_report: bool = False) -> Union[bool, list[dict]]:
-    config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
-
-    chunks = process_text(text, method, config)
+    config, chunks = setup_and_process(text, method, crumbs, error_skip, error_report)
 
     if not per_word:
         return all(syllable.valid for chunk in chunks for syllable in chunk)
