@@ -79,6 +79,35 @@ class TestRomanization(unittest.TestCase):
         self.assertEqual(result, [['ni'], ['lin', 'p’ing'], ['shang'], ['ch’an', 'kan'], ['hsiao', 'ming'],
                                   ['yüan', 'yang'], ['erh'], ['shih', 'erh'], ['hsiung'], ['an', 'wei'],
                                   ['feng', 'huang'], ['jen', 'min']])
+
+    # SYLLABLE VALIDATION TESTING #
+    def test_validator_true(self):
+        result = validator('ni linp’ing shang ch’ankan hsiaoming yüanyang erh shiherh hsiung anwei fenghuang',
+                           method='wg')
+        self.assertEqual(result, True)
+
+    def test_validator_false(self):
+        result = validator('ni linp’ing shang ch’anzkan hsiaoming yüanyang erh shiherh hsiung anwei fenghuang',
+                           method='wg')
+        self.assertEqual(result, False)
+
+    def test_validator_per_word(self):
+        result = validator("ni linpzing shangz chazng'an iaoming yuanng er shizer xiongew anwei fengghuang",
+                           method='py', per_word=True)
+        self.assertEqual(result, [
+            {'word': 'ni', 'syllables': ['ni'], 'valid': [True]},
+            {'word': 'linpzing', 'syllables': ['lin', 'pzing'], 'valid': [True, False]},
+            {'word': 'shangz', 'syllables': ['shang', 'z'], 'valid': [True, False]},
+            {'word': 'chazngan', 'syllables': ['cha', 'zng', 'an'], 'valid': [True, False, True]},
+            {'word': 'iaoming', 'syllables': ['i', 'ao', 'ming'], 'valid': [False, True, True]},
+            {'word': 'yuanng', 'syllables': ['yuan', 'ng'], 'valid': [True, False]},
+            {'word': 'er', 'syllables': ['er'], 'valid': [True]},
+            {'word': 'shizer', 'syllables': ['shi', 'zer'], 'valid': [True, False]},
+            {'word': 'xiongew', 'syllables': ['xiong', 'e', 'w'], 'valid': [True, True, False]},
+            {'word': 'anwei', 'syllables': ['an', 'wei'], 'valid': [True, True]},
+            {'word': 'fengghuang', 'syllables': ['feng', 'ghu', 'ang'], 'valid': [True, False, True]}]
+                         )
+
     # ROMANIZATON CONVERSION TESTING #
     def test_convert_text(self):
         result = convert_text('ni hao chang\'an yuan', method_combination='py_wg')
