@@ -10,67 +10,67 @@ class TestRomanization(unittest.TestCase):
 
     # PINYIN CHUNK GENERATION TESTING #
     def test_segment_text_basic_valid_syllable_vowel(self):
-        result = segment_text('a, e, o, ai, ou', method='PY')
+        result = segment_text('a, e, o, ai, ou', method='py')
         self.assertEqual(result, [['a'], ['e'], ['o'], ['ai'], ['ou']])
 
     def test_segment_text_basic_valid_syllable_initial(self):
-        result = segment_text('ba gu zhi ying kai lou yan', method='PY')
+        result = segment_text('ba gu zhi ying kai lou yan', method='py')
         self.assertEqual(result, [['ba'], ['gu'], ['zhi'], ['ying'], ['kai'], ['lou'], ['yan']])
 
     def test_segment_text_complex_finals_er_n_ng(self):
-        result = segment_text('han xiang ran ling er', method='PY')
+        result = segment_text('han xiang ran ling er', method='py')
         self.assertEqual(result, [['han'], ['xiang'], ['ran'], ['ling'], ['er']])
 
     def test_segment_text_complex_edge_cases(self):
-        result = segment_text('chen chong zhen', method='PY')
+        result = segment_text('chen chong zhen', method='py')
         self.assertEqual(result, [['chen'], ['chong'], ['zhen']])
 
     def test_segment_text_multi_syllable_no_apostrophe(self):
-        result = segment_text('xiaoming changan wenxin liangxiao', method='PY')
+        result = segment_text('xiaoming changan wenxin liangxiao', method='py')
         self.assertEqual(result, [['xiao', 'ming'], ['chan', 'gan'], ['wen', 'xin'], ['liang', 'xiao']])
 
     def test_segment_text_multi_syllable_apostrophe(self):
-        result = segment_text("chang'an shan'er li'an", method='PY')
+        result = segment_text("chang'an shan'er li'an", method='py')
         self.assertEqual(result, [['chang', 'an'], ['shan', 'er'], ['li', 'an']])
 
     def test_segment_text_multi_syllable_vowel_start(self):
-        result = segment_text('anwei aiai ouyang ewei', method='PY')
+        result = segment_text('anwei aiai ouyang ewei', method='py')
         self.assertEqual(result, [['an', 'wei'], ['ai', 'ai'], ['ou', 'yang'], ['e', 'wei']])
 
     def test_segment_text_invalid_initials(self):
-        result = segment_text('xa qo vei', method='PY')
+        result = segment_text('xa qo vei', method='py')
         self.assertEqual(result, [['xa'], ['qo'], ['v', 'ei']])
 
     def test_segment_text_invalid_finals(self):
-        result = segment_text('banp zhirr mingk', method='PY')
+        result = segment_text('banp zhirr mingk', method='py')
         self.assertEqual(result, [['ban', 'p'], ['zhi', 'rr'], ['ming', 'k']])
 
     def test_segment_text_special_cases_er_n_ng(self):
-        result = segment_text('sheng deng er han shier', method='PY')
+        result = segment_text('sheng deng er han shier', method='py')
         self.assertEqual(result, [['sheng'], ['deng'], ['er'], ['han'], ['shi', 'er']])
 
     def test_segment_text_special_cases_combined_initials(self):
-        result = segment_text('shuang huang shun', method='PY')
+        result = segment_text('shuang huang shun', method='py')
         self.assertEqual(result, [['shuang'], ['huang'], ['shun']])
 
     def test_segment_text_edge_cases_ambiguous_finals(self):
-        result = segment_text('wenti linping gangzhi', method='PY')
+        result = segment_text('wenti linping gangzhi', method='py')
         self.assertEqual(result, [['wen', 'ti'], ['lin', 'ping'], ['gang', 'zhi']])
 
     def test_segment_text_no_valid_finals(self):
-        result = segment_text('blar ziang shoing', method='PY')
+        result = segment_text('blar ziang shoing', method='py')
         self.assertEqual(result, [['bla', 'r'], ['zi', 'ang'], ['sho', 'ing']])
 
     def test_segment_text_multi_vowel_combinations(self):
-        result = segment_text('ai ei ou uan ie', method='PY')
+        result = segment_text('ai ei ou uan ie', method='py')
         self.assertEqual(result, [['ai'], ['ei'], ['ou'], ['u', 'an'], ['ie']])
 
     def test_segment_text_one_syllable_edge_case(self):
-        result = segment_text('a e ou yi', method='PY')
+        result = segment_text('a e ou yi', method='py')
         self.assertEqual(result, [['a'], ['e'], ['ou'], ['yi']])
 
     def test_segment_text_multi_syllable_edge_case_er_n_ng(self):
-        result = segment_text('zhuangyuan wenxiang gangren', method='PY')
+        result = segment_text('zhuangyuan wenxiang gangren', method='py')
         self.assertEqual(result, [['zhuang', 'yuan'], ['wen', 'xiang'], ['gang', 'ren']])
 
     # ROMANIZATON CONVERSION TESTING #
@@ -82,7 +82,7 @@ class TestRomanization(unittest.TestCase):
     def test_syllable_count(self):
         result = syllable_count(f"'ni linping shang chang'an xiaoming yuanyang er shier xiong anwei fenghuang "
                                 f"renmin shuang yingyong zhongguo qingdao ping'an guangdong hongkong changjiang shen "
-                                f"tingma yia shoiji yiin", method='PY')
+                                f"tingma yia shoiji yiin", method='py')
         self.assertEqual(result, [1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 0, 0, 0])
 
     def test_detect_method_py(self):
