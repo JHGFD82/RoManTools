@@ -81,16 +81,16 @@ def main():
         )
         print(result)
 
-    elif args.action == 'tone_mark':
-        if not args.tone_from or not args.tone_to:
-            parser.error("--tone_from and --tone_to are required for tone_mark action")
-        # Assume tone_mark function implementation
-        result = tone_mark(args.text, args.tone_from, args.tone_to)
-        print(result)
-
-    elif args.action == 'pronunciation':
-        result = convert_to_ipa(args.text)
-        print(result)
+    # elif args.action == 'tone_mark':
+    #     if not args.tone_from or not args.tone_to:
+    #         parser.error("--tone_from and --tone_to are required for tone_mark action")
+    #     # Assume tone_mark function implementation
+    #     result = tone_mark(args.text, args.tone_from, args.tone_to)
+    #     print(result)
+    #
+    # elif args.action == 'pronunciation':
+    #     result = convert_to_ipa(args.text)
+    #     print(result)
 
     elif args.action == 'segment':
         result = segment_text(args.text, args.method)
