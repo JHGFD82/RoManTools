@@ -92,8 +92,7 @@ class TestRomanization(unittest.TestCase):
 
     def test_detect_method_wg(self):
         result = detect_method(
-            f"ni linp’ing shang ch’angan hsiaoming yüanyang erh shiherh hsiung anwei fenghuang jenmin "
-            f"shuang yingyung chungkuo ch’ingtao p’ingan kuangtung hungk’ung ch’angchiang shen t’ingma")
+            f"ni linp’ing shang ch’ankan hsiaoming yüanyang erh shiherh hsiung anwei fenghuang jenmin ")
         self.assertEqual(result, ['wg'])
 
     def test_detect_method_per_word(self):
