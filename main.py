@@ -3,6 +3,32 @@ from Tools.utils import convert_text, cherry_pick, segment_text, syllable_count,
 
 
 def normalize_method(method: str, context: str) -> str:
+    """
+
+    This method takes in two parameters: 'method' and 'context', both of type string. It returns a string as the output.
+
+    Parameters:
+        - method (str): The romanization or tone mark method to normalize.
+        - context (str): The context in which the method is used ('romanization' or 'tone').
+
+    Returns:
+        - str: The normalized method.
+
+    This method first converts the input 'method' to lowercase. It then checks if the 'method' belongs to the
+    romanization methods list ['pinyin', 'py', 'wade-giles', 'wg']. If it does, it further checks the specific method
+    and returns the corresponding normalized method ('py' for 'pinyin' or 'py', 'wg' for 'wade-giles' or 'wg').
+
+    If the 'method' does not belong to the romanization methods list, it checks if it belongs to the tone methods list
+    ['numeric', 'unicode']. If it does, it simply returns the method as it is.
+
+    If neither of the above conditions is met, it checks the 'context' parameter. If the 'context' is 'romanization', it
+    raises an error with a message indicating the invalid romanization method. If the 'context' is 'tone', it raises an
+    error with a message indicating the invalid tone mark format.
+
+    Note: This method uses the 'argparse' module to raise errors. Make sure to import the 'argparse' module before using
+    this method.
+
+    """
     method = method.lower()
     romanization_methods = ['pinyin', 'py', 'wade-giles', 'wg']
     tone_methods = ['numeric', 'unicode']
