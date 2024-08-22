@@ -79,10 +79,16 @@ class Syllable:
 
         # Handle "er" and "erh"
         if text[i - 1:i + 1] == 'er':
-            if remainder == 0 and text[i + 1] not in vowel:
+            if remainder == 0 or (self.method != 'wg' and text[i + 1] not in vowel):
                 return text[:i + 1]
-            elif self.method == 'wg' and remainder == 1 and text[i + 1] == 'h':
-                return text[:i + 2]
+            elif self.method == 'wg':
+                if remainder == 1 and text[i + 1] == 'h':
+                    return text[:i + 2]
+
+        # Handle "h" with Wade-Giles
+        elif text[i] == 'h' and self.method == 'wg':
+            valid_h = remainder == 0 or text[i + 1] not in vowel or not self._validate_final(initial, text[:i])
+            return text[:i + 1] if valid_h else text[:i]  # Return "h" or fall back
 
         # Handle "n" and "ng"
         elif text[i] == 'n':
