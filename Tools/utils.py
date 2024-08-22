@@ -27,14 +27,17 @@ class TextChunkProcessor:
         self.fin_list = fin_list
         self.method = method
         self.chunks = []
-        self.process_chunks()
+        self._process_chunks()
 
-    def process_chunks(self):
-        words = re.findall(r"[a-zA-ZüÜ]+(?:['’ʼ`\-–—][a-zA-ZüÜ]+)?", self.text)
+    def _split_word(self, word: str) -> List[str]:
+        if self.method == "wg":
+            # For Wade-Giles, split words using hyphens (including en-dash and em-dash)
+            split_words = re.split(r"[\-–—]", word)
+        else:
+            # For Pinyin or other systems, split on a broader range of delimiters
+            split_words = re.split(r"[‘’'ʼ`\-–—]", word)
 
-        for word in words:
-            split_words = self.split_word(self, word)
-            self._process_split_words(split_words)
+        return split_words if len(split_words) > 1 else [word]
 
     def _process_split_words(self, split_words: List[str]):
         syllables = []
@@ -49,16 +52,12 @@ class TextChunkProcessor:
 
         self.chunks.append(syllables)
 
-    @staticmethod
-    def split_word(self, word: str) -> List[str]:
-        if self.method == "wg":
-            # For Wade-Giles, split words using hyphens (including en-dash and em-dash)
-            split_words = re.split(r"[\-–—]", word)
-        else:
-            # For Pinyin or other systems, split on a broader range of delimiters
-            split_words = re.split(r"[‘’'ʼ`\-–—]", word)
+    def _process_chunks(self):
+        words = re.findall(r"[a-zA-ZüÜ]+(?:['’ʼ`\-–—][a-zA-ZüÜ]+)?", self.text)
 
-        return split_words if len(split_words) > 1 else [word]
+        for word in words:
+            split_words = self._split_word(word)
+            self._process_split_words(split_words)
 
     def get_chunks(self) -> List[List[Syllable]]:
         return self.chunks
