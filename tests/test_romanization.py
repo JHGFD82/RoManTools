@@ -1,7 +1,7 @@
 # tests/test_romanization.py
 
 import unittest
-from Tools.utils import convert_text, segment_text, syllable_count, detect_method
+from Tools.utils import convert_text, segment_text, syllable_count, detect_method, validator
 from io import StringIO
 from unittest.mock import patch
 

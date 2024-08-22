@@ -165,11 +165,24 @@ def detect_method(text: str, per_word: bool = False, crumbs: bool = False, error
         valid_methods = detect_for_chunk(text)
         return valid_methods
 
-
-def validator(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False)\
-        -> List[List[bool]]:
+_
+def validator(text: str, method: str, per_word: bool = False, crumbs: bool = False, error_skip: bool = False,
+              error_report: bool = False) -> Union[bool, list[dict]]:
     config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
 
     chunks = process_text(text, method, config)
 
-    return [[syllable.valid for syllable in chunk] for chunk in chunks]
+    if not per_word:
+        return all(syllable.valid for chunk in chunks for syllable in chunk)
+
+    # Return detailed information per word
+    result = []
+    for word_chunks in chunks:
+        word_result = {
+            'word': ''.join(chunk.full_syllable for chunk in word_chunks),
+            'syllables': [chunk.full_syllable for chunk in word_chunks],
+            'valid': [chunk.valid for chunk in word_chunks]
+        }
+        result.append(word_result)
+
+    return result

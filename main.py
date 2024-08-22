@@ -107,7 +107,7 @@ def main():
         print(result)
 
     elif args.action == 'validator':
-        result = validator(args.text, args.method)
+        result = validator(args.text, args.method, args.per_word)
         print(result)
 
 
