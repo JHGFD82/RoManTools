@@ -73,6 +73,12 @@ class TestRomanization(unittest.TestCase):
         result = segment_text('zhuangyuan wenxiang gangren', method='py')
         self.assertEqual(result, [['zhuang', 'yuan'], ['wen', 'xiang'], ['gang', 'ren']])
 
+    def test_segment_text_wade_giles(self):
+        result = segment_text('ni linp’ing shang ch’ankan hsiaoming yüanyang erh shiherh hsiung anwei fenghuang '
+                              'jenmin', method='wg')
+        self.assertEqual(result, [['ni'], ['lin', 'p’ing'], ['shang'], ['ch’an', 'kan'], ['hsiao', 'ming'],
+                                  ['yüan', 'yang'], ['erh'], ['shih', 'erh'], ['hsiung'], ['an', 'wei'],
+                                  ['feng', 'huang'], ['jen', 'min']])
     # ROMANIZATON CONVERSION TESTING #
     def test_convert_text(self):
         result = convert_text('ni hao chang\'an yuan', method_combination='py_wg')
