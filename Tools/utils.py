@@ -249,23 +249,23 @@ def convert_text(text: str, method_combination: str, crumbs: bool = False, error
     return result.strip()
 
 
-def cherry_pick(words: str, convert, converter):
-    stopwords = load_stopwords(os.path.join(base_path, 'data', 'stopwords.txt'))
-    converted_words = []
-
-    for word in words:
-        adjusted_word = ''.join(syl.full_syl for syl in word)
-        valid_word = all(syl.valid for syl in word)
-
-        if valid_word and adjusted_word not in stopwords:
-            adjusted_word = '-'.join(converter.convert(syl.full_syl, convert) for syl in word)
-
-        if 'cap' in word[0].__dict__:
-            adjusted_word = adjusted_word.capitalize()
-
-        converted_words.append(adjusted_word)
-
-    return ' '.join(converted_words)
+# def cherry_pick(words: str, convert, converter):
+#     stopwords = load_stopwords(os.path.join(base_path, 'data', 'stopwords.txt'))
+#     converted_words = []
+#
+#     for word in words:
+#         adjusted_word = ''.join(syl.full_syl for syl in word)
+#         valid_word = all(syl.valid for syl in word)
+#
+#         if valid_word and adjusted_word not in stopwords:
+#             adjusted_word = '-'.join(converter.convert(syl.full_syl, convert) for syl in word)
+#
+#         if 'cap' in word[0].__dict__:
+#             adjusted_word = adjusted_word.capitalize()
+#
+#         converted_words.append(adjusted_word)
+#
+#     return ' '.join(converted_words)
 
 
 def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False) \
