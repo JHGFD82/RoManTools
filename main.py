@@ -1,5 +1,5 @@
 import argparse
-from Tools.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
+from Tools.utils import convert_text, segment_text, syllable_count, detect_method, validator
 
 
 def normalize_method(method: str, context: str) -> str:
@@ -73,6 +73,53 @@ def validate_arguments(args):
         #         raise ValueError(f'Both --tone_from and --tone_to arguments are required for the {args.action} action.')
 
 
+#  BASIC ACTIONS #
+def segment_action(args):
+    return segment_text(args.text, args.method)
+
+def validator_action(args):
+    return validator(args.text, args.method, args.per_word)
+
+# CONVERSION ACTIONS #
+def convert_action(args):
+    method_combination = f"{args.convert_from}_{args.convert_to}"
+    return convert_text(args.text, method_combination, args.crumbs, args.error_skip, args.error_report)
+
+# def cherry_pick_action(args):
+#     method_combination = f"{args.convert_from}_{args.convert_to}"
+#     return cherry_pick(args.text, method_combination, args.crumbs, True, args.error_report)
+
+# OTHER UTILITY ACTIONS #
+def syllable_count_action(args):
+    return syllable_count(args.text, args.method, args.crumbs, args.error_skip, args.error_report)
+
+def detect_method_action(args):
+    return detect_method(args.text, args.per_word)
+
+# elif args.action == 'tone_mark':
+#     if not args.tone_from or not args.tone_to:
+#         parser.error("--tone_from and --tone_to are required for tone_mark action")
+#     # Assume tone_mark function implementation
+#     result = tone_mark(args.text, args.tone_from, args.tone_to)
+#     print(result)
+#
+# elif args.action == 'pronunciation':
+#     result = convert_to_ipa(args.text)
+#     print(result)
+
+# Map actions to functions
+ACTIONS = {
+    "segment": segment_action,
+    "validator": validator_action,
+    "convert": convert_action,
+    # "cherry_pick": cherry_pick_action,
+    "syllable_count": syllable_count_action,
+    "detect_method": detect_method_action,
+    # "tone_mark": tone_mark_action,
+    # "pronunciation": pronunciation_action
+}
+
+
 def main():
     parser = argparse.ArgumentParser(description='RoManTools: Romanized Mandarin Tools')
 
@@ -116,53 +163,12 @@ def main():
                         help='Include error messages in the output')
 
     args = parser.parse_args()
+
+    # Validate common arguments here
     validate_arguments(args)
 
-    # CONVERSION ACTIONS #
-    if args.action == 'convert':
-        method_combination = f"{args.convert_from}_{args.convert_to}"
-        result = convert_text(args.text, method_combination, args.crumbs, args.error_skip, args.error_report)
-        print(result)
-
-    elif args.action == 'cherry_pick':
-        args.error_skip = True
-        result = cherry_pick(
-            text=args.text,
-            method=args.convert_from + args.convert_to
-        )
-        print(result)
-
-    # elif args.action == 'tone_mark':
-    #     if not args.tone_from or not args.tone_to:
-    #         parser.error("--tone_from and --tone_to are required for tone_mark action")
-    #     # Assume tone_mark function implementation
-    #     result = tone_mark(args.text, args.tone_from, args.tone_to)
-    #     print(result)
-    #
-    # elif args.action == 'pronunciation':
-    #     result = convert_to_ipa(args.text)
-    #     print(result)
-
-    # SEGMENT-RELATED ACTIONS #
-    elif args.action == 'segment':
-        result = segment_text(args.text, args.method)
-        print(result)
-
-    elif args.action == 'validator':
-        result = validator(args.text, args.method, args.per_word)
-        print(result)
-
-    # OTHER UTILITIES #
-    elif args.action == 'syllable_count':
-        result = syllable_count(args.text, args.method, args.crumbs, args.error_skip, args.error_report)
-        print(result)
-
-    elif args.action == 'detect_method':
-        result = detect_method(args.text, args.per_word)
-        print(result)
-
-
-
+    # Call the appropriate function
+    print(ACTIONS[args.action](args))
 
 if __name__ == '__main__':
     main()
