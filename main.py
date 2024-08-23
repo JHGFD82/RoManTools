@@ -47,6 +47,32 @@ def normalize_method(method: str, context: str) -> str:
             raise argparse.ArgumentTypeError(f"Invalid tone mark format: {method}")
 
 
+def validate_arguments(args):
+    """
+    Validates the provided arguments based on the selected action.
+    Raises appropriate errors if required arguments are missing.
+
+    Parameters:
+    - args: The parsed arguments from argparse.
+
+    Returns:
+    - None
+    """
+    if args.action in ['segment', 'validator', 'syllable_count', 'detect_method']:
+        if not args.text:
+            raise ValueError(f'The --text argument is required for the {args.action} action.')
+
+        # Additional checks for method-related actions
+        if args.action in ['convert_text', 'cherry_pick']:
+            if not args.convert_from or not args.convert_to:
+                raise ValueError(f'Both --convert_from and --convert_to arguments are required for the {args.action} action.')
+
+        # # Checks specific to tone-related actions
+        # if args.action == 'change_tone':
+        #     if not args.tone_from or not args.tone_to:
+        #         raise ValueError(f'Both --tone_from and --tone_to arguments are required for the {args.action} action.')
+
+
 def main():
     parser = argparse.ArgumentParser(description='RoManTools: Romanized Mandarin Tools')
 
@@ -90,19 +116,16 @@ def main():
                         help='Include error messages in the output')
 
     args = parser.parse_args()
+    validate_arguments(args)
 
-    # Validate and execute actions
+    # CONVERSION ACTIONS #
     if args.action == 'convert':
-        if not args.convert_from or not args.convert_to:
-            parser.error("--convert_from and --convert_to are required for convert action")
         method_combination = f"{args.convert_from}_{args.convert_to}"
         result = convert_text(args.text, method_combination, args.crumbs, args.error_skip, args.error_report)
         print(result)
 
     elif args.action == 'cherry_pick':
         args.error_skip = True
-        if not args.convert_from or not args.convert_to:
-            parser.error("--convert_from and --convert_to are required for cherry_pick action")
         result = cherry_pick(
             text=args.text,
             method=args.convert_from + args.convert_to
@@ -120,13 +143,17 @@ def main():
     #     result = convert_to_ipa(args.text)
     #     print(result)
 
+    # SEGMENT-RELATED ACTIONS #
     elif args.action == 'segment':
         result = segment_text(args.text, args.method)
         print(result)
 
+    elif args.action == 'validator':
+        result = validator(args.text, args.method, args.per_word)
+        print(result)
+
+    # OTHER UTILITIES #
     elif args.action == 'syllable_count':
-        if not args.method:
-            parser.error("--method is required for syllable_count action")
         result = syllable_count(args.text, args.method, args.crumbs, args.error_skip, args.error_report)
         print(result)
 
@@ -134,9 +161,7 @@ def main():
         result = detect_method(args.text, args.per_word)
         print(result)
 
-    elif args.action == 'validator':
-        result = validator(args.text, args.method, args.per_word)
-        print(result)
+
 
 
 if __name__ == '__main__':
