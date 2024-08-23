@@ -96,31 +96,66 @@ def convert_text(text: str, method_combination: str, crumbs: bool = False, error
 
     converter = RomanizationConverter(method_combination)
 
-    result = ' '.join(
-        ''.join(converter.convert(syllable.full_syllable) for syllable in chunk) if isinstance(chunk, list)
-        else converter.convert(chunk.full_syllable) for chunk in chunks
-    )
+    converted_words = []
 
-    return result.strip()
+    for chunk in chunks:
+        converted_syllables = []
+        for syllable in chunk:
+            # Convert the syllable based on the specified method combination
+            converted_text = converter.convert(syllable.full_syllable)
+
+            # Reapply capitalization based on stored flags
+            if syllable.uppercase:
+                converted_text = converted_text.upper()
+            elif syllable.capitalize:
+                converted_text = converted_text.capitalize()
+
+            converted_syllables.append(converted_text)
+
+        # Join syllables back into a word and add it to the result
+        converted_words.append("".join(converted_syllables))
+
+    # Join words back into a single string and return the converted text
+    return " ".join(converted_words)
 
 
-# def cherry_pick(words: str, convert, converter):
-#     stopwords = load_stopwords(os.path.join(base_path, 'data', 'stopwords.txt'))
-#     converted_words = []
-#
-#     for word in words:
-#         adjusted_word = ''.join(syl.full_syl for syl in word)
-#         valid_word = all(syl.valid for syl in word)
-#
-#         if valid_word and adjusted_word not in stopwords:
-#             adjusted_word = '-'.join(converter.convert(syl.full_syl, convert) for syl in word)
-#
-#         if 'cap' in word[0].__dict__:
-#             adjusted_word = adjusted_word.capitalize()
-#
-#         converted_words.append(adjusted_word)
-#
-#     return ' '.join(converted_words)
+def cherry_pick(text: str, method_combination: str, crumbs: bool = False, error_skip: bool = False,
+                error_report: bool = False) -> str:
+    stopwords = load_stopwords()
+    config, chunks = _setup_and_process(text, method_combination[:2], crumbs, error_skip, error_report)
+    converter = RomanizationConverter(method_combination)
+    converted_words = []
+
+    for chunk in chunks:
+        if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
+            # Perform the conversion process first, regardless of validity
+            converted_syllables = []
+            for syl in chunk:
+                # Convert the syllable normally
+                converted_text = converter.convert(syl.full_syllable)
+
+                # Reapply capitalization based on stored flags
+                if syl.uppercase:
+                    converted_text = converted_text.upper()
+                elif syl.capitalize:
+                    converted_text = converted_text.capitalize()
+
+                converted_syllables.append(converted_text)
+
+            # Combine the syllables into a single word
+            adjusted_word = ''.join(converted_syllables)
+
+            # If the word is valid and not a stopword, use the converted version
+            if all(syl.valid for syl in chunk) and adjusted_word.lower() not in stopwords:
+                converted_words.append(adjusted_word)
+            else:
+                # If invalid, return the original syllables with capitalization preserved
+                converted_words.append(''.join(syl.full_syllable for syl in chunk))
+        else:
+            # Non-Syllable text (e.g., punctuation) is returned as-is
+            converted_words.append(chunk)
+
+    return ''.join(converted_words)
 
 
 def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False) \
