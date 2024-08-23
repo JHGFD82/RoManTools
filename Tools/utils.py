@@ -3,7 +3,7 @@ import re
 import os
 from typing import Dict, Union, List, Tuple
 import numpy as np
-from .syllable import Syllable
+from .syllable import SyllableProcessor, Syllable
 from .conversion import RomanizationConverter
 from .data_loader import load_romanization_data, load_stopwords
 
@@ -84,6 +84,7 @@ class TextChunkProcessor:
         self.fin_list = fin_list
         self.method = method
         self.chunks = []
+        self.syllable_processor = SyllableProcessor(config, ar, init_list, fin_list, method)
         self._process_chunks()
 
     def _split_word(self, word: str) -> List[str]:
@@ -102,8 +103,7 @@ class TextChunkProcessor:
             remaining_text = syllable
 
             while remaining_text:
-                syllable_obj = Syllable(remaining_text, self.config, self.ar, self.init_list, self.fin_list,
-                                        self.method)
+                syllable_obj = self.syllable_processor.create_syllable(remaining_text)
                 syllables.append(syllable_obj)
                 remaining_text = syllable_obj.remainder
 
