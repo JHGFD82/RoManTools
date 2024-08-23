@@ -87,6 +87,13 @@ class TextChunkProcessor:
         self.syllable_processor = SyllableProcessor(config, ar, init_list, fin_list, method)
         self._process_chunks()
 
+    def _process_chunks(self):
+        words = re.findall(r"[a-zA-ZüÜ]+(?:['’ʼ`\-–—][a-zA-ZüÜ]+)?", self.text)
+
+        for word in words:
+            split_words = self._split_word(word)
+            self._process_split_words(split_words)
+
     def _split_word(self, word: str) -> List[str]:
         if self.method == "wg":
             # For Wade-Giles, split words using hyphens (including en-dash and em-dash)
@@ -108,13 +115,6 @@ class TextChunkProcessor:
                 remaining_text = syllable_obj.remainder
 
         self.chunks.append(syllables)
-
-    def _process_chunks(self):
-        words = re.findall(r"[a-zA-ZüÜ]+(?:['’ʼ`\-–—][a-zA-ZüÜ]+)?", self.text)
-
-        for word in words:
-            split_words = self._split_word(word)
-            self._process_split_words(split_words)
 
     def get_chunks(self) -> List[List[Syllable]]:
         return self.chunks
