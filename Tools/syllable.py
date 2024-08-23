@@ -72,6 +72,8 @@ class Syllable:
         self.final = ""
         self.full_syllable = ""
         self.valid = False
+        self.capitalize = False
+        self.uppercase = False
         self._process_syllable()
 
     def _process_syllable(self):

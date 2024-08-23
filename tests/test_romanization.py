@@ -1,5 +1,3 @@
-# tests/test_romanization.py
-
 import unittest
 from Tools.utils import convert_text, segment_text, syllable_count, detect_method, validator
 from io import StringIO
@@ -80,6 +78,13 @@ class TestRomanization(unittest.TestCase):
                                   ['yüan', 'yang'], ['erh'], ['shih', 'erh'], ['hsiung'], ['an', 'wei'],
                                   ['feng', 'huang'], ['jen', 'min']])
 
+    def test_segment_text_ignore_capitalization(self):
+        result = segment_text('Ni linp’ing SHANG ch’ankan Hsiaoming yüanyang erh SHIHERH hsiung Anwei fenghuang '
+                              'jenmin', method='wg')
+        self.assertEqual(result, [['ni'], ['lin', 'p’ing'], ['shang'], ['ch’an', 'kan'], ['hsiao', 'ming'],
+                                  ['yüan', 'yang'], ['erh'], ['shih', 'erh'], ['hsiung'], ['an', 'wei'],
+                                  ['feng', 'huang'], ['jen', 'min']])
+
     # SYLLABLE VALIDATION TESTING #
     def test_validator_true(self):
         result = validator('ni linp’ing shang ch’ankan hsiaoming yüanyang erh shiherh hsiung anwei fenghuang',
@@ -113,6 +118,14 @@ class TestRomanization(unittest.TestCase):
         result = convert_text('ni hao chang\'an yuan', method_combination='py_wg')
         self.assertEqual(result, 'ni hao ch’angan yüan')
 
+    def test_convert_text_titlecase(self):
+        result = convert_text('Ni hao Chang\'an Yuan', method_combination='py_wg')
+        self.assertEqual(result, 'Ni hao Ch’angan Yüan')
+
+    def test_convert_text_uppercase(self):
+        result = convert_text('NI HAO Chang\'an YUAN', method_combination='py_wg')
+        self.assertEqual(result, 'NI HAO Ch’angan YÜAN')
+
     # SYLLABLE_COUNT TESTING #
     def test_syllable_count(self):
         result = syllable_count(f"'ni linping shang chang'an xiaoming yuanyang er shier xiong anwei fenghuang "
@@ -120,6 +133,7 @@ class TestRomanization(unittest.TestCase):
                                 f"tingma yia shoiji yiin", method='py')
         self.assertEqual(result, [1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 0, 0, 0])
 
+    # METHOD DETECTION TESTING #
     def test_detect_method_py(self):
         result = detect_method(f"'ni linping shang chang'an xiaoming yuanyang er shier xiong anwei fenghuang renmin "
                                f"shuang yingyong zhongguo qingdao ping'an guangdong hongkong changjiang shen tingma")
@@ -161,6 +175,7 @@ class TestRomanization(unittest.TestCase):
                                   {'word': 'yiin', 'methods': []}]
                          )
 
+    # CRUMBS TESTING #
     # @patch('sys.stdout', new_callable=StringIO)
     # def test_syllable_count_output(self, mock_stdout):
     #     syllable_count('ni hao', method='py', crumbs=True)
