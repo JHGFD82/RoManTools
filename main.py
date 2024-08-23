@@ -1,5 +1,5 @@
 import argparse
-from Tools.utils import convert_text, segment_text, syllable_count, detect_method, validator
+from Tools.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
 
 
 def normalize_method(method: str, context: str) -> str:
@@ -85,9 +85,9 @@ def convert_action(args):
     method_combination = f"{args.convert_from}_{args.convert_to}"
     return convert_text(args.text, method_combination, args.crumbs, args.error_skip, args.error_report)
 
-# def cherry_pick_action(args):
-#     method_combination = f"{args.convert_from}_{args.convert_to}"
-#     return cherry_pick(args.text, method_combination, args.crumbs, True, args.error_report)
+def cherry_pick_action(args):
+    method_combination = f"{args.convert_from}_{args.convert_to}"
+    return cherry_pick(args.text, method_combination, args.crumbs, True, args.error_report)
 
 # OTHER UTILITY ACTIONS #
 def syllable_count_action(args):
@@ -112,7 +112,7 @@ ACTIONS = {
     "segment": segment_action,
     "validator": validator_action,
     "convert": convert_action,
-    # "cherry_pick": cherry_pick_action,
+    "cherry_pick": cherry_pick_action,
     "syllable_count": syllable_count_action,
     "detect_method": detect_method_action,
     # "tone_mark": tone_mark_action,
