@@ -1,6 +1,9 @@
-# data_loader.py
-from typing import Tuple, List
+from .config import Config
+from typing import Tuple, List, Dict, Union
 import numpy as np
+import os
+
+base_path = os.path.dirname(__file__)
 
 
 def load_romanization_data(file_path: str) -> Tuple[List[str], List[str], np.ndarray]:
@@ -82,6 +85,7 @@ def load_stopwords() -> List[str]:
         List[str]: A list of stopwords read from the file.
 
     """
+    file_path = os.path.join(base_path, 'data', 'stopwords.txt')
     with open(file_path, 'r') as f:
         stopwords = f.read().splitlines()
     return stopwords
