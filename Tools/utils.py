@@ -120,35 +120,7 @@ class TextChunkProcessor:
         return self.chunks
 
 
-def _get_method_params(method: str, config: Config) -> Dict[str, Union[List[str], np.ndarray]]:
-    """
-
-    Get method parameters for the given method and configuration.
-
-    Parameters:
-        method (str): The name of the method.
-        config (Config): The configuration object.
-
-    Returns:
-        dict: A dictionary containing the following keys:
-            - 'ar' (numpy.ndarray): The AR parameter.
-            - 'init_list' (list of str): The initial list parameter.
-            - 'fin_list' (list of str): The final list parameter.
-            - 'method' (str): The method parameter.
-
-    """
-    method_file = f'{method}DF'
-    init_list, fin_list, ar = load_romanization_data(os.path.join(base_path, 'data', f'{method_file}.csv'))
-
-    if config.crumbs:
-        print(f"# {method.upper()} romanization data loaded #")
-
-    return {
-        'ar': ar,
-        'init_list': init_list,
-        'fin_list': fin_list,
-        'method': method
-    }
+from .data_loader import load_method_params, load_stopwords
 
 
 def _process_text(text: str, method: str, config: Config) -> List[Union[List[Syllable], Syllable]]:
@@ -167,7 +139,7 @@ def _process_text(text: str, method: str, config: Config) -> List[Union[List[Syl
     """
     if config.crumbs:
         print(f'# Analyzing {text} #')
-    processor = TextChunkProcessor(text, config, **_get_method_params(method, config))
+    processor = TextChunkProcessor(text, config, **load_method_params(method, config))
     return processor.get_chunks()
 
 

@@ -42,13 +42,41 @@ def load_romanization_data(file_path: str) -> Tuple[List[str], List[str], np.nda
     return init_list, fin_list, ar
 
 
-def load_stopwords(file_path: str) -> List[str]:
+def load_method_params(method: str, config: Config) -> Dict[str, Union[List[str], np.ndarray]]:
+    """
+
+    Get method parameters for the given method and configuration.
+
+    Parameters:
+        method (str): The name of the method.
+        config (Config): The configuration object.
+
+    Returns:
+        dict: A dictionary containing the following keys:
+            - 'ar' (numpy.ndarray): The AR parameter.
+            - 'init_list' (list of str): The initial list parameter.
+            - 'fin_list' (list of str): The final list parameter.
+            - 'method' (str): The method parameter.
+
+    """
+    method_file = f'{method}DF'
+    init_list, fin_list, ar = load_romanization_data(os.path.join(base_path, 'data', f'{method_file}.csv'))
+
+    if config.crumbs:
+        print(f"# {method.upper()} romanization data loaded #")
+
+    return {
+        'ar': ar,
+        'init_list': init_list,
+        'fin_list': fin_list,
+        'method': method
+    }
+
+
+def load_stopwords() -> List[str]:
     """
 
     Load stopwords from a given file.
-
-    Parameters:
-        file_path (str): The path to the file containing the stopwords.
 
     Returns:
         List[str]: A list of stopwords read from the file.
