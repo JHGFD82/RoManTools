@@ -1,3 +1,4 @@
+from .config import Config
 from typing import Tuple, Any, List
 import numpy as np
 
@@ -5,7 +6,7 @@ vowel = ['a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ']
 
 
 class SyllableProcessor:
-    def __init__(self, config: Any, ar: np.ndarray, init_list: List[str], fin_list: List[str], method: str):
+    def __init__(self, config: Config, ar: np.ndarray, init_list: List[str], fin_list: List[str], method: str):
         self.config = config
         self.ar = ar
         self.init_list = init_list
