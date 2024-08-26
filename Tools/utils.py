@@ -121,37 +121,31 @@ def convert_text(text: str, method_combination: str, crumbs: bool = False, error
     return " ".join(converted_words)
 
 
-def cherry_pick(text: str, method_combination: str, crumbs: bool = False, error_skip: bool = False,
+def cherry_pick(text: str, method_combination: str, crumbs: bool = False, error_skip: bool = True,
                 error_report: bool = False) -> str:
     stopwords = load_stopwords()
     config, chunks = _setup_and_process(text, method_combination[:2], crumbs, error_skip, error_report)
     converter = RomanizationConverter(method_combination)
     converted_words = []
 
+    def _process_syllables(syllable_list: List[Syllable], convert: bool) -> str:
+        """Helper function to process and apply caps to each syllable."""
+        return ''.join(
+            _apply_caps(converter.convert(syl.full_syllable) if convert else syl.full_syllable, syl)
+            for syl in syllable_list
+        )
+
     for chunk in chunks:
         if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
-            # Perform the conversion process first, regardless of validity
-            converted_syllables = []
-            for syl in chunk:
-                # Convert the syllable normally
-                converted_text = converter.convert(syl.full_syllable)
-
-                converted_syllables.append(converted_text)
-
-            # Combine the syllables into a single word
-            adjusted_word = ''.join(converted_syllables)
-
-            # If the word is valid and not a stopword, use the converted version
-            if all(syl.valid for syl in chunk) and adjusted_word.lower() not in stopwords:
-                converted_words.append(adjusted_word)
+            word = ''.join(syl.full_syllable for syl in chunk).lower()
+            if all(syl.valid for syl in chunk) and word not in stopwords:
+                converted_words.append(_process_syllables(chunk, convert=True))
             else:
-                # If invalid, return the original syllables with capitalization preserved
-                converted_words.append(''.join(syl.full_syllable for syl in chunk))
+                converted_words.append(_process_syllables(chunk, convert=False))
         else:
-            # Non-Syllable text (e.g., punctuation) is returned as-is
             converted_words.append(chunk)
 
-    return ''.join(converted_words)
+    return "".join(converted_words)
 
 
 def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False) \
