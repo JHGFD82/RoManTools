@@ -104,16 +104,15 @@ class TextChunkProcessor:
 
             while remaining_text:
                 syllable_obj = self.syllable_processor.create_syllable(remaining_text)
-
+                syllable_obj.uppercase = False
                 # Apply capitalization rules based on the detected case
                 if is_uppercase:
                     syllable_obj.uppercase = True
                 elif first_syllable and is_title_case:
                     syllable_obj.capitalize = True
-                    syllable_obj.uppercase = False
                 else:
                     syllable_obj.capitalize = False
-                    syllable_obj.uppercase = False
+
 
                 syllables.append(syllable_obj)
                 remaining_text = syllable_obj.remainder
