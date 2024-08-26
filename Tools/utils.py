@@ -49,6 +49,14 @@ def _setup_and_process(text: str, method: str, crumbs: bool = False, error_skip:
     return config, chunks
 
 
+def _apply_caps(text: str, syl: Syllable) -> str:
+    if syl.uppercase:
+        return text.upper()
+    elif syl.capitalize:
+        return text.capitalize()
+    return text
+
+
 def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False) \
         -> List[Union[List[Syllable], Syllable]]:
     """
@@ -103,14 +111,8 @@ def convert_text(text: str, method_combination: str, crumbs: bool = False, error
         for syllable in chunk:
             # Convert the syllable based on the specified method combination
             converted_text = converter.convert(syllable.full_syllable)
-
-            # Reapply capitalization based on stored flags
-            if syllable.uppercase:
-                converted_text = converted_text.upper()
-            elif syllable.capitalize:
-                converted_text = converted_text.capitalize()
-
-            converted_syllables.append(converted_text)
+            capped_text = _apply_caps(converted_text, syllable)
+            converted_syllables.append(capped_text)
 
         # Join syllables back into a word and add it to the result
         converted_words.append("".join(converted_syllables))
@@ -133,12 +135,6 @@ def cherry_pick(text: str, method_combination: str, crumbs: bool = False, error_
             for syl in chunk:
                 # Convert the syllable normally
                 converted_text = converter.convert(syl.full_syllable)
-
-                # Reapply capitalization based on stored flags
-                if syl.uppercase:
-                    converted_text = converted_text.upper()
-                elif syl.capitalize:
-                    converted_text = converted_text.capitalize()
 
                 converted_syllables.append(converted_text)
 
