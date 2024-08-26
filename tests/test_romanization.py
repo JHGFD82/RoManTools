@@ -193,6 +193,12 @@ class TestRomanization(unittest.TestCase):
                                   {'word': 'yiin', 'methods': []}]
                          )
 
+    # ERROR_SKIP TESTING #
+    def test_segment_text_error_skip(self):
+        result = segment_text("Bai Juyi lived during the Middle Tang period.", method='py', error_skip=True)
+        self.assertEqual(result, [['bai'], ' ', ['ju', 'yi'], ' ', ['li', 'v', 'e', 'd'], ' ', ['du', 'ring'], ' ',
+                                  ['the'], ' ', ['mi', 'ddle'], ' ', ['tang'], ' ', ['pe', 'ri', 'o', 'd'], '.'])
+
     # CRUMBS TESTING #
     # @patch('sys.stdout', new_callable=StringIO)
     # def test_syllable_count_output(self, mock_stdout):
