@@ -1,4 +1,4 @@
-from typing import Dict, Union, List, Tuple, Iterable
+from typing import Dict, Union, List, Tuple
 from .config import Config
 from .chunk import TextChunkProcessor
 from .syllable import Syllable
