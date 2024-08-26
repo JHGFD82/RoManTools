@@ -80,7 +80,17 @@ def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool 
     """
     config, chunks = _setup_and_process(text, method, crumbs, error_skip, error_report)
 
-    return [[chunk.full_syllable for chunk in chunks] for chunks in chunks]
+    segmented_result = []
+
+    for chunk in chunks:
+        if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
+            # Return the full syllable attribute for each Syllable object
+            segmented_result.append([syl.full_syllable for syl in chunk])
+        else:
+            # Return the non-text elements as strings
+            segmented_result.append(chunk)
+
+    return segmented_result
 
 
 def convert_text(text: str, method_combination: str, crumbs: bool = False, error_skip: bool = False,
