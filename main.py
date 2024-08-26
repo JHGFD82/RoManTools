@@ -75,10 +75,10 @@ def validate_arguments(args):
 
 #  BASIC ACTIONS #
 def segment_action(args):
-    return segment_text(args.text, args.method)
+    return segment_text(args.text, args.method, args.crumbs, args.error_skip, args.error_report)
 
 def validator_action(args):
-    return validator(args.text, args.method, args.per_word)
+    return validator(args.text, args.method, args.per_word, args.crumbs, args.error_skip, args.error_report)
 
 # CONVERSION ACTIONS #
 def convert_action(args):
