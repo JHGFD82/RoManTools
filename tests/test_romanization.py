@@ -1,5 +1,5 @@
 import unittest
-from Tools.utils import convert_text, segment_text, syllable_count, detect_method, validator
+from Tools.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
 from io import StringIO
 from unittest.mock import patch
 
@@ -125,6 +125,24 @@ class TestRomanization(unittest.TestCase):
     def test_convert_text_uppercase(self):
         result = convert_text('NI HAO Chang\'an YUAN', method_combination='py_wg')
         self.assertEqual(result, 'NI HAO Ch’angan YÜAN')
+
+    def test_cherry_pick(self):
+        result = cherry_pick("Bai Juyi lived during the Middle Tang period. This was a period of rebuilding and recovery "
+                             "for the Tang Empire, following the An Lushan Rebellion, and following the poetically "
+                             "flourishing era famous for Li Bai (701－762), Wang Wei (701－761), and Du Fu (712－770). "
+                             "Bai Juyi lived through the reigns of eight or nine emperors, being born in the Dali regnal "
+                             "era (766-779) of Emperor Daizong of Tang. He had a long and successful career both as a "
+                             "government official and a poet, although these two facets of his career seemed to have "
+                             "come in conflict with each other at certain points. Bai Juyi was also a devoted Chan "
+                             "Buddhist.", method_combination="py_wg")
+        self.assertEqual(result, "Pai Chüi lived during the Middle T’ang period. This was a period of rebuilding and "
+                                 "recovery for the T’ang Empire, following the An Lushan Rebellion, and following the "
+                                 "poetically flourishing era famous for Li Pai (701－762), Wang Wei (701－761), "
+                                 "and Tu Fu (712－770). Pai Chüi lived through the reigns of eight or nine emperors, "
+                                 "being born in the Dali regnal era (766-779) of Emperor Taitsung of T’ang. He had a "
+                                 "long and successful career both as a government official and a poet, although these "
+                                 "two facets of his career seemed to have come in conflict with each other at certain "
+                                 "points. Pai Chüi was also a devoted Ch’an Buddhist.")
 
     # SYLLABLE_COUNT TESTING #
     def test_syllable_count(self):
