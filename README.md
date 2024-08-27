@@ -11,8 +11,6 @@ Version 1.0 of this project will include the following features:
 
 - **Conversion between Romanization Standards**: Support for converting between Pinyin and Wade-Giles (with Yale and additional standards to be added in future versions).
 - **Cherry Pick**: Converts only identified romanized Chinese terms, excluding any English words or those in a stopword list.
-- **Tone Mark**: Converts various types of tone markings.
-- **Pronunciation**: Converts text into the International Phonetic Alphabet (IPA) standard.
 - **Text Segmentation**: Segments text into meaningful chunks, a feature that will be utilized by other actions and also available for direct use by the user.
 - **Syllable Count**: Counts the number of syllables per word and provides a report to the user.
 - **Method Detect**: Identifies the romanization standard used in the input text and returns the detected standard(s) to the user as either a single standard or a list of multiple standards.

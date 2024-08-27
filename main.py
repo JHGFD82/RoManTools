@@ -65,12 +65,6 @@ def validate_arguments(args):
         # Additional checks for method-related actions
         if args.action in ['convert_text', 'cherry_pick']:
             if not args.convert_from or not args.convert_to:
-                raise ValueError(f'Both --convert_from and --convert_to arguments are required for the {args.action} action.')
-
-        # # Checks specific to tone-related actions
-        # if args.action == 'change_tone':
-        #     if not args.tone_from or not args.tone_to:
-        #         raise ValueError(f'Both --tone_from and --tone_to arguments are required for the {args.action} action.')
 
 
 #  BASIC ACTIONS #
@@ -96,16 +90,6 @@ def syllable_count_action(args):
 def detect_method_action(args):
     return detect_method(args.text, args.per_word)
 
-# elif args.action == 'tone_mark':
-#     if not args.tone_from or not args.tone_to:
-#         parser.error("--tone_from and --tone_to are required for tone_mark action")
-#     # Assume tone_mark function implementation
-#     result = tone_mark(args.text, args.tone_from, args.tone_to)
-#     print(result)
-#
-# elif args.action == 'pronunciation':
-#     result = convert_to_ipa(args.text)
-#     print(result)
 
 # Map actions to functions
 ACTIONS = {
@@ -114,9 +98,7 @@ ACTIONS = {
     "convert": convert_action,
     "cherry_pick": cherry_pick_action,
     "syllable_count": syllable_count_action,
-    "detect_method": detect_method_action,
-    # "tone_mark": tone_mark_action,
-    # "pronunciation": pronunciation_action
+    "detect_method": detect_method_action
 }
 
 
@@ -146,10 +128,6 @@ def main():
     parser.add_argument('--convert_to', type=lambda x: normalize_method(x, 'romanization'),
                         help='Target romanization method for convert and cherry_pick actions '
                              '(pinyin/py, wade-giles/wg)')
-    parser.add_argument('--tone_from', type=lambda x: normalize_method(x, 'tone'),
-                        help='Source tone format for tone marking (numeric, unicode)')
-    parser.add_argument('--tone_to', type=lambda x: normalize_method(x, 'tone'),
-                        help='Target tone format for tone marking (numeric, unicode)')
     parser.add_argument('--per_word', action='store_true',
                         help='Perform action on each word within a multi-word string (currently only supported for '
                              'detect_method process)')
