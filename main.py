@@ -135,7 +135,7 @@ def main():
                              '(pinyin/py, wade-giles/wg)')
     parser.add_argument('--per_word', action='store_true',
                         help='Perform action on each word within a multi-word string (currently only supported for '
-                             'detect_method process)')
+                             'detect_method and validator process)')
 
     # OPTIONAL DEBUG PARAMETERS
     parser.add_argument('--crumbs', action='store_true',
