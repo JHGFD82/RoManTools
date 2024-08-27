@@ -71,21 +71,26 @@ def validate_arguments(args):
 def segment_action(args):
     return segment_text(args.text, args.method, args.crumbs, args.error_skip, args.error_report)
 
+
 def validator_action(args):
     return validator(args.text, args.method, args.per_word, args.crumbs, args.error_skip, args.error_report)
+
 
 # CONVERSION ACTIONS #
 def convert_action(args):
     method_combination = f"{args.convert_from}_{args.convert_to}"
     return convert_text(args.text, method_combination, args.crumbs, args.error_skip, args.error_report)
 
+
 def cherry_pick_action(args):
     method_combination = f"{args.convert_from}_{args.convert_to}"
     return cherry_pick(args.text, method_combination, args.crumbs, True, args.error_report)
 
+
 # OTHER UTILITY ACTIONS #
 def syllable_count_action(args):
     return syllable_count(args.text, args.method, args.crumbs, args.error_skip, args.error_report)
+
 
 def detect_method_action(args):
     return detect_method(args.text, args.per_word)
@@ -147,6 +152,7 @@ def main():
 
     # Call the appropriate function
     print(ACTIONS[args.action](args))
+
 
 if __name__ == '__main__':
     main()

@@ -4,6 +4,7 @@ from typing import List, Tuple
 import numpy as np
 import re
 
+
 class TextChunkProcessor:
     """
     The TextChunkProcessor class represents a processor for text chunks. It splits the input text into chunks and
@@ -112,7 +113,6 @@ class TextChunkProcessor:
                     syllable_obj.capitalize = True
                 else:
                     syllable_obj.capitalize = False
-
 
                 syllables.append(syllable_obj)
                 remaining_text = syllable_obj.remainder

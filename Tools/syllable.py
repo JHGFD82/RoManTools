@@ -16,6 +16,7 @@ class SyllableProcessor:
     def create_syllable(self, text: str, remainder: str = "") -> "Syllable":
         return Syllable(text, self.config, self.ar, self.init_list, self.fin_list, self.method, remainder)
 
+
 class Syllable:
     """
     This class represents a syllable in the Chinese language. It is used to process and validate syllables based on
@@ -289,7 +290,7 @@ class Syllable:
             # Determine whether we are dealing with "ng" or just "n"
             next_char_is_g = remainder > 0 and text[i + 1] == 'g'
             valid_ng = next_char_is_g and (
-                        remainder == 1 or text[i + 2] not in vowel or not self._validate_final(initial, text[:i + 1]))
+                    remainder == 1 or text[i + 2] not in vowel or not self._validate_final(initial, text[:i + 1]))
 
             if valid_ng:
                 return text[:i + 2]  # Return "ng"
