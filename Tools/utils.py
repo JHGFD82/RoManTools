@@ -8,17 +8,16 @@ from .data_loader import load_method_params, load_stopwords
 
 def _process_text(text: str, method: str, config: Config) -> List[Union[List[Syllable], Syllable]]:
     """
-
     Processes the given text using the specified method and configuration.
 
-    Parameters:
-    text (str): The text to be processed.
-    method (str): The method to be used for processing.
-    config (Config): The configuration settings for the processing.
+    Args:
+        text (str): The text to be processed.
+        method (str): The method to apply for text processing.
+        config (Config): The configuration object containing processing settings.
 
     Returns:
-    List[Union[List[Syllable], Syllable]]: The processed chunks of text.
-
+        List[Union[List[Syllable], Syllable]]: A list of processed text chunks,
+        which could be individual syllables or lists of syllables.
     """
     if config.crumbs:
         print(f'# Analyzing {text} #')
@@ -29,20 +28,18 @@ def _process_text(text: str, method: str, config: Config) -> List[Union[List[Syl
 def _setup_and_process(text: str, method: str, crumbs: bool = False, error_skip: bool = False,
                        error_report: bool = False) -> Tuple[Config, List[Union[List[Syllable], Syllable]]]:
     """
-
-    Sets up the configuration and processes the given text using the specified method.
+    Sets up the configuration and processes the text.
 
     Args:
         text (str): The text to be processed.
-        method (str): The method to be used for processing.
-        crumbs (bool, optional): Whether to include breadcrumbs in the configuration. Defaults to False.
-        error_skip (bool, optional): Whether to skip errors during processing. Defaults to False.
-        error_report (bool, optional): Whether to include error reporting in the configuration. Defaults to False.
+        method (str): The method to apply for text processing.
+        crumbs (bool, optional): Whether to display debugging crumbs. Defaults to False.
+        error_skip (bool, optional): Whether to skip errors. Defaults to False.
+        error_report (bool, optional): Whether to report errors. Defaults to False.
 
     Returns:
-        Tuple[Config, List[Union[List[Syllable], Syllable]]]: A tuple consisting of the configuration object and
-                                                            the list of processed text chunks.
-
+        Tuple[Config, List[Union[List[Syllable], Syllable]]]: A tuple containing the configuration and the processed
+        chunks.
     """
     config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
     chunks = _process_text(text, method, config)
@@ -50,6 +47,16 @@ def _setup_and_process(text: str, method: str, crumbs: bool = False, error_skip:
 
 
 def _apply_caps(text: str, syl: Syllable) -> str:
+    """
+    Applies capitalization rules based on the syllable's properties.
+
+    Args:
+        text (str): The text to be transformed.
+        syl (Syllable): The syllable object containing capitalization rules.
+
+    Returns:
+        str: The transformed text with applied capitalization.
+    """
     if syl.uppercase:
         return text.upper()
     elif syl.capitalize:
@@ -60,23 +67,22 @@ def _apply_caps(text: str, syl: Syllable) -> str:
 def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False) \
         -> List[Union[List[Syllable], Syllable]]:
     """
-    Segment the given text into syllables.
+    Segments the given text into syllables based on the selected method.
 
-    Parameters:
-        text (str): The input text to be segmented into syllables.
-        method (str): The method to be used for segmentation. Possible values are:
-            - "pinyin", "py"
-            - "wade-giles", "wg"
-        crumbs (bool, optional): If True, include partial syllables at the end of each chunk. Defaults to False.
-        error_skip (bool, optional): If True, skip to the next chunk if an error occurs while processing a chunk.
-        Defaults to False.
-        error_report (bool, optional): If True, include error information in the output. Defaults to False.
+    Args:
+        text (str): The text to be segmented.
+        method (str): The method to apply for segmentation.
+        crumbs (bool, optional): Whether to display debugging crumbs. Defaults to False.
+        error_skip (bool, optional): Whether to skip errors. Defaults to False.
+        error_report (bool, optional): Whether to report errors. Defaults to False.
 
     Returns:
-        List[Union[List[Syllable], Syllable]]: A nested list of syllables. Each inner list corresponds to a chunk of the
-        input text,
-        and contains either a list of syllables or a single syllable object.
+        List[Union[List[Syllable], Syllable]]: A list of segmented syllables or syllable chunks.
 
+    Example:
+        >>> text = "Zhongguo"
+        >>> segment_text(text, method="py")
+        [['zhong', 'guo']]
     """
     config, chunks = _setup_and_process(text, method, crumbs, error_skip, error_report)
 
@@ -96,19 +102,22 @@ def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool 
 def convert_text(text: str, method_combination: str, crumbs: bool = False, error_skip: bool = False,
                  error_report: bool = False) -> str:
     """
+    Converts the given text using the specified method combination.
 
-    Converts a text into a processed result using specific method combination.
-
-    Parameters:
-        text (str): The input text to be processed.
-        method_combination (str): The method combination to be used for processing.
-        crumbs (bool, optional): Determines whether to include crumbs in the result. Defaults to False.
-        error_skip (bool, optional): Determines whether to skip errors during processing. Defaults to False.
-        error_report (bool, optional): Determines whether to include error reports in the result. Defaults to False.
+    Args:
+        text (str): The text to be converted.
+        method_combination (str): The combination of romanization methods, converting from the first and to the second.
+        crumbs (bool, optional): Whether to display debugging crumbs. Defaults to False.
+        error_skip (bool, optional): Whether to skip errors. Defaults to False.
+        error_report (bool, optional): Whether to report errors. Defaults to False.
 
     Returns:
-        str: The processed result text.
+        str: The converted text.
 
+    Example:
+        >>> text = "Zhongguo"
+        >>> convert_text(text, method_combination="py-wg")
+        'Chung-kuo'
     """
     config, chunks = _setup_and_process(text, method_combination[:2], crumbs, error_skip, error_report)
 
@@ -133,13 +142,41 @@ def convert_text(text: str, method_combination: str, crumbs: bool = False, error
 
 def cherry_pick(text: str, method_combination: str, crumbs: bool = False, error_skip: bool = True,
                 error_report: bool = False) -> str:
+    """
+    Converts identified, valid romanized Mandarin without altering invalid text. This is particularly useful for
+    converting romanized terms mixed within English text.
+
+    Args:
+        text (str): The romanized Mandarin text to be processed.
+        method_combination (str): The combination of romanization methods, converting from the first and to the second.
+        crumbs (bool, optional): Whether to display debugging crumbs. Defaults to False.
+        error_skip (bool, optional): Whether to skip errors if a method fails. Defaults to True.
+        error_report (bool, optional): Whether to report errors. Defaults to False.
+
+    Returns:
+        str: The processed text after applying the best available method from the combination.
+
+    Example:
+        >>> text = "Welcome to Zhongguo"
+        >>> cherry_pick(text, method_combination="py-wg")
+        "Welcome to Chung-kuo"
+    """
     stopwords = load_stopwords()
     config, chunks = _setup_and_process(text, method_combination[:2], crumbs, error_skip, error_report)
     converter = RomanizationConverter(method_combination)
     converted_words = []
 
     def _process_syllables(syllable_list: List[Syllable], convert: bool) -> str:
-        """Helper function to process and apply caps to each syllable."""
+        """
+        Processes the syllables in romanized Mandarin text and applies optional conversions.
+
+        Args:
+            syllable_list (List[Syllable]): A list of syllables extracted from the romanized Mandarin text.
+            convert (bool): Whether to apply additional conversions (e.g., romanization tweaks).
+
+        Returns:
+            str: The processed text with syllables adjusted based on the given configuration.
+        """
         return ''.join(
             _apply_caps(converter.convert(syl.full_syllable) if convert else syl.full_syllable, syl)
             for syl in syllable_list
@@ -161,20 +198,22 @@ def cherry_pick(text: str, method_combination: str, crumbs: bool = False, error_
 def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False) \
         -> list[int]:
     """
-
-    Count the number of syllables in the given text using the specified method.
+    Returns the count of syllables for each word in the processed text.
 
     Args:
-        text (str): The input text for which the syllable count needs to be calculated.
-        method (str): The method to use for syllable counting.
-        crumbs (bool, optional): Flag to indicate if syllable crumbs should be generated. Default is False.
-        error_skip (bool, optional): Flag to indicate if erroneous words should be skipped. Default is False.
-        error_report (bool, optional): Flag to indicate if erroneous words should be reported. Default is False.
+        text (str): The text to be processed.
+        method (str): The method of romanization for the supplied text.
+        crumbs (bool, optional): Whether to display debugging crumbs. Defaults to False.
+        error_skip (bool, optional): Whether to skip errors. Defaults to False.
+        error_report (bool, optional): Whether to report errors. Defaults to False.
 
     Returns:
-        list[int]: A list of syllable counts. Returns 0 if any syllable in a chunk is invalid, otherwise returns the
-        length of each chunk.
+        List[int]: A list of lengths for each valid word in the processed text.
 
+    Example:
+        >>> text = "Zhongguo"
+        >>> syllable_count(text, method="py")
+        [2]
     """
     config, chunks = _setup_and_process(text, method, crumbs, error_skip, error_report)
 
@@ -184,49 +223,35 @@ def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: boo
 def detect_method(text: str, per_word: bool = False, crumbs: bool = False, error_skip: bool = False,
                   error_report: bool = False) -> Union[List[str], List[Dict[str, List[str]]]]:
     """
+    Detects the romanization method of the given text or individual words.
 
-    Detects valid methods for a given text.
-
-    Parameters:
-    - text: A string representing the text to be analyzed.
-    - per_word: A boolean specifying whether detection should be performed per word or for the whole text. Default is
-    False.
-    - crumbs: A boolean indicating whether to include "crumbs" in the analysis. Default is False.
-    - error_skip: A boolean indicating whether to skip words with errors during analysis. Default is False.
-    - error_report: A boolean indicating whether to include error reports in the analysis. Default is False.
+    Args:
+        text (str): The text to be analyzed.
+        per_word (bool, optional): Whether to report the possible romanization methods for each word. Defaults to False.
+        crumbs (bool, optional): Whether to display debugging crumbs. Defaults to False.
+        error_skip (bool, optional): Whether to skip errors. Defaults to False.
+        error_report (bool, optional): Whether to report errors. Defaults to False.
 
     Returns:
-    - If per_word is False, returns a list of valid methods for the whole text.
-    - If per_word is True, returns a list of dictionaries, where each dictionary contains a word and its corresponding
-    valid methods.
+        Union[List[str], List[Dict[str, List[str]]]]: A list of detected methods, either for the full text or per word.
 
-    Note: The valid methods are determined based on the given text and the specified parameters.
-
-    Example usage:
-
-    # Detection for the whole text
-    valid_methods = detect_method("ni hao")
-    print(valid_methods)  # Output: ['py', 'wg']
-
-    # Detection per word
-    results = detect_method("ni hao", per_word=True)
-    print(results)  # Output: [{'word': 'ni', 'methods': ['py', 'wg']}, {'word': 'hao', 'methods': ['py', 'wg']}]
-
+    Example:
+        >>> text = "Zhongguo"
+        >>> detect_method(text)
+        ['py']
     """
     config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
     methods = ['py', 'wg']
 
     def detect_for_chunk(chunk: str) -> List[str]:
         """
+        Detects the valid processing methods for a given chunk of romanized Mandarin text.
 
-        Detects the presence of specific methods in a given chunk of text.
-
-        Parameters:
-        - chunk (str): The chunk of text to be analyzed.
+        Args:
+            chunk (str): A segment of romanized Mandarin text to be analyzed.
 
         Returns:
-        - result (List[str]): A list of methods detected in the chunk.
-
+            List[str]: A list of methods that are valid for processing the given chunk.
         """
         result = []
         for method in methods:
@@ -252,22 +277,24 @@ def detect_method(text: str, per_word: bool = False, crumbs: bool = False, error
 def validator(text: str, method: str, per_word: bool = False, crumbs: bool = False, error_skip: bool = False,
               error_report: bool = False) -> Union[bool, list[dict]]:
     """
+    Validates the processed text or individual words based on the selected method.
 
-    This method validates a given text using a specific validation method.
-
-    Parameters:
-    - text (str): The text to be validated.
-    - method (str): The validation method to be used.
-    - per_word (bool, optional): Flag indicating whether to return detailed information per word (default: False).
-    - crumbs (bool, optional): Flag indicating whether to process crumbs for validation (default: False).
-    - error_skip (bool, optional): Flag indicating whether to skip validation on error (default: False).
-    - error_report (bool, optional): Flag indicating whether to report errors during validation (default: False).
+    Args:
+        text (str): The text to be validated.
+        method (str): The method to apply for validation.
+        per_word (bool, optional): Whether to report the validity of the entire text or each word. Defaults to False.
+        crumbs (bool, optional): Whether to display debugging crumbs. Defaults to False.
+        error_skip (bool, optional): Whether to skip errors. Defaults to False.
+        error_report (bool, optional): Whether to report errors. Defaults to False.
 
     Returns:
-    - bool: True if all syllables are valid (when per_word is False).
-    - list[dict]: Detailed information per word, including the word, its syllables, and their validity
-    (when per_word is True).
+        Union[bool, list[dict]]: Validation results, either as a boolean for the entire text or a detailed list per
+        word.
 
+    Example:
+        >>> text = "Zhongguo"
+        >>> validator(text, method="py")
+        True
     """
     config, chunks = _setup_and_process(text, method, crumbs, error_skip, error_report)
 

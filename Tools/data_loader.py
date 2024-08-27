@@ -8,35 +8,17 @@ base_path = os.path.dirname(__file__)
 
 def load_romanization_data(file_path: str) -> Tuple[List[str], List[str], np.ndarray]:
     """
+    Loads romanization data from a CSV file and returns the initials, finals, and a 2D array indicating valid
+    combinations.
 
-    Loads romanization data from a CSV file.
-
-    Parameters:
-    - file_path (str): The path of the CSV file containing the romanization data.
+    Args:
+        file_path (str): The path to the CSV file containing romanization data.
 
     Returns:
-    - Tuple[List[str], List[str], np.ndarray]: A tuple containing the initial list, final list, and a numpy array
-    representing the romanization data.
-
-    Example Usage:
-        init_list, fin_list, ar = load_romanization_data('romanization_data.csv')
-
-    Note:
-    The CSV file should be in the following format:
-
-    Example CSV:
-    ---------------------
-      Romanized, a, b, c
-      A, 1, 0, 1
-      B, 0, 1, 0
-    ---------------------
-
-    The first row represents the final romanized letters, and the first column represents the initial letters to be
-    romanized. The values in the matrix indicate whether a particular romanization is applicable (1) or not (0).
-
-    The length of initial list should be N, and the length of final list should be M, where (N,M) is the shape of the
-    matrix in the CSV file.
-
+        Tuple[List[str], List[str], np.ndarray]: A tuple containing the following:
+            - List of initials.
+            - List of finals.
+            - A 2D numpy array representing valid initial-final combinations.
     """
     data = np.genfromtxt(file_path, delimiter=',', dtype=str)
     init_list = list(data[1:, 0])
@@ -47,20 +29,14 @@ def load_romanization_data(file_path: str) -> Tuple[List[str], List[str], np.nda
 
 def load_method_params(method: str, config: Config) -> Dict[str, Union[List[str], np.ndarray]]:
     """
+    Loads romanization method parameters including initials, finals, and the valid combinations array.
 
-    Get method parameters for the given method and configuration.
-
-    Parameters:
-        method (str): The name of the method.
-        config (Config): The configuration object.
+    Args:
+        method (str): The romanization method (e.g., 'py', 'wg').
+        config (Config): Configuration object containing settings like crumbs, error_skip, and error_report.
 
     Returns:
-        dict: A dictionary containing the following keys:
-            - 'ar' (numpy.ndarray): The AR parameter.
-            - 'init_list' (list of str): The initial list parameter.
-            - 'fin_list' (list of str): The final list parameter.
-            - 'method' (str): The method parameter.
-
+        Dict[str, List[str], np.ndarray]: A dictionary containing initials, finals, and the valid combinations array.
     """
     method_file = f'{method}DF'
     init_list, fin_list, ar = load_romanization_data(os.path.join(base_path, 'data', f'{method_file}.csv'))
@@ -78,12 +54,10 @@ def load_method_params(method: str, config: Config) -> Dict[str, Union[List[str]
 
 def load_stopwords() -> List[str]:
     """
-
-    Load stopwords from a given file.
+    Loads a list of stopwords from a text file.
 
     Returns:
-        List[str]: A list of stopwords read from the file.
-
+        List[str]: A list of stopwords.
     """
     file_path = os.path.join(base_path, 'data', 'stopwords.txt')
     with open(file_path, 'r') as f:

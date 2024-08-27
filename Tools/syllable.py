@@ -6,7 +6,21 @@ vowel = ['a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ']
 
 
 class SyllableProcessor:
+    """
+    Handles the loading of configuration settings and initializes data required for processing syllables.
+    """
+
     def __init__(self, config: Config, ar: np.ndarray, init_list: List[str], fin_list: List[str], method: str):
+        """
+        Initializes the SyllableProcessor with configuration settings and lists for processing.
+
+        Args:
+            config (Config): The configuration object with settings like error_skip and crumbs.
+            ar (np.ndarray): A NumPy array representing valid initial-final combinations.
+            init_list (List[str]): A list of valid initial sounds.
+            fin_list (List[str]): A list of valid final sounds.
+            method (str): The romanization method being used ('py' for Pinyin, 'wg' for Wade-Giles).
+        """
         self.config = config
         self.ar = ar
         self.init_list = init_list
@@ -14,54 +28,36 @@ class SyllableProcessor:
         self.method = method
 
     def create_syllable(self, text: str, remainder: str = "") -> "Syllable":
+        """
+        Creates a Syllable object based on the input text.
+
+        Args:
+            text (str): The input text to be processed into a syllable.
+            remainder (str): The remainder of the input text to be processed into a syllable.
+
+        Returns:
+            Syllable: A Syllable object with information about the initial, final, and validity.
+        """
         return Syllable(text, self.config, self.ar, self.init_list, self.fin_list, self.method, remainder)
 
 
 class Syllable:
     """
-    This class represents a syllable in the Chinese language. It is used to process and validate syllables based on
-    provided configuration.
-
-    Parameters:
-    - text: The input text representing the syllable.
-    - config: The configuration object used for processing and validating syllables.
-    - ar: A NumPy ndarray representing the vowel-conditioned acceptance-rejection array.
-    - init_list: A list of initial characters.
-    - fin_list: A list of final characters.
-    - method: The method used for processing syllables (e.g., "wg" for Wade-Giles).
-    - remainder: An optional remainder string for further processing after syllable extraction.
-
-    Attributes:
-    - text: The input text representing the syllable.
-    - remainder: The remaining text after extracting the syllable.
-    - init_list: The list of initial characters.
-    - fin_list: The list of final characters.
-    - ar: The vowel-conditioned acceptance-rejection array.
-    - method: The method used for processing syllables.
-    - initial: The extracted initial character(s) of the syllable.
-    - final: The extracted final character(s) of the syllable.
-    - full_syllable: The full syllable string (initial + final).
-    - valid: A boolean indicating whether the syllable is valid or not.
-
-    Methods:
-    - _process_syllable(): Processes the input syllable by extracting the initial and final characters, and validating
-    the syllable.
-    - _find_initial_final(text: str) -> Tuple[str, str, str, str]: Finds the initial and final characters of the given
-    text.
-    - _find_initial(text: str) -> str: Finds the initial character(s) of the given text.
-    - _find_final(text: str, initial: str) -> str: Finds the final character(s) of the given text, given the initial
-    character(s).
-    - _handle_vowel_case(text: str, i: int, initial: str) -> str: Handles the case where the current character is a
-    vowel.
-    - _handle_consonant_case(text: str, i: int, initial: str) -> str: Handles the case where the current character is a
-    consonant.
-    - _validate_final(initial, final: str) -> bool: Validates whether the combination of initial and final characters is
-    valid.
-    - _validate_syllable() -> bool: Validates whether the syllable is valid.
-
+    Represents a syllable and its components (initial, final) in the context of a romanization method.
     """
     def __init__(self, text: str, config: Any, ar: np.ndarray, init_list: List[str], fin_list: List[str], method: str,
                  remainder: str = ""):
+        """
+        Initializes a Syllable object with provided configuration and text.
+
+        Args:
+            text (str): The syllable text to be processed.
+            config (Config): The configuration object with settings like error_skip and crumbs.
+            ar (np.ndarray): A NumPy array representing valid initial-final combinations.
+            init_list (List[str]): A list of valid initial sounds.
+            fin_list (List[str]): A list of valid final sounds.
+            method (str): The romanization method being used ('py' for Pinyin, 'wg' for Wade-Giles).
+        """
         self.text = text
         self.remainder = remainder
         self.init_list = init_list
@@ -79,48 +75,20 @@ class Syllable:
 
     def _process_syllable(self):
         """
-
-        Process a syllable to find its initial, final, full syllable, and remaining text.
-
-        Returns:
-            None
-
+        Processes the syllable to extract the initial, final, and remainder parts and validates the syllable.
         """
         self.initial, self.final, self.full_syllable, self.remainder = self._find_initial_final(self.text)
         self.valid = self._validate_syllable()
 
     def _find_initial_final(self, text: str) -> Tuple[str, str, str, str]:
         """
+        Identifies the initial, final, and remainder of the given syllable text.
 
-        Method Name: _find_initial_final
+        Args:
+            text (str): The input text to be split into initial, final, and remainder.
 
-        Parameters:
-        - text: str
-          - Description: The input text string from which to find the initial, final, full syllable, and remainder.
-          - Type: str
-
-        Return Type: Tuple[str, str, str, str]
-          - Description: A tuple containing the initial, final, full syllable, and remainder of the text string.
-          - Type: Tuple[str, str, str, str]
-
-        Description:
-        This method finds the initial, final, full syllable, and remainder of a given text string. The initial is
-        determined by calling the "_find_initial" method, and if it returns 'ø', the final is determined by calling the
-        "_find_final" method with the entire text string. In this case, the initial is set to an empty string. If the
-        initial is not 'ø', the final is determined by calling the "_find_final" method with the remaining portion of
-        the text string after removing the initial. The full syllable is a concatenation of the initial and final, and
-        the remainder is the remaining text string after removing the initial and final.
-
-        Example Usage:
-        ```python
-        text = "example text"
-        initial, final, full_syllable, remainder = self._find_initial_final(text)
-        print("Initial:", initial)
-        print("Final:", final)
-        print("Full Syllable:", full_syllable)
-        print("Remainder:", remainder)
-        ```
-
+        Returns:
+            Tuple[str, str, str, str]: The initial, final, full syllable, and remainder of the input text.
         """
         initial = self._find_initial(text)
         if initial == 'ø':
@@ -135,15 +103,13 @@ class Syllable:
 
     def _find_initial(self, text: str) -> str:
         """
+        Extracts the initial component from the syllable text.
 
-        Find the initial consonant cluster in a given text.
-
-        Parameters:
-        - text (str): The input text to find the initial consonant cluster from.
+        Args:
+            text (str): The syllable text to extract the initial from.
 
         Returns:
-        - str: The initial consonant cluster found in the text.
-
+            str: The initial part of the syllable or 'ø' if no valid initial is found.
         """
         for i, c in enumerate(text):
             if c in vowel:
@@ -157,18 +123,14 @@ class Syllable:
 
     def _find_final(self, text: str, initial: str) -> str:
         """
+        Determines the final part of the syllable based on the input text.
 
-        Method: _find_final
+        Args:
+            text (str): The syllable text from which the final part is extracted.
+            initial (str): The initial part of the syllable used for validation.
 
-        This method is used to find the final consonant or vowel in a given text. It takes two parameters: text (str) and initial (str). It returns the final consonant or vowel found in the text.
-
-        Parameters:
-        - text (str): The input text in which the final consonant or vowel needs to be found.
-        - initial (str): The initial consonant or vowel that was already found before the final consonant or vowel.
-
-        Return:
-        - str: The final consonant or vowel found in the text.
-
+        Returns:
+            str: The final part of the syllable.
         """
         for i, c in enumerate(text):
             if c in vowel:
@@ -183,24 +145,15 @@ class Syllable:
 
     def _handle_vowel_case(self, text: str, i: int, initial: str) -> str:
         """
+        Handles cases where the final starts with a vowel.
 
-        Handles the vowel case when processing text.
-
-        Parameters:
-        - text (str): The input text to be processed.
-        - i (int): The index of the current character being processed.
-        - initial (str): The initial character of the text.
+        Args:
+            text (str): The syllable text to be processed.
+            i (int): The index of the vowel in the text.
+            initial (str): The initial part of the syllable used for validation.
 
         Returns:
-        - str: The processed text.
-
-        This method handles cases where the current character being processed is a vowel. It checks if there are any
-        potential finals that start with the current vowel. If there are no valid finals found, it will return the text
-        up to the previous character index.
-
-        If the current character is the last character in the text, it will simply return the input text as there are no
-        further characters to process.
-
+            str: The final part of the syllable or a subset based on potential candidates.
         """
         if i + 1 == len(text):
             return text  # This is a simple final with no further characters to process.
@@ -218,57 +171,15 @@ class Syllable:
 
     def _handle_consonant_case(self, text: str, i: int, initial: str) -> str:
         """
+        Handles cases where the final starts with a consonant, including special cases like "er", "n", and "ng".
 
-        Handles consonants when they appear while processing text.
+        Args:
+            text (str): The syllable text to be processed.
+            i (int): The index of the consonant in the text.
+            initial (str): The initial part of the syllable used for validation.
 
-        Parameters:
-        - text (str): The input text.
-        - i (int): The index of the current character in the text.
-        - initial (str): The initial character of the text.
-
-        Return:
-        - str: The modified text based on the handling of consonant cases.
-
-        Description:
-        This method handles different cases for consonants in the input text. It takes three parameters: the input text,
-        the index of the current character, and the initial character of the text. It returns the modified text based on
-        the handling of consonant cases.
-
-        The method first calculates the remainder by subtracting the current index `i` from the length of the text.
-
-        Next, it checks for specific cases:
-
-        1. "er" and "erh" case:
-           - If the characters at index `i-1` and `i` are equal to "er", it proceeds with further checks.
-           - If the remainder is 0 or the method is not "wg" and the character at index `i+1` is not a vowel, it returns
-           the text up to index `i+1`.
-           - If the method is "wg" and the remainder is 1 and the character at index `i+1` is "h", it returns the text
-           up to index `i+2`.
-
-        2. "h" case with Wade-Giles method:
-           - If the character at index `i` is "h" and the method is "wg":
-              - It checks if the remainder is 0, or the character at index `i+1` is not a vowel, or the
-              `_validate_final` method returns false for the initial character and the text up to index `i`.
-              - If any of the above conditions are true, it returns the text up to index `i+1`, otherwise, it falls back
-              by returning the text up to index `i`.
-
-        3. "n" and "ng" case:
-           - If the character at index `i` is "n":
-              - It checks whether the next character is "g" to determine whether it's "ng" or just "n".
-              - If the next character is "g" and the remainder is 1 or the character at index `i+2` is not a vowel, or
-              the `_validate_final` method returns false for the initial character and the text up to index `i+1`, it
-              returns the text up to index `i+2` (returning "ng").
-              - If the next character is "g" but the conditions above are not met, it returns the text up to index `i+1`
-              (returning just "n").
-              - If the next character is not "g", it checks if the remainder is 0, or the character at index `i+1` is
-              not a vowel, or the `_validate_final` method returns false for the initial character and the text up to
-              index `i`.
-              - If any of the above conditions are true, it returns the text up to index `i+1` (returning "n"),
-              otherwise, it falls back by returning the text up to index `i`.
-
-        4. Default case:
-           - For all other consonants, it returns the text up to index `i`.
-
+        Returns:
+            str: The final part of the syllable.
         """
         remainder = len(text) - i - 1
 
@@ -305,18 +216,14 @@ class Syllable:
 
     def _validate_final(self, initial, final: str) -> bool:
         """
+        Validates the final part of the syllable by checking against a predefined list of valid combinations.
 
-        The `_validate_final` method is used to validate if the given `initial` and `final` values are present in the
-        `init_list` and `fin_list`, respectively.
-
-        Parameters:
-        - `initial`: A value of type `str` representing the initial value.
-        - `final`: A value of type `str` representing the final value.
+        Args:
+            initial (str): The initial part of the syllable.
+            final (str): The final part of the syllable.
 
         Returns:
-        - A value of type `bool`. Returns `True` if both `initial` and `final` values are present in their respective
-        lists and there is a valid connection between them in the matrix `ar`. Returns `False` otherwise.
-
+            bool: True if the final is valid, otherwise False.
         """
         initial_index = self.init_list.index(initial) if initial in self.init_list else -1
         final_index = self.fin_list.index(final) if final in self.fin_list else -1
@@ -328,12 +235,10 @@ class Syllable:
 
     def _validate_syllable(self) -> bool:
         """
-
-        Validates the syllable based on the initial and final components.
+        Validates the overall syllable by checking the initial-final combination.
 
         Returns:
-            bool: True if the syllable is valid, False otherwise.
-
+            bool: True if the syllable is valid, otherwise False.
         """
         if self.initial == '':
             return self._validate_final('ø', self.final)

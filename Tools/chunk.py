@@ -7,43 +7,34 @@ import re
 
 class TextChunkProcessor:
     """
-    The TextChunkProcessor class represents a processor for text chunks. It splits the input text into chunks and
-    processes each chunk into a list of syllables.
+    Processes text into chunks for further processing based on the specified romanization method (e.g., Pinyin,
+    Wade-Giles).
 
     Attributes:
-    - text: The input text (str)
-    - config: The configuration object (Config)
-    - ar: The numpy array (np.ndarray)
-    - init_list: The list of initial sounds (List[str])
-    - fin_list: The list of final sounds (List[str])
-    - method: The processing method (str)
-    - chunks: The list of processed chunks (List[List[Syllable]])
-
-    Methods:
-    - __init__(text: str, config: Config, ar: np.ndarray, init_list: List[str], fin_list: List[str], method: str):
-    Initializes a new instance of the TextChunkProcessor class. It sets the input parameters and calls the
-    _process_chunks method to process the chunks.
-    - _split_word(word: str) -> List[str]: Splits a word into a list of split words based on the processing method.
-    Returns the split words.
-    - _process_split_words(split_words: List[str]): Processes the split words into syllables. Appends the syllables to
-    the chunks list.
-    - _process_chunks(): Splits the input text into words using regular expressions. Calls the _split_word and
-    _process_split_words methods for each word.
-    - get_chunks() -> List[List[Syllable]]: Returns the list of processed chunks.
-
-    Example usage:
-    config = Config(...)
-    ar = np.ndarray(...)
-    init_list = ['...', '...']
-    fin_list = ['...', '...']
-    method = '...'
-    text = '...'
-
-    processor = TextChunkProcessor(text, config, ar, init_list, fin_list, method)
-    chunks = processor.get_chunks()
+        text (str): The input text to be processed.
+        config (Config): Configuration object that manages processing options like crumbs, error skipping, and error
+        reporting.
+        ar (np.ndarray): The array used for validating initial-final combinations.
+        init_list (List[str]): The list of valid initials.
+        fin_list (List[str]): The list of valid finals.
+        method (str): The romanization method being used ("py" for Pinyin or "wg" for Wade-Giles).
+        syllable_processor (SyllableProcessor): The processor used to handle syllable creation and validation.
+        chunks (List[Union[List[Syllable], str]]): The processed chunks of text, where each chunk is either a list of
+        syllables or a string.
     """
     def __init__(self, text: str, config: Config, ar: np.ndarray, init_list: List[str], fin_list: List[str],
                  method: str):
+        """
+        Initializes the TextChunkProcessor with the input text, configuration, and method details.
+
+        Args:
+            text (str): The input text to be processed.
+            config (Config): Configuration object that manages processing options.
+            ar (np.ndarray): The array used for validating initial-final combinations.
+            init_list (List[str]): The list of valid initials.
+            fin_list (List[str]): The list of valid finals.
+            method (str): The romanization method ("py" for Pinyin or "wg" for Wade-Giles).
+        """
         self.text = text
         self.config = config
         self.ar = ar
@@ -55,12 +46,16 @@ class TextChunkProcessor:
         self._process_chunks()
 
     @staticmethod
+    def _detect_case(word: str) -> Tuple[str, bool, bool]:
         """
-        Detects the case of the word and returns it in lowercase along with two boolean flags indicating if the word
-        was capitalized (title case) or uppercase.
+        Detects the case (title case or uppercase) of a syllable and returns the lowercase version.
 
-        :param word: The word to detect case for.
-        :return: A tuple (lowercased word, is_title_case, is_uppercase).
+        Args:
+            word (str): The syllable to analyze.
+
+        Returns:
+            Tuple[str, bool, bool]: A tuple containing the lowercased syllable, a boolean indicating if it is title
+            case, and a boolean indicating if it is uppercase.
         """
         is_title_case = word.istitle()  # Detect if the word is title-cased (first letter capitalized)
         is_uppercase = word.isupper()  # Detect if the word is fully uppercase
@@ -68,6 +63,15 @@ class TextChunkProcessor:
         return lowercased_word, is_title_case, is_uppercase
 
     def _split_word(self, word: str) -> List[str]:
+        """
+        Splits a word into smaller components based on the specified romanization method.
+
+        Args:
+            word (str): The word to be split.
+
+        Returns:
+            List[str]: A list of split components of the word.
+        """
         if self.method == "wg":
             # For Wade-Giles, split words using hyphens (including en-dash and em-dash)
             split_words = re.split(r"[\-–—]", word)
@@ -78,6 +82,11 @@ class TextChunkProcessor:
         return split_words if len(split_words) > 1 else [word]
 
     def _process_chunks(self):
+        """
+        Splits text into segments (words and non-text) and processes each segment into syllables or leaves it as is.
+
+        Depending on the configuration, it can use different regex patterns for splitting the text.
+        """
         if self.config.error_skip:
             # Use a comprehensive regex to split text into words and non-text
             pattern = r"([a-zA-ZüÜ]+(?:['’ʼ`\-–—][a-zA-ZüÜ]+)?|[^a-zA-ZüÜ]+)"
@@ -96,6 +105,12 @@ class TextChunkProcessor:
                 self.chunks.append(segment)
 
     def _process_split_words(self, split_words: List[str]):
+        """
+        Processes a list of split words into syllables, handling case detection and syllable creation.
+
+        Args:
+            split_words (List[str]): The split words to process.
+        """
         syllables = []
         for syllable in split_words:
             lowercased_syllable, is_title_case, is_uppercase = self._detect_case(syllable)
@@ -123,4 +138,11 @@ class TextChunkProcessor:
         self.chunks.append(syllables)
 
     def get_chunks(self) -> List[List[Syllable]]:
+        """
+        Returns the processed chunks of text.
+
+        Returns:
+            List[Union[List[Syllable], str]]: A list of processed chunks where each chunk is either a list of Syllable
+            objects or a string.
+        """
         return self.chunks

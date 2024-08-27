@@ -1,26 +1,21 @@
 class Config:
     """
-
-    Config class represents a configuration object with three boolean attributes: crumbs, error_skip, and error_report.
+    Configuration settings for processing text.
 
     Attributes:
-        crumbs (bool): Indicates whether to enable or disable the generation of crumbs.
-        error_skip (bool): Indicates whether to skip errors or raise exceptions when encountered.
-        error_report (bool): Indicates whether to generate error reports.
-
-    Methods:
-        __init__(crumbs: bool = False, error_skip: bool = False, error_report: bool = False)
-            Initializes a new instance of the Config class with the specified attributes.
-
-    Example usage:
-        # Create a new Config object with default values
-        config = Config()
-
-        # Create a new Config object with specific attribute values
-        config = Config(crumbs=True, error_skip=False, error_report=True)
-
+        crumbs (bool): If True, includes intermediate outputs (crumbs) during processing.
+        error_skip (bool): If True, skips over text with errors during processing.
+        error_report (bool): If True, reports errors encountered during processing.
     """
     def __init__(self, crumbs: bool = False, error_skip: bool = False, error_report: bool = False):
+        """
+        Initializes the Config object with the specified options.
+
+        Args:
+            crumbs (bool, optional): Whether to include breadcrumbs during processing. Defaults to False.
+            error_skip (bool, optional): Whether to skip over errors during processing. Defaults to False.
+            error_report (bool, optional): Whether to report errors during processing. Defaults to False.
+        """
         self.crumbs = crumbs
         self.error_skip = error_skip
         self.error_report = error_report

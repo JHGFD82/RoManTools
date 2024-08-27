@@ -4,95 +4,141 @@ from Tools.utils import convert_text, cherry_pick, segment_text, syllable_count,
 
 def normalize_method(method: str, context: str) -> str:
     """
+    Normalizes and validates the romanization or tone marking method based on the provided context.
 
-    This method takes in two parameters: 'method' and 'context', both of type string. It returns a string as the output.
-
-    Parameters:
-        - method (str): The romanization or tone mark method to normalize.
-        - context (str): The context in which the method is used ('romanization' or 'tone').
+    Args:
+        method (str): The romanization or tone marking method provided by the user.
+        context (str): The context for the method ('romanization').
 
     Returns:
-        - str: The normalized method.
+        str: The normalized method ('py', 'wg').
 
-    This method first converts the input 'method' to lowercase. It then checks if the 'method' belongs to the
-    romanization methods list ['pinyin', 'py', 'wade-giles', 'wg']. If it does, it further checks the specific method
-    and returns the corresponding normalized method ('py' for 'pinyin' or 'py', 'wg' for 'wade-giles' or 'wg').
-
-    If the 'method' does not belong to the romanization methods list, it checks if it belongs to the tone methods list
-    ['numeric', 'unicode']. If it does, it simply returns the method as it is.
-
-    If neither of the above conditions is met, it checks the 'context' parameter. If the 'context' is 'romanization', it
-    raises an error with a message indicating the invalid romanization method. If the 'context' is 'tone', it raises an
-    error with a message indicating the invalid tone mark format.
-
-    Note: This method uses the 'argparse' module to raise errors. Make sure to import the 'argparse' module before using
-    this method.
-
+    Raises:
+        argparse.ArgumentTypeError: If the method is invalid for the given context.
     """
     method = method.lower()
     romanization_methods = ['pinyin', 'py', 'wade-giles', 'wg']
-    tone_methods = ['numeric', 'unicode']
 
     if method in romanization_methods:
         if method in ['pinyin', 'py']:
             return 'py'
         elif method in ['wade-giles', 'wg']:
             return 'wg'
-    elif method in tone_methods:
-        return method
     else:
         if context == 'romanization':
             raise argparse.ArgumentTypeError(f"Invalid romanization method: {method}")
-        elif context == 'tone':
-            raise argparse.ArgumentTypeError(f"Invalid tone mark format: {method}")
 
 
 def validate_arguments(args):
     """
-    Validates the provided arguments based on the selected action.
-    Raises appropriate errors if required arguments are missing.
+    Validates the command-line arguments based on the selected action.
 
-    Parameters:
-    - args: The parsed arguments from argparse.
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
 
-    Returns:
-    - None
+    Raises:
+        ValueError: If required arguments are missing for specific actions.
     """
     if args.action in ['segment', 'validator', 'syllable_count', 'detect_method']:
         if not args.text:
-            raise ValueError(f'The --text argument is required for the {args.action} action.')
+            raise argparse.ArgumentTypeError(f'The --text argument is required for the {args.action} action.')
 
         # Additional checks for method-related actions
         if args.action in ['convert_text', 'cherry_pick']:
             if not args.convert_from or not args.convert_to:
+                raise argparse.ArgumentTypeError(f'Both --convert_from and --convert_to arguments are required for the '
+                                                 f'{args.action} action.')
 
 
 #  BASIC ACTIONS #
 def segment_action(args):
+    """
+    Segments the text into a list of words and syllables based on the provided method.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+
+    Returns:
+        list: The segmented words and syllables.
+    """
     return segment_text(args.text, args.method, args.crumbs, args.error_skip, args.error_report)
 
 
 def validator_action(args):
+    """
+    Validates the romanization of the text based on the provided method.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+
+    Returns:
+        bool or list[dict]: The validation result, either as a boolean or detailed information per word.
+    """
     return validator(args.text, args.method, args.per_word, args.crumbs, args.error_skip, args.error_report)
 
 
 # CONVERSION ACTIONS #
 def convert_action(args):
+    """
+    Converts the text between romanization methods based on the provided source and target methods.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+
+    Returns:
+        str: The converted text.
+    """
     method_combination = f"{args.convert_from}_{args.convert_to}"
     return convert_text(args.text, method_combination, args.crumbs, args.error_skip, args.error_report)
 
 
 def cherry_pick_action(args):
+    """
+    Converts only the terms identified as valid romanized Mandarin while leaving the rest of the text untouched.
+
+    This function is designed to handle mixed content where English and romanized Mandarin are intermixed. It applies
+    the conversion process selectively to recognized romanized Mandarin terms and skips over any other content,
+    preserving it in its original form.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments, including text, conversion methods, and debugging
+        options.
+
+    Returns:
+        str: The text with only valid romanized Mandarin terms converted according to the specified methods,
+        with non-romanized content left unchanged.
+    """
     method_combination = f"{args.convert_from}_{args.convert_to}"
     return cherry_pick(args.text, method_combination, args.crumbs, True, args.error_report)
 
 
 # OTHER UTILITY ACTIONS #
 def syllable_count_action(args):
+    """
+    Counts the number of syllables in the provided romanized Mandarin text.
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments, including text and method options.
+
+    Returns:
+        List[int]: A list containing the syllable count for each valid romanized Mandarin segment, or 0 for segments
+        identified as invalid.
+    """
     return syllable_count(args.text, args.method, args.crumbs, args.error_skip, args.error_report)
 
 
 def detect_method_action(args):
+    """
+    Detects the romanization method used in the provided text. It can operate on entire text blocks or on a per-word
+    basis, depending on the provided arguments.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments, including text, method options, and per-word analysis
+        flag.
+
+    Returns:
+        Union[List[str], List[Dict[str, List[str]]]]: The detected romanization methods either for the whole text or
+        for each word individually if per-word analysis is enabled.
+    """
     return detect_method(args.text, args.per_word)
 
 
@@ -108,6 +154,12 @@ ACTIONS = {
 
 
 def main():
+    """
+    The main entry point for the script. Sets up command-line argument parsing and calls the appropriate function.
+
+    Raises:
+        argparse.ArgumentError: If invalid arguments are provided.
+    """
     parser = argparse.ArgumentParser(description='RoManTools: Romanized Mandarin Tools')
 
     # REQUIRED PARAMETERS
