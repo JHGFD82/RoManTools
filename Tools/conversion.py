@@ -31,13 +31,13 @@ class RomanizationConverter:
         """
         base_path = os.path.dirname(__file__)
         accepted_methods = ['py_wg', 'wg_py']
-        if method in accepted_methods:
-            source_file = os.path.join(base_path, 'data', f'{method}.csv')
+        if method_combination in accepted_methods:
+            source_file = os.path.join(base_path, 'data', f'{method_combination}.csv')
             with open(source_file) as file:
                 r = csv.reader(file)
                 self.conversion_dicts = {rows[0]: rows[1] for rows in r}
         else:
-            raise ValueError(f'Method {method} not supported.')
+            raise ValueError(f'Method {method_combination} not supported.')
 
     def convert(self, text: str) -> str:
         """
