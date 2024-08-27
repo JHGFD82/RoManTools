@@ -54,7 +54,7 @@ class TextChunkProcessor:
         self.chunks = []
         self._process_chunks()
 
-    def _detect_case(self, word: str) -> Tuple[str, bool, bool]:
+    @staticmethod
         """
         Detects the case of the word and returns it in lowercase along with two boolean flags indicating if the word
         was capitalized (title case) or uppercase.
