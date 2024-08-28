@@ -1,5 +1,5 @@
 import argparse
-from Tools.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
+from tools.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
 
 
 def normalize_method(method: str, context: str) -> str:
