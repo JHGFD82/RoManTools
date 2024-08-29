@@ -109,7 +109,7 @@ def cherry_pick_action(args):
         with non-romanized content left unchanged.
     """
     method_combination = f"{args.convert_from}_{args.convert_to}"
-    return cherry_pick(args.text, method_combination, True)
+    return cherry_pick(args.text, method_combination)
 
 
 # OTHER UTILITY ACTIONS #
