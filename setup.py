@@ -1,18 +1,29 @@
-# setup.py
-
 from setuptools import setup, find_packages
 
 setup(
-    name='romanization_package',
-    version='0.1',
-    packages=find_packages(),
-    include_package_data=True,
-    install_requires=[
-        'numpy',
-    ],
+    name="RoManTools",
+    version="1.0",
+    description="A tool for segmenting, validating, and converting Romanized Mandarin text.",
+    author="Jeff Heller",
+    author_email="jsheller@princeton.edu",
+    url="https://github.com/JHGFD82/RoManTools",
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
     entry_points={
         'console_scripts': [
-            'romanization=romanization_package.__main__:main',
+            'romantools=main:main'
         ],
     },
+    install_requires=[
+        "numpy>=1.19.2"
+    ],
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "Operating System :: OS Independent",
+        "Intended Audience :: Education",
+        "Intended Audience :: Science/Research",
+        "Topic :: Text Processing :: Linguistic"
+    ],
+    python_requires=">=3.6"
 )
