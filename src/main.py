@@ -61,7 +61,7 @@ def segment_action(args):
     Returns:
         list: The segmented words and syllables.
     """
-    return segment_text(args.text, args.method, args.crumbs, args.error_skip, args.error_report)
+    return segment_text(args.text, args.method)
 
 
 def validator_action(args):
@@ -74,7 +74,7 @@ def validator_action(args):
     Returns:
         bool or list[dict]: The validation result, either as a boolean or detailed information per word.
     """
-    return validator(args.text, args.method, args.per_word, args.crumbs, args.error_skip, args.error_report)
+    return validator(args.text, args.method, args.per_word)
 
 
 # CONVERSION ACTIONS #
@@ -89,7 +89,7 @@ def convert_action(args):
         str: The converted text.
     """
     method_combination = f"{args.convert_from}_{args.convert_to}"
-    return convert_text(args.text, method_combination, args.crumbs, args.error_skip, args.error_report)
+    return convert_text(args.text, method_combination)
 
 
 def cherry_pick_action(args):
@@ -109,7 +109,7 @@ def cherry_pick_action(args):
         with non-romanized content left unchanged.
     """
     method_combination = f"{args.convert_from}_{args.convert_to}"
-    return cherry_pick(args.text, method_combination, args.crumbs, True, args.error_report)
+    return cherry_pick(args.text, method_combination, True)
 
 
 # OTHER UTILITY ACTIONS #
@@ -123,7 +123,7 @@ def syllable_count_action(args):
         List[int]: A list containing the syllable count for each valid romanized Mandarin segment, or 0 for segments
         identified as invalid.
     """
-    return syllable_count(args.text, args.method, args.crumbs, args.error_skip, args.error_report)
+    return syllable_count(args.text, args.method)
 
 
 def detect_method_action(args):
