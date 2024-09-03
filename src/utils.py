@@ -4,6 +4,7 @@ from .chunk import TextChunkProcessor
 from .syllable import Syllable
 from .conversion import RomanizationConverter
 from .data_loader import load_method_params, load_stopwords
+from functools import lru_cache
 
 
 def _process_text(text: str, method: str, config: Config) -> List[Union[List[Syllable], Syllable]]:
@@ -25,6 +26,7 @@ def _process_text(text: str, method: str, config: Config) -> List[Union[List[Syl
     return processor.get_chunks()
 
 
+@lru_cache(maxsize=1000)
 def _setup_and_process(text: str, method: str, crumbs: bool = False, error_skip: bool = False,
                        error_report: bool = False) -> Tuple[Config, List[Union[List[Syllable], Syllable]]]:
     """
