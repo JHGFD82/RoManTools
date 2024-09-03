@@ -43,6 +43,7 @@ def _setup_and_process(text: str, method: str, crumbs: bool = False, error_skip:
     """
     config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
     chunks = _process_text(text, method, config)
+
     return config, chunks
 
 
