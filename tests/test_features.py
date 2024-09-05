@@ -1,7 +1,5 @@
 import unittest
 from src.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
-from io import StringIO
-from unittest.mock import patch
 import time
 
 
