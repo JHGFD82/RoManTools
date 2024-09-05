@@ -22,90 +22,93 @@ def timeit_decorator(repeats=10):
     return decorator
 
 
+
+
 class TestRomanization(unittest.TestCase):
+    REPEATS = 100
 
     # PINYIN CHUNK GENERATION TESTING #
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_segment_text_basic_valid_syllable_vowel(self):
         result = segment_text('a, e, o, ai, ou', method='py')
         self.assertEqual(result, [['a'], ['e'], ['o'], ['ai'], ['ou']])
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_segment_text_basic_valid_syllable_initial(self):
         result = segment_text('ba gu zhi ying kai lou yan', method='py')
         self.assertEqual(result, [['ba'], ['gu'], ['zhi'], ['ying'], ['kai'], ['lou'], ['yan']])
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_segment_text_complex_finals_er_n_ng(self):
         result = segment_text('han xiang ran ling er', method='py')
         self.assertEqual(result, [['han'], ['xiang'], ['ran'], ['ling'], ['er']])
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_segment_text_complex_edge_cases(self):
         result = segment_text('chen chong zhen', method='py')
         self.assertEqual(result, [['chen'], ['chong'], ['zhen']])
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_segment_text_multi_syllable_no_apostrophe(self):
         result = segment_text('xiaoming changan wenxin liangxiao', method='py')
         self.assertEqual(result, [['xiao', 'ming'], ['chan', 'gan'], ['wen', 'xin'], ['liang', 'xiao']])
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_segment_text_multi_syllable_apostrophe(self):
         result = segment_text("chang'an shan'er li'an", method='py')
         self.assertEqual(result, [['chang', 'an'], ['shan', 'er'], ['li', 'an']])
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_segment_text_multi_syllable_vowel_start(self):
         result = segment_text('anwei aiai ouyang ewei', method='py')
         self.assertEqual(result, [['an', 'wei'], ['ai', 'ai'], ['ou', 'yang'], ['e', 'wei']])
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_segment_text_invalid_initials(self):
         result = segment_text('xa qo vei', method='py')
         self.assertEqual(result, [['xa'], ['qo'], ['v', 'ei']])
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_segment_text_invalid_finals(self):
         result = segment_text('banp zhirr mingk', method='py')
         self.assertEqual(result, [['ban', 'p'], ['zhi', 'rr'], ['ming', 'k']])
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_segment_text_special_cases_er_n_ng(self):
         result = segment_text('sheng deng er han shier', method='py')
         self.assertEqual(result, [['sheng'], ['deng'], ['er'], ['han'], ['shi', 'er']])
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_segment_text_special_cases_combined_initials(self):
         result = segment_text('shuang huang shun', method='py')
         self.assertEqual(result, [['shuang'], ['huang'], ['shun']])
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_segment_text_edge_cases_ambiguous_finals(self):
         result = segment_text('wenti linping gangzhi', method='py')
         self.assertEqual(result, [['wen', 'ti'], ['lin', 'ping'], ['gang', 'zhi']])
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_segment_text_no_valid_finals(self):
         result = segment_text('blar ziang shoing', method='py')
         self.assertEqual(result, [['bla', 'r'], ['zi', 'ang'], ['sho', 'ing']])
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_segment_text_multi_vowel_combinations(self):
         result = segment_text('ai ei ou uan ie', method='py')
         self.assertEqual(result, [['ai'], ['ei'], ['ou'], ['u', 'an'], ['ie']])
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_segment_text_one_syllable_edge_case(self):
         result = segment_text('a e ou yi', method='py')
         self.assertEqual(result, [['a'], ['e'], ['ou'], ['yi']])
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_segment_text_multi_syllable_edge_case_er_n_ng(self):
         result = segment_text('zhuangyuan wenxiang gangren', method='py')
         self.assertEqual(result, [['zhuang', 'yuan'], ['wen', 'xiang'], ['gang', 'ren']])
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_segment_text_wade_giles(self):
         result = segment_text('ni linp’ing shang ch’ankan hsiaoming yüanyang erh shiherh hsiung anwei fenghuang '
                               'jenmin', method='wg')
@@ -113,7 +116,7 @@ class TestRomanization(unittest.TestCase):
                                   ['yüan', 'yang'], ['erh'], ['shih', 'erh'], ['hsiung'], ['an', 'wei'],
                                   ['feng', 'huang'], ['jen', 'min']])
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_segment_text_ignore_capitalization(self):
         result = segment_text('Ni linp’ing SHANG ch’ankan Hsiaoming yüanyang erh SHIHERH hsiung Anwei fenghuang '
                               'jenmin', method='wg')
@@ -122,19 +125,19 @@ class TestRomanization(unittest.TestCase):
                                   ['feng', 'huang'], ['jen', 'min']])
 
     # SYLLABLE VALIDATION TESTING #
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_validator_true(self):
         result = validator('ni linp’ing shang ch’ankan hsiaoming yüanyang erh shiherh hsiung anwei fenghuang',
                            method='wg')
         self.assertEqual(result, True)
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_validator_false(self):
         result = validator('ni linp’ing shang ch’anzkan hsiaoming yüanyang erh shiherh hsiung anwei fenghuang',
                            method='wg')
         self.assertEqual(result, False)
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_validator_per_word(self):
         result = validator("ni linpzing shangz chazng'an iaoming yuanng er shizer xiongew anwei fengghuang",
                            method='py', per_word=True)
@@ -153,22 +156,22 @@ class TestRomanization(unittest.TestCase):
                          )
 
     # ROMANIZATON CONVERSION TESTING #
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_convert_text(self):
         result = convert_text('ni hao chang\'an yuan', method_combination='py_wg')
         self.assertEqual(result, 'ni hao ch’angan yüan')
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_convert_text_titlecase(self):
         result = convert_text('Ni hao Chang\'an Yuan', method_combination='py_wg')
         self.assertEqual(result, 'Ni hao Ch’angan Yüan')
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_convert_text_uppercase(self):
         result = convert_text('NI HAO Chang\'an YUAN', method_combination='py_wg')
         self.assertEqual(result, 'NI HAO Ch’angan YÜAN')
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_cherry_pick(self):
         result = cherry_pick("Bai Juyi lived during the Middle Tang period. This was a period of rebuilding and "
                              "recovery for the Tang Empire, following the An Lushan Rebellion, and following the "
@@ -187,7 +190,7 @@ class TestRomanization(unittest.TestCase):
                                  "two facets of his career seemed to have come in conflict with each other at certain "
                                  "points. Pai Chüi was also a devoted Ch’an Buddhist.")
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_cherry_pick_long(self):
         result = cherry_pick("Bai Juyi lived during the Middle Tang period. This was a period of rebuilding and "
                              "recovery for the Tang Empire, following the An Lushan Rebellion, and following the "
@@ -321,7 +324,7 @@ class TestRomanization(unittest.TestCase):
                                  "noted. In 819, he was recalled back to the capital, ending his exile.")
 
     # SYLLABLE_COUNT TESTING #
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_syllable_count(self):
         result = syllable_count(f"'ni linping shang chang'an xiaoming yuanyang er shier xiong anwei fenghuang "
                                 f"renmin shuang yingyong zhongguo qingdao ping'an guangdong hongkong changjiang shen "
@@ -329,19 +332,19 @@ class TestRomanization(unittest.TestCase):
         self.assertEqual(result, [1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 0, 0, 0])
 
     # METHOD DETECTION TESTING #
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_detect_method_py(self):
         result = detect_method(f"'ni linping shang chang'an xiaoming yuanyang er shier xiong anwei fenghuang renmin "
                                f"shuang yingyong zhongguo qingdao ping'an guangdong hongkong changjiang shen tingma")
         self.assertEqual(result, ['py'])
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_detect_method_wg(self):
         result = detect_method(
             f"ni linp’ing shang ch’ankan hsiaoming yüanyang erh shiherh hsiung anwei fenghuang jenmin ")
         self.assertEqual(result, ['wg'])
 
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_detect_method_per_word(self):
         result = detect_method(f"ni linping shang chang'an xiaoming yuanyang er shier xiong anwei fenghuang "
                                f"renmin shuang yingyong zhongguo qingdao ping'an guangdong hongkong changjiang shen "
@@ -374,7 +377,7 @@ class TestRomanization(unittest.TestCase):
                          )
 
     # ERROR_SKIP TESTING #
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=REPEATS)
     def test_segment_text_error_skip(self):
         result = segment_text("Bai Juyi lived during the Middle Tang period.", method='py', error_skip=True)
         self.assertEqual(result, [['bai'], ' ', ['ju', 'yi'], ' ', ['li', 'v', 'e', 'd'], ' ', ['du', 'ring'], ' ',
