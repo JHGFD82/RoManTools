@@ -22,8 +22,6 @@ def timeit_decorator(repeats=10):
     return decorator
 
 
-
-
 class TestRomanization(unittest.TestCase):
     REPEATS = 100
 
