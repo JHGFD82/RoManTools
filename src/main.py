@@ -106,16 +106,18 @@ def main():
     parser.add_argument('-t', '--convert_to', type=lambda x: _normalize_method(x, 'romanization'),
                         help='Target romanization method for convert and cherry_pick actions '
                              '(pinyin/py, wade-giles/wg)')
-    parser.add_argument('--per_word', action='store_true',
+
+    # OPTIONAL PARAMETERS
+    parser.add_argument('-w', '--per_word', action='store_true',
                         help='Perform action on each word within a multi-word string (currently only supported for '
                              'detect_method and validator process)')
 
     # OPTIONAL DEBUG PARAMETERS
-    parser.add_argument('--crumbs', action='store_true',
+    parser.add_argument('-C', '--crumbs', action='store_true',
                         help='Include step-by-step analysis in the output')
-    parser.add_argument('--error_skip', action='store_true',
+    parser.add_argument('-S', '--error_skip', action='store_true',
                         help='Skip errors instead of aborting (defaulted to True if --cherry_pick is used)')
-    parser.add_argument('--error_report', action='store_true',
+    parser.add_argument('-R', '--error_report', action='store_true',
                         help='Include error messages in the output')
 
     args = parser.parse_args()
