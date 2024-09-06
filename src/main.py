@@ -98,12 +98,12 @@ def main():
                         help='Text to process')
 
     # CONDITIONAL PARAMETERS (BASED ON CHOSEN ACTION)
-    parser.add_argument('--method', type=lambda x: normalize_method(x, 'romanization'),
+    parser.add_argument('-m', '--method', type=lambda x: _normalize_method(x, 'romanization'),
                         help='Romanization method for functions (pinyin/py, wade-giles/wg)')
-    parser.add_argument('--convert_from', type=lambda x: normalize_method(x, 'romanization'),
+    parser.add_argument('-f', '--convert_from', type=lambda x: _normalize_method(x, 'romanization'),
                         help='Source romanization method for convert and cherry_pick actions '
                              '(pinyin/py, wade-giles/wg)')
-    parser.add_argument('--convert_to', type=lambda x: normalize_method(x, 'romanization'),
+    parser.add_argument('-t', '--convert_to', type=lambda x: _normalize_method(x, 'romanization'),
                         help='Target romanization method for convert and cherry_pick actions '
                              '(pinyin/py, wade-giles/wg)')
     parser.add_argument('--per_word', action='store_true',
@@ -121,7 +121,7 @@ def main():
     args = parser.parse_args()
 
     # Validate common arguments here
-    validate_arguments(args)
+    _validate_arguments(args)
 
     # Call the appropriate function
     print(ACTIONS[args.action](args))
