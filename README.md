@@ -14,6 +14,7 @@ Version 1.0 of this project will include the following features:
 - **Text Segmentation**: Segments text into meaningful chunks, a feature that will be utilized by other actions and also available for direct use by the user.
 - **Syllable Count**: Counts the number of syllables per word and provides a report to the user.
 - **Method Detect**: Identifies the romanization standard used in the input text and returns the detected standard(s) to the user as either a single standard or a list of multiple standards.
+- **Validator**: Basic validation of supplied text.
 ---
 
 ## Origin
