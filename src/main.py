@@ -2,19 +2,9 @@ import argparse
 from src.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
 
 
-def normalize_method(method: str, context: str) -> str:
+def _normalize_method(method: str, context: str) -> str:
     """
     Normalizes and validates the romanization or tone marking method based on the provided context.
-
-    Args:
-        method (str): The romanization or tone marking method provided by the user.
-        context (str): The context for the method ('romanization').
-
-    Returns:
-        str: The normalized method ('py', 'wg').
-
-    Raises:
-        argparse.ArgumentTypeError: If the method is invalid for the given context.
     """
     method = method.lower()
     romanization_methods = ['pinyin', 'py', 'wade-giles', 'wg']
@@ -29,15 +19,9 @@ def normalize_method(method: str, context: str) -> str:
             raise argparse.ArgumentTypeError(f"Invalid romanization method: {method}")
 
 
-def validate_arguments(args):
+def _validate_arguments(args):
     """
     Validates the command-line arguments based on the selected action.
-
-    Args:
-        args (argparse.Namespace): Parsed command-line arguments.
-
-    Raises:
-        ValueError: If required arguments are missing for specific actions.
     """
     if args.action in ['segment', 'validator', 'syllable_count', 'detect_method']:
         if not args.text:
@@ -51,105 +35,42 @@ def validate_arguments(args):
 
 
 #  BASIC ACTIONS #
-def segment_action(args):
-    """
-    Segments the text into a list of words and syllables based on the provided method.
-
-    Args:
-        args (argparse.Namespace): Parsed command-line arguments.
-
-    Returns:
-        list: The segmented words and syllables.
-    """
+def _segment_action(args):
     return segment_text(args.text, args.method)
 
 
-def validator_action(args):
-    """
-    Validates the romanization of the text based on the provided method.
-
-    Args:
-        args (argparse.Namespace): Parsed command-line arguments.
-
-    Returns:
-        bool or list[dict]: The validation result, either as a boolean or detailed information per word.
-    """
+def _validator_action(args):
     return validator(args.text, args.method, args.per_word)
 
 
 # CONVERSION ACTIONS #
-def convert_action(args):
-    """
-    Converts the text between romanization methods based on the provided source and target methods.
-
-    Args:
-        args (argparse.Namespace): Parsed command-line arguments.
-
-    Returns:
-        str: The converted text.
-    """
+def _convert_action(args):
     method_combination = f"{args.convert_from}_{args.convert_to}"
     return convert_text(args.text, method_combination)
 
 
-def cherry_pick_action(args):
-    """
-    Converts only the terms identified as valid romanized Mandarin while leaving the rest of the text untouched.
-
-    This function is designed to handle mixed content where English and romanized Mandarin are intermixed. It applies
-    the conversion process selectively to recognized romanized Mandarin terms and skips over any other content,
-    preserving it in its original form.
-
-    Args:
-        args (argparse.Namespace): Parsed command-line arguments, including text, conversion methods, and debugging
-        options.
-
-    Returns:
-        str: The text with only valid romanized Mandarin terms converted according to the specified methods,
-        with non-romanized content left unchanged.
-    """
+def _cherry_pick_action(args):
     method_combination = f"{args.convert_from}_{args.convert_to}"
     return cherry_pick(args.text, method_combination)
 
 
 # OTHER UTILITY ACTIONS #
-def syllable_count_action(args):
-    """
-    Counts the number of syllables in the provided romanized Mandarin text.
-    Args:
-        args (argparse.Namespace): Parsed command-line arguments, including text and method options.
-
-    Returns:
-        List[int]: A list containing the syllable count for each valid romanized Mandarin segment, or 0 for segments
-        identified as invalid.
-    """
+def _syllable_count_action(args):
     return syllable_count(args.text, args.method)
 
 
-def detect_method_action(args):
-    """
-    Detects the romanization method used in the provided text. It can operate on entire text blocks or on a per-word
-    basis, depending on the provided arguments.
-
-    Args:
-        args (argparse.Namespace): Parsed command-line arguments, including text, method options, and per-word analysis
-        flag.
-
-    Returns:
-        Union[List[str], List[Dict[str, List[str]]]]: The detected romanization methods either for the whole text or
-        for each word individually if per-word analysis is enabled.
-    """
+def _detect_method_action(args):
     return detect_method(args.text, args.per_word)
 
 
 # Map actions to functions
 ACTIONS = {
-    "segment": segment_action,
-    "validator": validator_action,
-    "convert": convert_action,
-    "cherry_pick": cherry_pick_action,
-    "syllable_count": syllable_count_action,
-    "detect_method": detect_method_action
+    "segment": _segment_action,
+    "validator": _validator_action,
+    "convert": _convert_action,
+    "cherry_pick": _cherry_pick_action,
+    "syllable_count": _syllable_count_action,
+    "detect_method": _detect_method_action
 }
 
 
