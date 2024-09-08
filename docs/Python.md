@@ -18,7 +18,7 @@ Convert the given text from one romanization method to another.
 
 **Example:**
 ```python
-from RoManTools.utils import convert
+from RoManTools.utils import convert_text
 
 result = convert_text("Bai Juyi", "py_wg")
 print(result)  # Output: "Pai Chüi"
