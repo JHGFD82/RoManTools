@@ -9,11 +9,15 @@ def _normalize_method(method: str, context: str) -> str:
     method = method.lower()
     romanization_methods = ['pinyin', 'py', 'wade-giles', 'wg']
 
-    if method in romanization_methods:
-        if method in ['pinyin', 'py']:
-            return 'py'
-        elif method in ['wade-giles', 'wg']:
-            return 'wg'
+    method_map = {
+        'pinyin': 'py',
+        'py': 'py',
+        'wade-giles': 'wg',
+        'wg': 'wg'
+    }
+
+    if method in method_map:
+        return method_map[method]
     else:
         if context == 'romanization':
             raise argparse.ArgumentTypeError(f"Invalid romanization method: {method}")
