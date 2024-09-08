@@ -48,13 +48,11 @@ def _validator_action(args):
 
 # CONVERSION ACTIONS #
 def _convert_action(args):
-    method_combination = f"{args.convert_from}_{args.convert_to}"
-    return convert_text(args.text, method_combination)
+    return convert_text(args.text, args.convert_from, args.convert_to)
 
 
 def _cherry_pick_action(args):
-    method_combination = f"{args.convert_from}_{args.convert_to}"
-    return cherry_pick(args.text, method_combination)
+    return cherry_pick(args.text, args.convert_from, args.convert_to)
 
 
 # OTHER UTILITY ACTIONS #

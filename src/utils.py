@@ -102,14 +102,15 @@ def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool 
     return segmented_result
 
 
-def convert_text(text: str, method_combination: str, crumbs: bool = False, error_skip: bool = False,
+def convert_text(text: str, convert_from: str, convert_to: str, crumbs: bool = False, error_skip: bool = False,
                  error_report: bool = False) -> str:
     """
     Converts the given text using the specified method combination.
 
     Args:
         text (str): The text to be converted.
-        method_combination (str): The combination of romanization methods, converting from the first and to the second.
+        convert_from (str): The romanization method to convert from.
+        convert_to (str): The romanization method to convert to.
         crumbs (bool, optional): Whether to display debugging crumbs. Defaults to False.
         error_skip (bool, optional): Whether to skip errors. Defaults to False.
         error_report (bool, optional): Whether to report errors. Defaults to False.
@@ -119,12 +120,12 @@ def convert_text(text: str, method_combination: str, crumbs: bool = False, error
 
     Example:
         >>> text = "Zhongguo"
-        >>> convert_text(text, method_combination="py-wg")
+        >>> convert_text(text, convert_from="py", convert_to="wg")
         'Chung-kuo'
     """
-    config, chunks = _setup_and_process(text, method_combination[:2], crumbs, error_skip, error_report)
+    config, chunks = _setup_and_process(text, convert_from, crumbs, error_skip, error_report)
 
-    converter = RomanizationConverter(method_combination)
+    converter = RomanizationConverter(f"{convert_from}_{convert_to}")
 
     converted_words = []
 
@@ -143,7 +144,7 @@ def convert_text(text: str, method_combination: str, crumbs: bool = False, error
     return " ".join(converted_words)
 
 
-def cherry_pick(text: str, method_combination: str, crumbs: bool = False, error_skip: bool = True,
+def cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = False, error_skip: bool = True,
                 error_report: bool = False) -> str:
     """
     Converts identified, valid romanized Mandarin without altering invalid text. This is particularly useful for
@@ -151,7 +152,8 @@ def cherry_pick(text: str, method_combination: str, crumbs: bool = False, error_
 
     Args:
         text (str): The romanized Mandarin text to be processed.
-        method_combination (str): The combination of romanization methods, converting from the first and to the second.
+        convert_from (str): The romanization method to convert from.
+        convert_to (str): The romanization method to convert to.
         crumbs (bool, optional): Whether to display debugging crumbs. Defaults to False.
         error_skip (bool, optional): Whether to skip errors if a method fails. Defaults to True.
         error_report (bool, optional): Whether to report errors. Defaults to False.
@@ -160,13 +162,13 @@ def cherry_pick(text: str, method_combination: str, crumbs: bool = False, error_
         str: The processed text after applying the best available method from the combination.
 
     Example:
-        >>> text = "Welcome to Zhongguo"
-        >>> cherry_pick(text, method_combination="py-wg")
-        "Welcome to Chung-kuo"
+        >>> text = "Welcome to Zhongguo!"
+        >>> cherry_pick(text, convert_from="py", convert_to="wg")
+        "Welcome to Chung-kuo!"
     """
     stopwords = load_stopwords()
-    config, chunks = _setup_and_process(text, method_combination[:2], crumbs, error_skip, error_report)
-    converter = RomanizationConverter(method_combination)
+    config, chunks = _setup_and_process(text, convert_from, crumbs, error_skip, error_report)
+    converter = RomanizationConverter(f"{convert_from}_{convert_to}")
     converted_words = []
 
     def _process_syllables(syllable_list: List[Syllable], convert: bool) -> str:
