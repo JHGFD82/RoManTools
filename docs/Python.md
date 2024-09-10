@@ -20,7 +20,7 @@ Convert the given text from one romanization method to another.
 ```python
 from RoManTools.utils import convert_text
 
-result = convert_text("Bai Juyi", "py_wg")
+result = convert_text("Bai Juyi", "py", "wg")
 print(result)  # Output: "Pai Chüi"
 ```
 
