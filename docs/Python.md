@@ -90,8 +90,16 @@ Identify the romanization standard used in the input text.
 ```python
 from RoManTools.utils import detect_method
 
-result = detect_method("Bai Juyi")
+# Example text to analyze
+text = "Bai Juyi"
+
+# Detect the method for the entire text
+result = detect_method(text)
 print(result)  # Output: "py"
+
+# Detect the method for each word individually
+result_per_word = detect_method(text, per_word=True)
+print(result_per_word)  # Output: [{'word': 'Bai', 'methods': ['py']}, {'word': 'Juyi', 'methods': ['py', 'wg']}]
 ```
 
 ### `validate_text`
@@ -113,8 +121,14 @@ Validate the supplied text.
 ```python
 from RoManTools.utils import validate_text
 
-result = validate_text("Bai Julyi", "py")
+text = "Bai Julyi"
+method = "py"
+
+result = validate_text(text, method)
 print(result)  # Output: False
+
+result = validate_text(text, method, per_word=True)
+print(result) # Output: [{'word': 'bai', 'syllables': ['bai'], 'valid': [True]}, {'word': 'julyi', 'syllables': ['ju', 'lyi'], 'valid': [True, False]}]
 ```
 
 ### `syllable_count`
