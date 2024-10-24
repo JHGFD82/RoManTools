@@ -93,8 +93,12 @@ class Syllable:
             initial = ''
         else:
             final = self._find_final(text[len(initial):], initial)
+
         full_syllable = initial + final
-        remainder = text[len(initial) + len(final):]
+        remainder_start = len(full_syllable)
+        remainder = text[remainder_start:]
+        print('text: ' + text)
+        print(remainder)
 
         return initial, final, full_syllable, remainder
 
@@ -116,6 +120,8 @@ class Syllable:
                 if initial not in self.processor.init_list:
                     return text[:i]
                 return initial
+            elif self.processor.method == 'wg' and c == "'":
+                return text[:i + 1]
         return text
 
     def _find_final(self, text: str, initial: str) -> str:

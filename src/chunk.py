@@ -73,12 +73,13 @@ class TextChunkProcessor:
         """
         if self.config.error_skip:
             # Use a comprehensive regex to split text into words and non-text
-            pattern = r"([a-zA-ZüÜ]+(?:['’ʼ`\-–—][a-zA-ZüÜ]+)?|[^a-zA-ZüÜ]+)"
+            pattern = r"[a-zA-ZüÜ]+(?:['’ʼ`\-–—][a-zA-ZüÜ]+)*|[^a-zA-ZüÜ]+"
         else:
             # Default pattern for standard word splitting
-            pattern = r"[a-zA-ZüÜ]+(?:['’ʼ`\-–—][a-zA-ZüÜ]+)?"
+            pattern = r"[a-zA-ZüÜ]+(?:['’ʼ`\-–—][a-zA-ZüÜ]+)*"
 
         segments = re.findall(pattern, self.text)
+        print(segments)
 
         for segment in segments:
             if re.match(r"[a-zA-ZüÜ]+", segment):
