@@ -1,7 +1,7 @@
-from .config import Config
+from src.config import Config
 from typing import Tuple, List, Dict, Union
 import numpy as np
-import os
+import os, csv
 
 base_path = os.path.dirname(__file__)
 
@@ -81,3 +81,16 @@ def load_stopwords() -> List[str]:
     with open(file_path, 'r') as f:
         stopwords = f.read().splitlines()
     return stopwords
+
+
+def load_syllable_list(method: str) -> List[str]:
+    """
+    Loads a list of Pinyin syllables from a CSV file.
+
+    Returns:
+        List[str]: A list of Pinyin syllables.
+    """
+    source_file = os.path.join(base_path, 'data', f"{method}List.csv")
+    with open(source_file) as file:
+        reader = csv.reader(file)
+        return [item for sublist in reader for item in sublist]

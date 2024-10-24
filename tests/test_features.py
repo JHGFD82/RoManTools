@@ -1,5 +1,7 @@
 import unittest
 from src.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
+from src.data_loader import load_syllable_list
+import random
 import time
 
 # Initialize the counter for the number of tests
@@ -24,6 +26,41 @@ def timeit_decorator(repeats=100):
         return wrapper
 
     return decorator
+
+
+def generate_random_syllable_from_list(syllable_list):
+    return random.choice(syllable_list)
+
+def generate_random_text_from_list(method, num_syllables):
+
+    def _validate_examples(random_text):
+
+        final_words = random_text[0]
+        for i in range(1, len(random_text)):
+            if method == 'py':
+                if random_text[i - 1][-1] in vowels and random_text[i][0] in vowels or \
+                        random_text[i - 1][-2:] == 'er' and random_text[i][0] in vowels or \
+                        random_text[i - 1][-1] == 'n' and random_text[i][0] in vowels or \
+                        random_text[i - 1][-2:] == 'ng' and random_text[i][0] in vowels:
+                    final_words += "'" + random_text[i]
+                else:
+                    final_words += random_text[i]
+            elif method == 'wg':
+                if random_text[i - 1][-1] in vowels and random_text[i][0] in vowels or \
+                        random_text[i - 1][-3:] == 'erh' and random_text[i][0] in vowels or \
+                        random_text[i - 1][-1] == 'n' and random_text[i][0] in vowels or \
+                        random_text[i - 1][-2:] == 'ng' and random_text[i][0] in vowels:
+                    final_words += "-" + random_text[i]
+                else:
+                    final_words += random_text[i]
+        return final_words
+
+    syllable_list = load_syllable_list(method)
+    syllables = [generate_random_syllable_from_list(syllable_list) for _ in range(num_syllables)]
+    vowels = ['a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ']
+    result = _validate_examples(syllables)
+
+    return result
 
 
 class TestRomanization(unittest.TestCase):
@@ -334,17 +371,19 @@ class TestRomanization(unittest.TestCase):
         self.assertEqual(result, [1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 0, 0, 0])
 
     # METHOD DETECTION TESTING #
-    @timeit_decorator(repeats=REPEATS)
+    @timeit_decorator(repeats=100)
     def test_detect_method_py(self):
-        result = detect_method(f"'ni linping shang chang'an xiaoming yuanyang er shier xiong anwei fenghuang renmin "
-                               f"shuang yingyong zhongguo qingdao ping'an guangdong hongkong changjiang shen tingma")
-        self.assertEqual(result, ['py'])
+        random_text = generate_random_text_from_list('py', 3)
+        # print(random_text)
+        result = detect_method(random_text)
+        self.assertIn('py', result, f"'py' not found in text: {random_text}")
 
-    @timeit_decorator(repeats=REPEATS)
+    @timeit_decorator(repeats=10000)
     def test_detect_method_wg(self):
-        result = detect_method(
-            f"ni linp’ing shang ch’ankan hsiaoming yüanyang erh shiherh hsiung anwei fenghuang jenmin ")
-        self.assertEqual(result, ['wg'])
+        random_text = generate_random_text_from_list('wg', 3)
+        # print(random_text)
+        result = detect_method(random_text)
+        self.assertIn('wg', result, f"'wg' not found in text: {random_text}")
 
     @timeit_decorator(repeats=REPEATS)
     def test_detect_method_per_word(self):
