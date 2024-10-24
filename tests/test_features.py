@@ -2,10 +2,14 @@ import unittest
 from src.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
 import time
 
+# Initialize the counter for the number of tests
+test_counter = 0
 
-def timeit_decorator(repeats=10):
+def timeit_decorator(repeats=100):
     def decorator(func):
         def wrapper(*args, **kwargs):
+            global test_counter
+            test_counter += 1
             total_time = 0.0
             result = 0
             for _ in range(repeats):
@@ -14,7 +18,7 @@ def timeit_decorator(repeats=10):
                 end_time = time.time()
                 total_time += end_time - start_time
             average_time = total_time / repeats
-            print(f"Function {func.__name__} executed in average: {average_time:.4f} seconds over {repeats} runs")
+            print(f"Test {test_counter}: Function {func.__name__} executed in average: {average_time:.4f} seconds over {repeats} runs")
             return result
 
         return wrapper
@@ -156,17 +160,17 @@ class TestRomanization(unittest.TestCase):
     # ROMANIZATON CONVERSION TESTING #
     @timeit_decorator(repeats=REPEATS)
     def test_convert_text(self):
-        result = convert_text('ni hao chang\'an yuan', method_combination='py_wg')
+        result = convert_text('ni hao chang\'an yuan', convert_from='py', convert_to='wg')
         self.assertEqual(result, 'ni hao ch’angan yüan')
 
     @timeit_decorator(repeats=REPEATS)
     def test_convert_text_titlecase(self):
-        result = convert_text('Ni hao Chang\'an Yuan', method_combination='py_wg')
+        result = convert_text('Ni hao Chang\'an Yuan', convert_from='py', convert_to='wg')
         self.assertEqual(result, 'Ni hao Ch’angan Yüan')
 
     @timeit_decorator(repeats=REPEATS)
     def test_convert_text_uppercase(self):
-        result = convert_text('NI HAO Chang\'an YUAN', method_combination='py_wg')
+        result = convert_text('NI HAO Chang\'an YUAN', convert_from='py', convert_to='wg')
         self.assertEqual(result, 'NI HAO Ch’angan YÜAN')
 
     @timeit_decorator(repeats=REPEATS)
@@ -178,7 +182,7 @@ class TestRomanization(unittest.TestCase):
                              "the Dali regnal era (766-779) of Emperor Daizong of Tang. He had a long and successful "
                              "career both as a government official and a poet, although these two facets of his career "
                              "seemed to have come in conflict with each other at certain points. Bai Juyi was also a "
-                             "devoted Chan Buddhist.", method_combination="py_wg")
+                             "devoted Chan Buddhist.", convert_from='py', convert_to='wg')
         self.assertEqual(result, "Pai Chüi lived during the Middle T’ang period. This was a period of rebuilding and "
                                  "recovery for the T’ang Empire, following the An Lushan Rebellion, and following the "
                                  "poetically flourishing era famous for Li Pai (701－762), Wang Wei (701－761), "
@@ -253,7 +257,7 @@ class TestRomanization(unittest.TestCase):
                              "friend Yuan Zhen, who was also in exile and with whom he explored the rock caves "
                              "located at Yichang. Bai Juyi was delighted by the flowers and trees for which his new "
                              "location was noted. In 819, he was recalled back to the capital, ending his exile.",
-                             method_combination='py_wg')
+                             convert_from='py', convert_to='wg')
         self.assertEqual(result, "Pai Chüi lived during the Middle T’ang period. This was a period of rebuilding and "
                                  "recovery for the T’ang Empire, following the An Lushan Rebellion, and following the "
                                  "poetically flourishing era famous for Li Pai (701－762), Wang Wei (701－761), "
