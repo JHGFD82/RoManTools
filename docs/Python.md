@@ -1,4 +1,4 @@
-# RoManTools Utilities
+# RoManTools Function Call Documentation
 
 This document provides an overview of the utility functions available in the `utils.py` module of the RoManTools package. These functions include text processing methods such as syllable counting and text validation.
 
@@ -79,9 +79,11 @@ Identify the romanization standard used in the input text.
 **Arguments:**
 
 - `text` (str): The text to be analyzed.
+- `per_word` (bool, optional): If set to `True`, returns detection results for each word individually.
 
 **Returns:**
-- `str`: The detected standard(s) as either a single standard or a list of multiple standards.
+
+- `str` or `list`: The detected standard(s) as either a single standard or a list of multiple standards. If `per_word` is `True`, returns a list of dictionaries with detection results for each word.
 
 **Example:**
 
@@ -100,9 +102,11 @@ Validate the supplied text.
 
 - `text` (str): The text to be validated.
 - `method` (str): The romanization method of the input text.
+- `per_word` (bool, optional): If set to `True`, returns validation results for each word individually.
 
 **Returns:**
-- `bool`: True if the text is valid, False otherwise.
+
+- `bool` or `list`: `True` if the text is valid, `False` otherwise. If `per_word` is `True`, returns a list of dictionaries with validation results for each word.
 
 **Example:**
 
