@@ -49,20 +49,20 @@ def _setup_and_process(text: str, method: str, crumbs: bool = False, error_skip:
     return config, chunks
 
 
-def _apply_caps(text: str, syl: Syllable) -> str:
+def _apply_caps(text: str, syllable: Syllable) -> str:
     """
     Applies capitalization rules based on the syllable's properties.
 
     Args:
         text (str): The text to be transformed.
-        syl (Syllable): The syllable object containing capitalization rules.
+        syllable (Syllable): The syllable object containing capitalization rules.
 
     Returns:
         str: The transformed text with applied capitalization.
     """
-    if syl.uppercase:
+    if syllable.uppercase:
         return text.upper()
-    elif syl.capitalize:
+    elif syllable.capitalize:
         return text.capitalize()
     return text
 
