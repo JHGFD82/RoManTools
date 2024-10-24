@@ -1,5 +1,6 @@
 import os
 import csv
+from functools import lru_cache
 
 
 class RomanizationConverter:
@@ -35,6 +36,7 @@ class RomanizationConverter:
         else:
             raise ValueError(f'Method {method_combination} not supported.')
 
+    @lru_cache(maxsize=10000)
     def convert(self, text: str) -> str:
         """
         Converts a given text.

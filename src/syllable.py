@@ -1,6 +1,7 @@
 from .config import Config
 from typing import Tuple, List
 import numpy as np
+# from functools import lru_cache
 
 vowel = ['a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ']
 
@@ -210,6 +211,7 @@ class Syllable:
         # Default case: handle all other consonants
         return text[:i]
 
+    # @lru_cache(maxsize=100000)
     def _validate_final(self, initial, final: str) -> bool:
         """
         Validates the final part of the syllable by checking against a predefined list of valid combinations.

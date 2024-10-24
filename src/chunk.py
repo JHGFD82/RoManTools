@@ -3,6 +3,7 @@ from .syllable import SyllableProcessor, Syllable
 from typing import List, Tuple
 import numpy as np
 import re
+from functools import lru_cache
 
 
 class TextChunkProcessor:
@@ -86,6 +87,24 @@ class TextChunkProcessor:
             else:
                 # Non-text elements are directly appended as strings
                 self.chunks.append(segment)
+
+        # Print cache information to ensure proper usage
+        # print(self._send_to_syllable_processor.cache_info())  # Displays cache statistics
+
+    @lru_cache(maxsize=10000)
+    def _send_to_syllable_processor(self, remaining_text: str) -> Syllable:
+        """
+        Sends the remaining text to the syllable processor to create a syllable object.
+
+        Args:
+            remaining_text (str): The remaining text to process.
+        """
+        return self.syllable_processor.create_syllable(remaining_text)
+
+        # This commented code is for debugging purposes to print the resulting syllable object
+        # result = self.syllable_processor.create_syllable(remaining_text)
+        # print(result.__dict__)
+        # return result
 
     def _process_split_words(self, split_words: List[str]):
         """

@@ -7,6 +7,7 @@ from .data_loader import load_method_params, load_stopwords
 from functools import lru_cache
 
 
+@lru_cache(maxsize=1000000)
 def _process_text(text: str, method: str, config: Config) -> List[Union[List[Syllable], Syllable]]:
     """
     Processes the given text using the specified method and configuration.
@@ -49,6 +50,7 @@ def _setup_and_process(text: str, method: str, crumbs: bool = False, error_skip:
     return config, chunks
 
 
+@lru_cache(maxsize=1000000)
 def _apply_caps(text: str, syllable: Syllable) -> str:
     """
     Applies capitalization rules based on the syllable's properties.
@@ -67,6 +69,7 @@ def _apply_caps(text: str, syllable: Syllable) -> str:
     return text
 
 
+@lru_cache(maxsize=1000000)
 def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False) \
         -> List[Union[List[Syllable], Syllable]]:
     """
@@ -102,6 +105,7 @@ def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool 
     return segmented_result
 
 
+@lru_cache(maxsize=1000000)
 def convert_text(text: str, convert_from: str, convert_to: str, crumbs: bool = False, error_skip: bool = False,
                  error_report: bool = False) -> str:
     """
@@ -144,6 +148,7 @@ def convert_text(text: str, convert_from: str, convert_to: str, crumbs: bool = F
     return " ".join(converted_words)
 
 
+@lru_cache(maxsize=1000000)
 def cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = False, error_skip: bool = True,
                 error_report: bool = False) -> str:
     """
@@ -187,6 +192,14 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = Fa
             for syl in syllable_list
         )
 
+        # The below commented code debugs the cache statistics
+        # result = ''
+        # for syl in syllable_list:
+        #     capped = _apply_caps(converter.convert(syl.full_syllable) if convert else syl.full_syllable, syl)
+        #     print(syl.full_syllable, converter.convert.cache_info())  # Displays cache statistics
+        #     result.join(capped)
+        # return result
+
     for chunk in chunks:
         if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
             word = ''.join(syl.full_syllable for syl in chunk)
@@ -200,6 +213,7 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = Fa
     return "".join(converted_words)
 
 
+@lru_cache(maxsize=1000000)
 def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False) \
         -> list[int]:
     """
@@ -225,6 +239,7 @@ def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: boo
     return [lengths if all(syllable.valid for syllable in chunk) else 0 for chunk in chunks for lengths in [len(chunk)]]
 
 
+@lru_cache(maxsize=1000000)
 def detect_method(text: str, per_word: bool = False, crumbs: bool = False, error_skip: bool = False,
                   error_report: bool = False) -> Union[List[str], List[Dict[str, List[str]]]]:
     """
@@ -279,6 +294,7 @@ def detect_method(text: str, per_word: bool = False, crumbs: bool = False, error
         return valid_methods
 
 
+@lru_cache(maxsize=1000000)
 def validator(text: str, method: str, per_word: bool = False, crumbs: bool = False, error_skip: bool = False,
               error_report: bool = False) -> Union[bool, list[dict]]:
     """
