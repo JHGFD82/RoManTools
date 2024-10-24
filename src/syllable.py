@@ -38,33 +38,29 @@ class SyllableProcessor:
         Returns:
             Syllable: A Syllable object with information about the initial, final, and validity.
         """
-        return Syllable(text, self.config, self.ar, self.init_list, self.fin_list, self.method, remainder)
+        # result = Syllable(text, self, remainder)
+        # print(result.__dict__)
+        # return result
+        return Syllable(text, self, remainder)
 
 
 class Syllable:
     """
     Represents a syllable and its components (initial, final) in the context of a romanization method.
     """
-    def __init__(self, text: str, config: Any, ar: np.ndarray, init_list: List[str], fin_list: List[str], method: str,
-                 remainder: str = ""):
+    def __init__(self, text: str, processor: SyllableProcessor, remainder: str = ""):
+
         """
         Initializes a Syllable object with provided configuration and text.
 
         Args:
             text (str): The syllable text to be processed.
-            config (Config): The configuration object with settings like error_skip and crumbs.
-            ar (np.ndarray): A NumPy array representing valid initial-final combinations.
-            init_list (List[str]): A list of valid initial sounds.
-            fin_list (List[str]): A list of valid final sounds.
-            method (str): The romanization method being used ('py' for Pinyin, 'wg' for Wade-Giles).
+            remainder (str, optional): The remainder of the text to be processed. Defaults to "".
+            processor (SyllableProcessor): The processor object used to validate the syllable.
         """
-        self.text = text
+        self.text = text.lower()
         self.remainder = remainder
-        self.init_list = init_list
-        self.fin_list = fin_list
-        self.ar = ar
-        self.method = method
-        self.config = config
+        self.processor = processor
         self.initial = ""
         self.final = ""
         self.full_syllable = ""
@@ -116,7 +112,7 @@ class Syllable:
                 if i == 0:
                     return 'ø'
                 initial = text[:i]
-                if initial not in self.init_list:
+                if initial not in self.processor.init_list:
                     return text[:i]
                 return initial
         return text
@@ -160,7 +156,7 @@ class Syllable:
 
         # Iterate over the list of potential finals that start with the current vowel.
         test_finals = []
-        for f_item in self.fin_list:
+        for f_item in self.processor.fin_list:
             if f_item.startswith(text[:i + 1]) and self._validate_final(initial, f_item):
                 test_finals.append(f_item)
         if not test_finals:
@@ -185,14 +181,14 @@ class Syllable:
 
         # Handle "er" and "erh"
         if text[i - 1:i + 1] == 'er':
-            if remainder == 0 or (self.method != 'wg' and text[i + 1] not in vowel):
+            if remainder == 0 or (self.processor.method != 'wg' and text[i + 1] not in vowel):
                 return text[:i + 1]
-            elif self.method == 'wg':
+            elif self.processor.method == 'wg':
                 if remainder == 1 and text[i + 1] == 'h':
                     return text[:i + 2]
 
         # Handle "h" with Wade-Giles
-        elif text[i] == 'h' and self.method == 'wg':
+        elif text[i] == 'h' and self.processor.method == 'wg':
             valid_h = remainder == 0 or text[i + 1] not in vowel or not self._validate_final(initial, text[:i])
             return text[:i + 1] if valid_h else text[:i]  # Return "h" or fall back
 
@@ -225,13 +221,13 @@ class Syllable:
         Returns:
             bool: True if the final is valid, otherwise False.
         """
-        initial_index = self.init_list.index(initial) if initial in self.init_list else -1
-        final_index = self.fin_list.index(final) if final in self.fin_list else -1
+        initial_index = self.processor.init_list.index(initial) if initial in self.processor.init_list else -1
+        final_index = self.processor.fin_list.index(final) if final in self.processor.fin_list else -1
 
         if initial_index == -1 or final_index == -1:
             return False
 
-        return bool(self.ar[initial_index, final_index])
+        return bool(self.processor.ar[initial_index, final_index])
 
     def _validate_syllable(self) -> bool:
         """
