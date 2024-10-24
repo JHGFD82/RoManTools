@@ -189,7 +189,7 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = Fa
 
     for chunk in chunks:
         if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
-            word = ''.join(syl.full_syllable for syl in chunk).lower()
+            word = ''.join(syl.full_syllable for syl in chunk)
             if all(syl.valid for syl in chunk) and word not in stopwords:
                 converted_words.append(_process_syllables(chunk, convert=True))
             else:

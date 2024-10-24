@@ -45,4 +45,5 @@ class RomanizationConverter:
         Returns:
             str: The converted text based on the selected romanization conversion mappings.
         """
-        return self.conversion_dicts.get(text, text + '(!)')
+        lowercased_text = text.lower()
+        return self.conversion_dicts.get(lowercased_text, text + '(!)')

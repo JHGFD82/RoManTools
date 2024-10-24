@@ -1,5 +1,5 @@
 from .config import Config
-from typing import Tuple, Any, List
+from typing import Tuple, List
 import numpy as np
 
 vowel = ['a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ']
@@ -69,8 +69,8 @@ class Syllable:
         self.final = ""
         self.full_syllable = ""
         self.valid = False
-        self.capitalize = False
-        self.uppercase = False
+        self.capitalize = text.istitle()
+        self.uppercase = text.isupper()
         self._process_syllable()
 
     def _process_syllable(self):

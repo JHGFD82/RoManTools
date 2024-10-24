@@ -45,23 +45,6 @@ class TextChunkProcessor:
         self.chunks = []
         self._process_chunks()
 
-    @staticmethod
-    def _detect_case(word: str) -> Tuple[str, bool, bool]:
-        """
-        Detects the case (title case or uppercase) of a syllable and returns the lowercase version.
-
-        Args:
-            word (str): The syllable to analyze.
-
-        Returns:
-            Tuple[str, bool, bool]: A tuple containing the lowercased syllable, a boolean indicating if it is title
-            case, and a boolean indicating if it is uppercase.
-        """
-        is_title_case = word.istitle()  # Detect if the word is title-cased (first letter capitalized)
-        is_uppercase = word.isupper()  # Detect if the word is fully uppercase
-        lowercased_word = word.lower()  # Convert the word to lowercase for processing
-        return lowercased_word, is_title_case, is_uppercase
-
     def _split_word(self, word: str) -> List[str]:
         """
         Splits a word into smaller components based on the specified romanization method.
@@ -113,27 +96,14 @@ class TextChunkProcessor:
         """
         syllables = []
         for syllable in split_words:
-            lowercased_syllable, is_title_case, is_uppercase = self._detect_case(syllable)
 
-            remaining_text = lowercased_syllable
-            first_syllable = True  # Track if we're processing the first syllable
+            remaining_text = syllable
 
             while remaining_text:
-                syllable_obj = self.syllable_processor.create_syllable(remaining_text)
-                syllable_obj.uppercase = False
-                # Apply capitalization rules based on the detected case
-                if is_uppercase:
-                    syllable_obj.uppercase = True
-                elif first_syllable and is_title_case:
-                    syllable_obj.capitalize = True
-                else:
-                    syllable_obj.capitalize = False
+                syllable_obj = self._send_to_syllable_processor(remaining_text)
 
                 syllables.append(syllable_obj)
                 remaining_text = syllable_obj.remainder
-
-                # After processing the first syllable, subsequent syllables should no longer be title case
-                first_syllable = False
 
         self.chunks.append(syllables)
 
