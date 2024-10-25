@@ -49,13 +49,7 @@ def generate_random_text_from_list(method, num_syllables):
                 else:
                     final_words += random_text[i]
             elif method == 'wg':
-                if random_text[i - 1][-1] in vowels and random_text[i][0] in vowels or \
-                        random_text[i - 1][-3:] == 'erh' and random_text[i][0] in vowels or \
-                        random_text[i - 1][-1] == 'n' and random_text[i][0] in vowels or \
-                        random_text[i - 1][-2:] == 'ng' and random_text[i][0] in vowels:
-                    final_words += "-" + random_text[i]
-                else:
-                    final_words += random_text[i]
+                final_words += "-" + random_text[i]
         return final_words
 
     syllable_list = load_syllable_list(method)
