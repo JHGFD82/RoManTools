@@ -133,16 +133,19 @@ class Syllable:
         Returns:
             str: The final part of the syllable.
         """
-        for i, c in enumerate(text):
-            if c in vowel:
-                final = self._handle_vowel_case(text, i, initial)
-                if final is None:
-                    pass
+        if self.processor.method == 'py':
+            for i, c in enumerate(text):
+                if c in vowel:
+                    final = self._handle_vowel_case(text, i, initial)
+                    if final is None:
+                        pass
+                    else:
+                        return final
                 else:
-                    return final
-            else:
-                return self._handle_consonant_case(text, i, initial)
-        return text
+                    return self._handle_consonant_case(text, i, initial)
+            return text
+        elif self.processor.method == 'wg':
+            return text
 
     def _handle_vowel_case(self, text: str, i: int, initial: str) -> str:
         """
@@ -164,6 +167,7 @@ class Syllable:
         for f_item in self.processor.fin_list:
             if f_item.startswith(text[:i + 1]) and self._validate_final(initial, f_item):
                 test_finals.append(f_item)
+
         if not test_finals:
             if i == 0:
                 pass
@@ -189,13 +193,8 @@ class Syllable:
             if remainder == 0 or (self.processor.method != 'wg' and text[i + 1] not in vowel):
                 return text[:i + 1]
             elif self.processor.method == 'wg':
-                if remainder == 1 and text[i + 1] == 'h':
+                if remainder > 0 and text[i + 1] == 'h':
                     return text[:i + 2]
-
-        # Handle "h" with Wade-Giles
-        elif text[i] == 'h' and self.processor.method == 'wg':
-            valid_h = remainder == 0 or text[i + 1] not in vowel or not self._validate_final(initial, text[:i])
-            return text[:i + 1] if valid_h else text[:i]  # Return "h" or fall back
 
         # Handle "n" and "ng"
         elif text[i] == 'n':
