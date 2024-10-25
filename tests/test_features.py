@@ -14,9 +14,12 @@ def timeit_decorator(repeats=100):
             test_counter += 1
             total_time = 0.0
             result = 0
-            for _ in range(repeats):
+            for i in range(repeats):
                 start_time = time.time()
-                result = func(*args, **kwargs)
+                try:
+                    result = func(*args, **kwargs, repeat_num=i + 1)
+                except TypeError:
+                    result = func(*args, **kwargs)  # Fallback for functions that don't accept repeat_num
                 end_time = time.time()
                 total_time += end_time - start_time
             average_time = total_time / repeats
@@ -371,19 +374,17 @@ class TestRomanization(unittest.TestCase):
         self.assertEqual(result, [1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 0, 0, 0])
 
     # METHOD DETECTION TESTING #
-    @timeit_decorator(repeats=100)
+    @timeit_decorator(repeats=1000)
     def test_detect_method_py(self):
         random_text = generate_random_text_from_list('py', 3)
-        # print(random_text)
         result = detect_method(random_text)
         self.assertIn('py', result, f"'py' not found in text: {random_text}")
 
-    @timeit_decorator(repeats=10000)
-    def test_detect_method_wg(self):
+    @timeit_decorator(repeats=1000)
+    def test_detect_method_wg(self, repeat_num=None):
         random_text = generate_random_text_from_list('wg', 3)
-        # print(random_text)
         result = detect_method(random_text)
-        self.assertIn('wg', result, f"'wg' not found in text: {random_text}")
+        self.assertIn('wg', result, f"Test {repeat_num}: 'wg' not found in text: {random_text}")
 
     @timeit_decorator(repeats=REPEATS)
     def test_detect_method_per_word(self):
