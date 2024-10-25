@@ -79,7 +79,6 @@ class TextChunkProcessor:
             pattern = r"[a-zA-ZüÜ]+(?:['’ʼ`\-–—][a-zA-ZüÜ]+)*"
 
         segments = re.findall(pattern, self.text)
-        print(segments)
 
         for segment in segments:
             if re.match(r"[a-zA-ZüÜ]+", segment):

@@ -97,8 +97,6 @@ class Syllable:
         full_syllable = initial + final
         remainder_start = len(full_syllable)
         remainder = text[remainder_start:]
-        print('text: ' + text)
-        print(remainder)
 
         return initial, final, full_syllable, remainder
 
