@@ -38,7 +38,7 @@ You will receive an error since required arguments are not being supplied, howev
 
 ## 3. Required Arguments
 
-### Note: "methods" refers to currently supported romanization methods:
+### Note: "methods" refers to currently supported Mandarin romanization methods:
 
 - Pinyin (entered as `py` or `pinyin`)
 - Wade-Giles (entered as `wg` or `wage-giles`)
