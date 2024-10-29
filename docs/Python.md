@@ -29,7 +29,7 @@ print(result)  # Output: "Pai Chüi"
 
 ### `cherry_pick`
 
-Convert only identified romanized Chinese terms in the given text, excluding any English words or those in a stopword list.
+Convert only identified romanized Mandarin terms in the given text, excluding any English words or established spellings (e.g. China, Beijing).
 
 **Arguments:**
 
