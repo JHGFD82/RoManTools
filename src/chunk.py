@@ -44,7 +44,7 @@ class TextChunkProcessor:
         self.method = method
         self.syllable_processor = SyllableProcessor(config, ar, init_list, fin_list, method)
         self.chunks = []
-        self._process_chunks()
+        self._process_text()
 
     def _split_word(self, word: str) -> List[str]:
         """
@@ -65,7 +65,6 @@ class TextChunkProcessor:
 
         return split_words if len(split_words) > 1 else [word]
 
-    def _process_chunks(self):
         """
         Splits text into segments (words and non-text) and processes each segment into syllables or leaves it as is.
 
@@ -79,6 +78,13 @@ class TextChunkProcessor:
             pattern = r"[a-zA-ZüÜ]+(?:['’ʼ`\-–—][a-zA-ZüÜ]+)*"
 
         segments = re.findall(pattern, self.text)
+    def _process_text(self):
+        """
+        Splits text into segments (words and non-text) and processes each segment into syllables or leaves it as is.
+
+        Depending on the configuration, it can use different regex patterns for splitting the text.
+        """
+        segments = self._split_text_into_segments(self.text)
 
         for segment in segments:
             if re.match(r"[a-zA-ZüÜ]+", segment):
