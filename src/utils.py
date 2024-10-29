@@ -191,16 +191,20 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = Fa
         Returns:
             str: The processed text with syllables adjusted based on the given configuration.
         """
-        result = []
-        for syl in syllable_list:
-            prefix = ("'" if syl.has_apostrophe else "") + ("-" if syl.has_dash else "")
+
+        def get_prefix(syl: Syllable) -> str:
+            return ("'" if syl.has_apostrophe else "") + ("-" if syl.has_dash else "")
+
+        def process_syllable(syl: Syllable) -> str:
             syllable_text = converter.convert(syl.full_syllable) if convert else syl.full_syllable
             if syl.valid and syl.has_apostrophe and convert_to == "wg":
-                result.append(_apply_caps(syllable_text, syl))
+                return _apply_caps(syllable_text, syl)
             elif not syl.valid and syl.full_syllable in contractions:
-                result.append(prefix + syl.full_syllable)
+                return get_prefix(syl) + syl.full_syllable
             else:
-                result.append(prefix + _apply_caps(syllable_text, syl))
+                return get_prefix(syl) + _apply_caps(syllable_text, syl)
+
+        result = [process_syllable(syl) for syl in syllable_list]
 
         if convert_to == "wg" and convert:
             if result[-1][1:] in contractions:
