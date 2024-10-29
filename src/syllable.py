@@ -66,6 +66,10 @@ class Syllable:
         self.final = ""
         self.full_syllable = ""
         self.valid = False
+        self.apostrophes = ["'", "’", "ʼ", "`"]
+        self.dashes = ["-", "–", "—"]
+        self.has_apostrophe = False
+        self.has_dash = False
         self.capitalize = text.istitle()
         self.uppercase = text.isupper()
         self._process_syllable()
