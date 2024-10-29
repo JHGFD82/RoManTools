@@ -56,12 +56,13 @@ class TextChunkProcessor:
         Returns:
             List[str]: A list of split components of the word.
         """
-        if self.method == "wg":
-            # For Wade-Giles, split words using hyphens (including en-dash and em-dash)
-            split_words = re.split(r"[\-–—]", word)
+
+        if self.method == 'wg':
+            pattern = r"[a-zA-ZüÜ]+(?:['’ʼ`][a-zA-ZüÜ]+)*"
         else:
-            # For Pinyin or other systems, split on a broader range of delimiters
-            split_words = re.split(r"[‘’'ʼ`\-–—]", word)
+            pattern = r"[a-zA-ZüÜ]+|['’ʼ`\-–—][a-zA-ZüÜ]+"
+
+        split_words = re.findall(pattern, word)
 
         return split_words if len(split_words) > 1 else [word]
 
