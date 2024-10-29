@@ -65,19 +65,26 @@ class TextChunkProcessor:
 
         return split_words if len(split_words) > 1 else [word]
 
+    def _split_text_into_segments(self, text: str) -> List[str]:
         """
-        Splits text into segments (words and non-text) and processes each segment into syllables or leaves it as is.
+        Splits text into segments (words and non-text) based on the specified regex pattern.
 
-        Depending on the configuration, it can use different regex patterns for splitting the text.
+        Args:
+            text (str): The text to be split.
+
+        Returns:
+            List[str]: A list of split segments.
         """
         if self.config.error_skip:
             # Use a comprehensive regex to split text into words and non-text
             pattern = r"[a-zA-ZüÜ]+(?:['’ʼ`\-–—][a-zA-ZüÜ]+)*|[^a-zA-ZüÜ]+"
         else:
             # Default pattern for standard word splitting
+            # **FUTURE: Add error messages for non-text elements
             pattern = r"[a-zA-ZüÜ]+(?:['’ʼ`\-–—][a-zA-ZüÜ]+)*"
 
-        segments = re.findall(pattern, self.text)
+        return re.findall(pattern, text)
+
     def _process_text(self):
         """
         Splits text into segments (words and non-text) and processes each segment into syllables or leaves it as is.
