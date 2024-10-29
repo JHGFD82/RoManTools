@@ -142,7 +142,11 @@ def convert_text(text: str, convert_from: str, convert_to: str, crumbs: bool = F
             converted_syllables.append(capped_text)
 
         # Join syllables back into a word and add it to the result
-        converted_words.append("".join(converted_syllables))
+        if convert_to == "wg":
+            converted_word = "-".join(converted_syllables)
+        else:
+            converted_word = "".join(converted_syllables)
+        converted_words.append(converted_word)
 
     # Join words back into a single string and return the converted text
     return " ".join(converted_words)
