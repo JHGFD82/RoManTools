@@ -187,23 +187,31 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = Fa
         Returns:
             str: The processed text with syllables adjusted based on the given configuration.
         """
-        return ''.join(
-            _apply_caps(converter.convert(syl.full_syllable) if convert else syl.full_syllable, syl)
-            for syl in syllable_list
-        )
+        result = []
+        for syl in syllable_list:
+            prefix = ("'" if syl.has_apostrophe else "") + ("-" if syl.has_dash else "")
+            syllable_text = converter.convert(syl.full_syllable) if convert else syl.full_syllable
+            if syl.valid and syl.has_apostrophe and convert_to == "wg":
+                result.append(_apply_caps(syllable_text, syl))
+            elif not syl.valid and syl.full_syllable in contractions:
+                result.append(prefix + syl.full_syllable)
+            else:
+                result.append(prefix + _apply_caps(syllable_text, syl))
 
-        # The below commented code debugs the cache statistics
-        # result = ''
-        # for syl in syllable_list:
-        #     capped = _apply_caps(converter.convert(syl.full_syllable) if convert else syl.full_syllable, syl)
-        #     print(syl.full_syllable, converter.convert.cache_info())  # Displays cache statistics
-        #     result.join(capped)
-        # return result
+        if convert_to == "wg" and convert:
+            if result[-1][1:] in contractions:
+                return '-'.join(result[:-1]) + result[-1]
+            return '-'.join(result)
+        return ''.join(result)
+
+    contractions = ["s", "d", "ll"]
 
     for chunk in chunks:
         if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
             word = ''.join(syl.full_syllable for syl in chunk)
-            if all(syl.valid for syl in chunk) and word not in stopwords:
+            if (all(syl.valid for syl in chunk[:-1]) and (
+                    chunk[-1].full_syllable in contractions and chunk[-1].has_apostrophe or chunk[-1].valid) and
+                    word not in stopwords):
                 converted_words.append(_process_syllables(chunk, convert=True))
             else:
                 converted_words.append(_process_syllables(chunk, convert=False))
