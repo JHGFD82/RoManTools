@@ -217,9 +217,10 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = Fa
     for chunk in chunks:
         if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
             word = ''.join(syl.full_syllable for syl in chunk)
-            if (all(syl.valid for syl in chunk[:-1]) and (
-                    chunk[-1].full_syllable in contractions and chunk[-1].has_apostrophe or chunk[-1].valid) and
-                    word not in stopwords):
+            is_valid_chunk = all(syl.valid for syl in chunk[:-1])
+            last_syllable = chunk[-1]
+            is_valid_last_syllable = last_syllable.full_syllable in contractions and last_syllable.has_apostrophe or last_syllable.valid
+            if is_valid_chunk and is_valid_last_syllable and word not in stopwords:
                 converted_words.append(_process_syllables(chunk, convert=True))
             else:
                 converted_words.append(_process_syllables(chunk, convert=False))
@@ -227,7 +228,6 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = Fa
             converted_words.append(chunk)
 
     return "".join(converted_words)
-
 
 @lru_cache(maxsize=1000000)
 def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False) \
