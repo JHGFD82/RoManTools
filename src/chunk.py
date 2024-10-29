@@ -129,12 +129,10 @@ class TextChunkProcessor:
         """
         syllables = []
         for syllable in split_words:
-
             remaining_text = syllable
 
             while remaining_text:
                 syllable_obj = self._send_to_syllable_processor(remaining_text)
-
                 syllables.append(syllable_obj)
                 remaining_text = syllable_obj.remainder
 
