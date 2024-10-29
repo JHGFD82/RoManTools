@@ -72,7 +72,23 @@ class Syllable:
         self.has_dash = False
         self.capitalize = text.istitle()
         self.uppercase = text.isupper()
+        self._handle_first_char_symbols()
         self._process_syllable()
+
+    def _handle_first_char_symbols(self):
+        """
+        Handles the first character of the text if it is an apostrophe or dash, updating the corresponding flags.
+
+        Returns:
+            str: The text with the first character removed if it was an apostrophe or dash.
+        """
+
+        if self.text[0] in self.apostrophes or self.text[0] in self.dashes:
+            if self.text[0] in self.apostrophes:
+                self.has_apostrophe = True
+            elif self.text[0] in self.dashes:
+                self.has_dash = True
+            self.text = self.text[1:]
 
     def _process_syllable(self):
         """
