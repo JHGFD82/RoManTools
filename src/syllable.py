@@ -130,6 +130,7 @@ class Syllable:
         Returns:
             str: The initial part of the syllable or 'ø' if no valid initial is found.
         """
+
         for i, c in enumerate(text):
             if c in vowel:
                 if i == 0:
@@ -138,8 +139,9 @@ class Syllable:
                 if initial not in self.processor.init_list:
                     return text[:i]
                 return initial
-            elif self.processor.method == 'wg' and c == "'":
-                return text[:i + 1]
+            elif self.processor.method == 'wg' and c in self.apostrophes:
+                return text[:i] + "'"  # ensure that the standard apostrophe is included in the initial
+
         return text
 
     def _find_final(self, text: str, initial: str) -> str:
