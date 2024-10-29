@@ -175,7 +175,7 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = Fa
         >>> cherry_pick(text, convert_from="py", convert_to="wg")
         "Welcome to Chung-kuo!"
     """
-    stopwords = load_stopwords()
+    stopwords = set(load_stopwords())
     config, chunks = _setup_and_process(text, convert_from, crumbs, error_skip, error_report)
     converter = RomanizationConverter(f"{convert_from}_{convert_to}")
     converted_words = []
@@ -212,7 +212,7 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = Fa
             return '-'.join(result)
         return ''.join(result)
 
-    contractions = ["s", "d", "ll"]
+    contractions = {"s", "d", "ll"}
 
     for chunk in chunks:
         if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
@@ -277,7 +277,7 @@ def detect_method(text: str, per_word: bool = False, crumbs: bool = False, error
         ['py']
     """
     config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
-    methods = ['py', 'wg']
+    methods = {'py', 'wg'}
 
     def detect_for_chunk(chunk: str) -> List[str]:
         """
