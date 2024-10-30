@@ -292,7 +292,7 @@ def detect_method(text: str, per_word: bool = False, crumbs: bool = False, error
         ['py']
     """
     config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
-    methods = {'py', 'wg'}
+    methods = ['py', 'wg']
 
     def detect_for_chunk(chunk: str) -> List[str]:
         """
