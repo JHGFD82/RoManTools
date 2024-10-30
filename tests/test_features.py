@@ -220,6 +220,7 @@ class TestRomanization(unittest.TestCase):
 
     @timeit_decorator(repeats=1)
     def test_cherry_pick_long(self):
+        self.maxDiff = None
         result = cherry_pick("Bai Juyi lived during the Middle Tang period. This was a period of rebuilding and "
                              "recovery for the Tang Empire, following the An Lushan Rebellion, and following the "
                              "poetically flourishing era famous for Li Bai (701－762), Wang Wei (701－761), and Du Fu ("
