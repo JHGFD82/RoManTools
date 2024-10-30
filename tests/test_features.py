@@ -34,30 +34,30 @@ def timeit_decorator(repeats=100):
 def generate_random_syllable_from_list(syllable_list):
     return random.choice(syllable_list)
 
-def generate_random_text_from_list(method, num_syllables):
+
+def generate_random_text_from_list(method, num_syllables=0):
+    vowels = {'a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ'}
 
     def _validate_examples(random_text):
-
         final_words = random_text[0]
         for i in range(1, len(random_text)):
+            prev_syllable = random_text[i - 1]
+            curr_syllable = random_text[i]
             if method == 'py':
-                if random_text[i - 1][-1] in vowels and random_text[i][0] in vowels or \
-                        random_text[i - 1][-2:] == 'er' and random_text[i][0] in vowels or \
-                        random_text[i - 1][-1] == 'n' and random_text[i][0] in vowels or \
-                        random_text[i - 1][-2:] == 'ng' and random_text[i][0] in vowels:
-                    final_words += "'" + random_text[i]
+                if (prev_syllable[-1] in vowels and curr_syllable[0] in vowels) or \
+                        (prev_syllable.endswith('er') and curr_syllable[0] in vowels) or \
+                        (prev_syllable[-1] == 'n' and curr_syllable[0] in vowels) or \
+                        (prev_syllable.endswith('ng') and curr_syllable[0] in vowels):
+                    final_words += "'" + curr_syllable
                 else:
-                    final_words += random_text[i]
+                    final_words += curr_syllable
             elif method == 'wg':
-                final_words += "-" + random_text[i]
+                final_words += "-" + curr_syllable
         return final_words
 
     syllable_list = load_syllable_list(method)
     syllables = [generate_random_syllable_from_list(syllable_list) for _ in range(num_syllables)]
-    vowels = ['a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ']
-    result = _validate_examples(syllables)
-
-    return result
+    return _validate_examples(syllables)
 
 
 class TestRomanization(unittest.TestCase):
