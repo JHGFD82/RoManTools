@@ -193,9 +193,25 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = Fa
         """
 
         def get_prefix(syl: Syllable) -> str:
+            """
+            If a syllable began with an apostrophe or dash, this function returns the appropriate character.
+            Args:
+                syl (Syllable): The syllable object to be processed.
+
+            Returns:
+                str: The resulting text with prefixed symbol attached.
+            """
             return ("'" if syl.has_apostrophe else "") + ("-" if syl.has_dash else "")
 
         def process_syllable(syl: Syllable) -> str:
+            """
+            Converts the syllable based on the specified method combination and additional conversion rules.
+            Args:
+                syl (Syllable): The syllable object to be processed.
+
+            Returns:
+                str: The resulting text with the syllable converted based on the given configuration
+            """
             syllable_text = converter.convert(syl.full_syllable) if convert else syl.full_syllable
             if syl.valid and syl.has_apostrophe and convert_to == "wg":
                 return _apply_caps(syllable_text, syl)
