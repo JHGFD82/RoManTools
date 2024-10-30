@@ -178,7 +178,7 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = Fa
     stopwords = set(load_stopwords())
     config, chunks = _setup_and_process(text, convert_from, crumbs, error_skip, error_report)
     converter = RomanizationConverter(f"{convert_from}_{convert_to}")
-    converted_words = []
+    contractions = {"s", "d", "ll"}
 
     def _process_syllables(syllable_list: List[Syllable], convert: bool) -> str:
         """
@@ -212,8 +212,7 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = Fa
             return '-'.join(result)
         return ''.join(result)
 
-    contractions = {"s", "d", "ll"}
-
+    converted_words = []
     for chunk in chunks:
         if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
             word = ''.join(syl.full_syllable for syl in chunk)
