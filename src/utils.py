@@ -277,6 +277,7 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = Fa
     return "".join(converted_words)
 
 @lru_cache(maxsize=1000000)
+# @profile
 def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False) \
         -> list[int]:
     """
