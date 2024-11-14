@@ -3,6 +3,7 @@ from src.utils import convert_text, cherry_pick, segment_text, syllable_count, d
 from src.data_loader import load_syllable_list
 import random
 import time
+# from memory_profiler import profile
 
 # Initialize the counter for the number of tests
 test_counter = 0
