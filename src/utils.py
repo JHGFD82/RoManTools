@@ -5,6 +5,7 @@ from .syllable import Syllable
 from .conversion import RomanizationConverter
 from .data_loader import load_method_params, load_stopwords
 from functools import lru_cache
+# from memory_profiler import profile
 
 
 @lru_cache(maxsize=1000000)
