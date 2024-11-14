@@ -70,6 +70,37 @@ def _apply_caps(text: str, syllable: Syllable) -> str:
     return text
 
 
+def _join_syllables(syllable_list: List[Tuple[str, Syllable]], convert_to: str, all_valid: bool,
+                    all_but_last_valid: bool, stopwords: Set[str]) -> str:
+    vowels = {'a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ'}
+
+    final_word = syllable_list[0][0]
+    word = "".join(t[0] for t in syllable_list)
+    count_of_syllables = len(syllable_list) + 1 if all_but_last_valid else len(syllable_list)
+
+    if (all_valid or all_but_last_valid) and word.lower() not in stopwords:
+        for i in range(1, count_of_syllables):
+            if i >= len(syllable_list):
+                break
+
+            prev_syllable = syllable_list[i - 1][0]
+            curr_syllable = syllable_list[i][0]
+
+            if convert_to == 'py' and syllable_list[i][1].valid:
+                if (prev_syllable[-1] in vowels and curr_syllable[0] in vowels) or \
+                        (prev_syllable.endswith('er') and curr_syllable[0] in vowels) or \
+                        (prev_syllable[-1] == 'n' and curr_syllable[0] in vowels) or \
+                        (prev_syllable.endswith('ng') and curr_syllable[0] in vowels):
+                    final_word += "'" + curr_syllable
+                else:
+                    final_word += curr_syllable
+            elif convert_to == 'wg':
+                final_word += "-" + curr_syllable if syllable_list[i][1].valid else curr_syllable
+        return final_word
+
+    return word
+
+
 @lru_cache(maxsize=1000000)
 def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False) \
         -> List[Union[List[Syllable], Syllable]]:
