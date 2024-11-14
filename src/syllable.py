@@ -59,6 +59,7 @@ class Syllable:
             remainder (str, optional): The remainder of the text to be processed. Defaults to "".
             processor (SyllableProcessor): The processor object used to validate the syllable.
         """
+
         self.text = text.lower()
         self.remainder = remainder
         self.processor = processor
@@ -70,12 +71,26 @@ class Syllable:
         self.dashes = ["-", "–", "—"]
         self.has_apostrophe = False
         self.has_dash = False
-        self.capitalize = text.istitle()
+        self.capitalize = False
         self.uppercase = text.isupper()
-        self._handle_first_char_symbols()
+        self._is_titlecase(text)
+        self._handle_first_char()
         self._process_syllable()
 
-    def _handle_first_char_symbols(self):
+    def _is_titlecase(self, text: str):
+        """
+        Checks if the syllable text is in title case, considering contractions.
+
+        Returns:
+            bool: True if the text is in title case, considering contractions; otherwise, False.
+        """
+        import re
+
+        # Remove all non-letter characters
+        cleaned_text = re.sub(r'[^a-zA-Z]', '', text)
+        self.capitalize = cleaned_text.istitle()
+
+    def _handle_first_char(self):
         """
         Handles the first character of the text if it is an apostrophe or dash, updating the corresponding flags.
 
