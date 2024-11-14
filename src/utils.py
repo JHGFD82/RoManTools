@@ -1,4 +1,4 @@
-from typing import Dict, Union, List, Tuple
+from typing import Dict, Union, List, Tuple, Set
 from .config import Config
 from .chunk import TextChunkProcessor
 from .syllable import Syllable
@@ -207,74 +207,67 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = Fa
         >>> cherry_pick(text, convert_from="py", convert_to="wg")
         "Welcome to Chung-kuo!"
     """
-    stopwords = set(load_stopwords())
     config, chunks = _setup_and_process(text, convert_from, crumbs, error_skip, error_report)
-    converter = RomanizationConverter(f"{convert_from}_{convert_to}")
-    contractions = {"s", "d", "ll"}
+    stopwords = set(load_stopwords())
+    unsupported_contractions = {"t", "m"}
+    supported_contractions = {"s", "d", "ll"}
 
-    def _process_syllables(syllable_list: List[Syllable], convert: bool) -> str:
-        """
-        Processes the syllables in romanized Mandarin text and applies optional conversions.
+    def get_prefix(syl: Syllable) -> str:
+        return ("'" if syl.has_apostrophe else "") + ("-" if syl.has_dash else "")
 
-        Args:
-            syllable_list (List[Syllable]): A list of syllables extracted from the romanized Mandarin text.
-            convert (bool): Whether to apply additional conversions (e.g., romanization tweaks).
+    def return_caps_and_symbols(syllable_list: list[Tuple[str, Syllable]]) -> str:
 
-        Returns:
-            str: The processed text with syllables adjusted based on the given configuration.
-        """
+        all_valid = all(syl[1].valid for syl in syllable_list)
+        all_but_last_valid = all(syl[1].valid for syl in syllable_list[:-1]) and (syllable_list[-1][1].has_apostrophe and syllable_list[-1][1].full_syllable in supported_contractions)
 
-        def get_prefix(syl: Syllable) -> str:
-            """
-            If a syllable began with an apostrophe or dash, this function returns the appropriate character.
-            Args:
-                syl (Syllable): The syllable object to be processed.
-
-            Returns:
-                str: The resulting text with prefixed symbol attached.
-            """
-            return ("'" if syl.has_apostrophe else "") + ("-" if syl.has_dash else "")
-
-        def process_syllable(syl: Syllable) -> str:
-            """
-            Converts the syllable based on the specified method combination and additional conversion rules.
-            Args:
-                syl (Syllable): The syllable object to be processed.
-
-            Returns:
-                str: The resulting text with the syllable converted based on the given configuration
-            """
-            syllable_text = converter.convert(syl.full_syllable) if convert else syl.full_syllable
-            if syl.valid and syl.has_apostrophe and convert_to == "wg":
-                return _apply_caps(syllable_text, syl)
-            elif not syl.valid and syl.full_syllable in contractions:
-                return get_prefix(syl) + syl.full_syllable
+        for i, (syllable, syl) in enumerate(syllable_list):
+            capped_text = _apply_caps(syllable, syl)
+            if (syl.has_apostrophe and
+                    (syl.full_syllable in supported_contractions or syl.full_syllable in unsupported_contractions)):
+                syllable_list[i] = (f"'{capped_text}", syl)
+            elif syl.has_dash:
+                syllable_list[i] = (f"-{capped_text}", syl)
             else:
-                return get_prefix(syl) + _apply_caps(syllable_text, syl)
+                syllable_list[i] = (capped_text, syl)
 
-        result = [process_syllable(syl) for syl in syllable_list]
+        return _join_syllables(syllable_list, convert_to, all_valid, all_but_last_valid, stopwords)
 
-        if convert_to == "wg" and convert:
-            if result[-1][1:] in contractions:
-                return '-'.join(result[:-1]) + result[-1]
-            return '-'.join(result)
-        return ''.join(result)
 
-    converted_words = []
+    def convert_word(chunk_word: list[Syllable]) -> list[Tuple[str, Syllable]]:
+        converter = RomanizationConverter(f"{convert_from}_{convert_to}")
+        collected_conversions = []
+
+        all_valid = all(syl.valid for syl in chunk_word)
+        all_but_last_valid = all(syl.valid for syl in chunk_word[:-1]) and chunk_word[-1].full_syllable in supported_contractions and chunk_word[-1].has_apostrophe
+
+        if all_valid or all_but_last_valid:
+            for syl in chunk_word:
+                if syl.valid:
+                    converted_syllable = converter.convert(syl.full_syllable)
+                    collected_conversions.append((converted_syllable, syl))
+                else:
+                    collected_conversions.append((syl.full_syllable, syl))
+        else:
+            collected_conversions = [(syl.full_syllable, syl) for syl in chunk_word]
+
+        return collected_conversions
+
+    concat_text = []
     for chunk in chunks:
         if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
-            word = ''.join(syl.full_syllable for syl in chunk)
-            is_valid_chunk = all(syl.valid for syl in chunk[:-1])
+            word = ''.join(get_prefix(syl) + syl.full_syllable for syl in chunk)
             last_syllable = chunk[-1]
-            is_valid_last_syllable = last_syllable.full_syllable in contractions and last_syllable.has_apostrophe or last_syllable.valid
-            if is_valid_chunk and is_valid_last_syllable and word not in stopwords:
-                converted_words.append(_process_syllables(chunk, convert=True))
+            if word not in stopwords or (
+                    last_syllable.has_apostrophe and last_syllable.full_syllable not in unsupported_contractions):
+                processed_word = convert_word(chunk)
             else:
-                converted_words.append(_process_syllables(chunk, convert=False))
-        else:
-            converted_words.append(chunk)
+                processed_word = [(syl.full_syllable, syl) for syl in chunk]
+            concat_text.append(return_caps_and_symbols(processed_word))
 
-    return "".join(converted_words)
+        else:
+            concat_text.append(chunk)
+
+    return "".join(concat_text)
 
 @lru_cache(maxsize=1000000)
 # @profile
