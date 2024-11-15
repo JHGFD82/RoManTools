@@ -1,7 +1,8 @@
-from typing import Dict, Union, List, Tuple, Set
+from typing import Dict, Union, List, Tuple
 from .config import Config
 from .chunk import TextChunkProcessor
 from .syllable import Syllable
+from .word import WordProcessor
 from .conversion import RomanizationConverter
 from .data_loader import load_method_params, load_stopwords
 from functools import lru_cache
