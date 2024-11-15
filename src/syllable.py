@@ -77,6 +77,22 @@ class Syllable:
         self._handle_first_char()
         self._process_syllable()
 
+    def apply_caps(self, text: str) -> str:
+        """
+        Applies capitalization rules based on the syllable's properties.
+
+        Args:
+            text (str): The text to be transformed.
+
+        Returns:
+            str: The transformed text with applied capitalization.
+        """
+        if self.uppercase:
+            return text.upper()
+        elif self.capitalize:
+            return text.capitalize()
+        return text
+
     def _is_titlecase(self, text: str):
         """
         Checks if the syllable text is in title case, considering contractions.
