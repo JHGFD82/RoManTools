@@ -53,56 +53,6 @@ def _setup_and_process(text: str, method: str, crumbs: bool = False, error_skip:
 
 
 @lru_cache(maxsize=1000000)
-def _apply_caps(text: str, syllable: Syllable) -> str:
-    """
-    Applies capitalization rules based on the syllable's properties.
-
-    Args:
-        text (str): The text to be transformed.
-        syllable (Syllable): The syllable object containing capitalization rules.
-
-    Returns:
-        str: The transformed text with applied capitalization.
-    """
-    if syllable.uppercase:
-        return text.upper()
-    elif syllable.capitalize:
-        return text.capitalize()
-    return text
-
-
-def _join_syllables(syllable_list: List[Tuple[str, Syllable]], convert_to: str, all_valid: bool,
-                    all_but_last_valid: bool, stopwords: Set[str]) -> str:
-    vowels = {'a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ'}
-
-    final_word = syllable_list[0][0]
-    word = "".join(t[0] for t in syllable_list)
-    count_of_syllables = len(syllable_list) + 1 if all_but_last_valid else len(syllable_list)
-
-    if (all_valid or all_but_last_valid) and word.lower() not in stopwords:
-        for i in range(1, count_of_syllables):
-            if i >= len(syllable_list):
-                break
-
-            prev_syllable = syllable_list[i - 1][0]
-            curr_syllable = syllable_list[i][0]
-
-            if convert_to == 'py' and syllable_list[i][1].valid:
-                if (prev_syllable[-1] in vowels and curr_syllable[0] in vowels) or \
-                        (prev_syllable.endswith('er') and curr_syllable[0] in vowels) or \
-                        (prev_syllable[-1] == 'n' and curr_syllable[0] in vowels) or \
-                        (prev_syllable.endswith('ng') and curr_syllable[0] in vowels):
-                    final_word += "'" + curr_syllable
-                else:
-                    final_word += curr_syllable
-            elif convert_to == 'wg':
-                final_word += "-" + curr_syllable if syllable_list[i][1].valid else curr_syllable
-        return final_word
-
-    return word
-
-
-@lru_cache(maxsize=1000000)
 def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False) \
         -> List[Union[List[Syllable], Syllable]]:
     """
@@ -188,87 +138,20 @@ def convert_text(text: str, convert_from: str, convert_to: str, crumbs: bool = F
 @lru_cache(maxsize=1000000)
 def cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = False, error_skip: bool = True,
                 error_report: bool = False) -> str:
-    """
-    Converts identified, valid romanized Mandarin without altering invalid text. This is particularly useful for
-    converting romanized terms mixed within English text.
-
-    Args:
-        text (str): The romanized Mandarin text to be processed.
-        convert_from (str): The romanization method to convert from.
-        convert_to (str): The romanization method to convert to.
-        crumbs (bool, optional): Whether to display debugging crumbs. Defaults to False.
-        error_skip (bool, optional): Whether to skip errors if a method fails. Defaults to True.
-        error_report (bool, optional): Whether to report errors. Defaults to False.
-
-    Returns:
-        str: The processed text after applying the best available method from the combination.
-
-    Example:
-        >>> text = "Welcome to Zhongguo!"
-        >>> cherry_pick(text, convert_from="py", convert_to="wg")
-        "Welcome to Chung-kuo!"
-    """
     config, chunks = _setup_and_process(text, convert_from, crumbs, error_skip, error_report)
     stopwords = set(load_stopwords())
-    unsupported_contractions = {"t", "m"}
-    supported_contractions = {"s", "d", "ll"}
-
-    def get_prefix(syl: Syllable) -> str:
-        return ("'" if syl.has_apostrophe else "") + ("-" if syl.has_dash else "")
-
-    def return_caps_and_symbols(syllable_list: list[Tuple[str, Syllable]]) -> str:
-
-        all_valid = all(syl[1].valid for syl in syllable_list)
-        all_but_last_valid = all(syl[1].valid for syl in syllable_list[:-1]) and (syllable_list[-1][1].has_apostrophe and syllable_list[-1][1].full_syllable in supported_contractions)
-
-        for i, (syllable, syl) in enumerate(syllable_list):
-            capped_text = _apply_caps(syllable, syl)
-            if (syl.has_apostrophe and
-                    (syl.full_syllable in supported_contractions or syl.full_syllable in unsupported_contractions)):
-                syllable_list[i] = (f"'{capped_text}", syl)
-            elif syl.has_dash:
-                syllable_list[i] = (f"-{capped_text}", syl)
-            else:
-                syllable_list[i] = (capped_text, syl)
-
-        return _join_syllables(syllable_list, convert_to, all_valid, all_but_last_valid, stopwords)
-
-
-    def convert_word(chunk_word: list[Syllable]) -> list[Tuple[str, Syllable]]:
-        converter = RomanizationConverter(f"{convert_from}_{convert_to}")
-        collected_conversions = []
-
-        all_valid = all(syl.valid for syl in chunk_word)
-        all_but_last_valid = all(syl.valid for syl in chunk_word[:-1]) and chunk_word[-1].full_syllable in supported_contractions and chunk_word[-1].has_apostrophe
-
-        if all_valid or all_but_last_valid:
-            for syl in chunk_word:
-                if syl.valid:
-                    converted_syllable = converter.convert(syl.full_syllable)
-                    collected_conversions.append((converted_syllable, syl))
-                else:
-                    collected_conversions.append((syl.full_syllable, syl))
-        else:
-            collected_conversions = [(syl.full_syllable, syl) for syl in chunk_word]
-
-        return collected_conversions
+    word_processor = WordProcessor(config, convert_from, convert_to, stopwords)
 
     concat_text = []
     for chunk in chunks:
         if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
-            word = ''.join(get_prefix(syl) + syl.full_syllable for syl in chunk)
-            last_syllable = chunk[-1]
-            if word not in stopwords or (
-                    last_syllable.has_apostrophe and last_syllable.full_syllable not in unsupported_contractions):
-                processed_word = convert_word(chunk)
-            else:
-                processed_word = [(syl.full_syllable, syl) for syl in chunk]
-            concat_text.append(return_caps_and_symbols(processed_word))
-
+            word = word_processor.create_word(chunk)
+            concat_text.append(word.process_syllables())
         else:
             concat_text.append(chunk)
 
     return "".join(concat_text)
+
 
 @lru_cache(maxsize=1000000)
 # @profile
