@@ -4,6 +4,9 @@ from .syllable import Syllable
 from .conversion import RomanizationConverter
 
 class WordProcessor:
+    """
+    A class to process a word by converting its syllables and applying capitalization and symbols.
+    """
     def __init__(self, config: Config, convert_from: str, convert_to: str, stopwords: Set[str]):
         self.config = config
         self.convert_from = convert_from
@@ -12,9 +15,20 @@ class WordProcessor:
         self.converter = RomanizationConverter(f"{convert_from}_{convert_to}")
 
     def create_word(self, syllables: List[Syllable]) -> "Word":
+        """
+        Creates a Word object from a list of syllables.
+        Args:
+            syllables (List[Syllable]): A list of syllables to be processed.
+
+        Returns:
+            Word: A Word object created from the given syllables.
+        """
         return Word(syllables, self)
 
 class Word:
+    """
+    A class to represent a word and process its syllables.
+    """
     def __init__(self, syllables: List[Syllable], processor: WordProcessor):
         self.syllables = syllables
         self.processor = processor
@@ -27,13 +41,33 @@ class Word:
         self.contraction = self.is_contraction()
 
     def all_valid(self) -> bool:
+        """
+        Checks if all syllables in the word are valid by referencing the valid attribute of each syllable.
+
+        Returns:
+            bool: True if all syllables are valid, False otherwise
+        """
         return all(syl.valid for syl in self.syllables)
 
     def is_contraction(self) -> bool:
+        """
+        Checks if the word is a contraction by verifying that the last syllable is not valid and has an apostrophe,
+        and that the full syllable is in the supported contractions set. In the case of error_skip being False,
+        allow the contraction to be processed as an error.
+
+        Returns:
+            bool: True if the word is a contraction, False otherwise
+        """
         return all(syl.valid for syl in self.syllables[:-1]) and \
                (self.syllables[-1].has_apostrophe and self.syllables[-1].full_syllable in self.supported_contractions)
 
     def _create_preview_word(self) -> str:
+        """
+        Creates a preview word by joining the full syllables of the word with apostrophes and dashes where necessary.
+
+        Returns:
+            str: The preview word
+        """
         word_parts = []
         for syl in self.syllables:
             if syl.has_apostrophe:
@@ -51,15 +85,33 @@ class Word:
                     self.processed_syllables.append((self.processor.converter.convert(syl.full_syllable), syl))
                 else:
                     self.processed_syllables.append((syl.full_syllable, syl))
+        """
+        Converts the syllables of the word, returning error messages for invalid syllables if error_skip is False.
+        Otherwise, errors are ignored.
+
+        Returns:
+            Tuple[str, Syllable]: A tuple containing the converted syllable and the original syllable
+        """
         else:
             self.processed_syllables = [(syl.full_syllable, syl) for syl in self.syllables]
 
     def apply_caps(self):
+        """
+        Applies capitalization to the converted syllables.
+
+        Returns:
+            Tuple[str, Syllable]: A tuple containing the capitalized syllable and the original syllable
+        """
         self.processed_syllables = [(syl[1].apply_caps(syl[0]), syl[1]) for syl in self.processed_syllables]
 
     def add_symbols(self):
         vowels = {'a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ'}
+        """
+        Adds apostrophes and dashes to the converted syllables based on the conversion system and the presence of vowels.
 
+        Returns:
+            str: The final word with added symbols
+        """
         if (self.valid or self.contraction) and self.preview_word not in self.processor.stopwords:
             self.final_word = self.processed_syllables[0][0]
             count_of_syllables = len(self.processed_syllables) + 1 if self.contraction else len(self.processed_syllables)
@@ -85,7 +137,12 @@ class Word:
 
     def process_syllables(self) -> str:
         self.convert()
+        """
+        Processes the syllables of the word by converting them, applying capitalization, and adding symbols.
 
+        Returns:
+            str: The final word after processing the syllables
+        """
         self.apply_caps()
 
         self.add_symbols()
