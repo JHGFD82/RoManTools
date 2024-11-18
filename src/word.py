@@ -59,7 +59,8 @@ class Word:
             bool: True if the word is a contraction, False otherwise
         """
         return all(syl.valid for syl in self.syllables[:-1]) and \
-               (self.syllables[-1].has_apostrophe and self.syllables[-1].full_syllable in self.supported_contractions)
+               (self.syllables[-1].has_apostrophe and self.syllables[-1].full_syllable in self.supported_contractions) \
+            and self.processor.config.error_skip == True
 
     def _create_preview_word(self) -> str:
         """
@@ -79,12 +80,6 @@ class Word:
         return "".join(word_parts)
 
     def convert(self):
-        if (self.valid or self.contraction) and self.preview_word not in self.processor.stopwords:
-            for syl in self.syllables:
-                if syl.valid:
-                    self.processed_syllables.append((self.processor.converter.convert(syl.full_syllable), syl))
-                else:
-                    self.processed_syllables.append((syl.full_syllable, syl))
         """
         Converts the syllables of the word, returning error messages for invalid syllables if error_skip is False.
         Otherwise, errors are ignored.
@@ -92,6 +87,13 @@ class Word:
         Returns:
             Tuple[str, Syllable]: A tuple containing the converted syllable and the original syllable
         """
+        if not self.processor.config.error_skip: # For standard conversion requests
+            self.processed_syllables = [(self.processor.converter.convert(syl.full_syllable), syl) for syl in self.syllables]
+        elif (self.valid or self.contraction) and self.preview_word not in self.processor.stopwords: # For cherry_pick
+            self.processed_syllables = [
+                (self.processor.converter.convert(syl.full_syllable), syl) if syl.valid else (syl.full_syllable, syl)
+                for syl in self.syllables
+            ]
         else:
             self.processed_syllables = [(syl.full_syllable, syl) for syl in self.syllables]
 
@@ -105,46 +107,85 @@ class Word:
         self.processed_syllables = [(syl[1].apply_caps(syl[0]), syl[1]) for syl in self.processed_syllables]
 
     def add_symbols(self):
-        vowels = {'a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ'}
         """
         Adds apostrophes and dashes to the converted syllables based on the conversion system and the presence of vowels.
 
         Returns:
             str: The final word with added symbols
         """
+        vowels = {'a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ'}
         if (self.valid or self.contraction) and self.preview_word not in self.processor.stopwords:
             self.final_word = self.processed_syllables[0][0]
-            count_of_syllables = len(self.processed_syllables) + 1 if self.contraction else len(self.processed_syllables)
-            for i in range(1, count_of_syllables):
-                if i >= len(self.processed_syllables):
-                    break
-
-                prev_syllable = self.processed_syllables[i - 1][0]
-                curr_syllable = self.processed_syllables[i][0]
-
-                if self.processor.convert_to == 'py' and self.processed_syllables[i][1].valid:
-                    if (prev_syllable[-1] in vowels and curr_syllable[0] in vowels) or \
-                            (prev_syllable.endswith('er') and curr_syllable[0] in vowels) or \
-                            (prev_syllable[-1] == 'n' and curr_syllable[0] in vowels) or \
-                            (prev_syllable.endswith('ng') and curr_syllable[0] in vowels):
-                        self.final_word += "'" + curr_syllable
-                    else:
-                        self.final_word += curr_syllable
-                elif self.processor.convert_to == 'wg' and not self.contraction:
-                    self.final_word += "-" + curr_syllable if self.processed_syllables[i][1].valid else curr_syllable
+            for i in range(1, len(self.processed_syllables)):
+                self._append_syllable(i, vowels)
         else:
-            self.final_word = "".join([syl[0] for syl in self.processed_syllables])
+            self._append_all_syllables()
+
+    def _append_syllable(self, i: int, vowels: Set[str]):
+        """
+        Appends a syllable to the final word with an apostrophe or a dash based on the conversion system and the
+        presence of vowels.
+
+        Args:
+            i (int): The index of the syllable to be appended
+            vowels (Set[str]): A set of vowels used to determine whether an apostrophe is needed
+
+        Returns:
+            None
+        """
+        prev_syllable = self.processed_syllables[i - 1][0]
+        curr_syllable = self.processed_syllables[i][0]
+        if self.processor.convert_to == 'py' and self.processed_syllables[i][1].valid:
+            if self._needs_apostrophe(prev_syllable, curr_syllable, vowels):
+                self.final_word += "'" + curr_syllable
+            else:
+                self.final_word += curr_syllable
+        elif self.processor.convert_to == 'wg':
+            self.final_word += "'" + curr_syllable if self.contraction and i == len(
+                self.processed_syllables) - 1 else "-" + curr_syllable
+
+    def _append_all_syllables(self):
+        """
+        Appends all syllables to the final word without adding any symbols.
+
+        Returns:
+            None
+        """
+        for syl in self.processed_syllables:
+            if syl[1].has_apostrophe:
+                self.final_word += "'" + syl[0]
+            elif syl[1].has_dash:
+                self.final_word += "-" + syl[0]
+            else:
+                self.final_word += syl[0]
+
+    @staticmethod
+    def _needs_apostrophe(prev_syllable: str, curr_syllable: str, vowels: Set[str]) -> bool:
+        """
+        Determines whether an apostrophe is needed between two syllables based on the last character of the previous
+        syllable and the first character of the current syllable.
+
+        Args:
+            prev_syllable (str): The previous syllable
+            curr_syllable (str): The current syllable
+            vowels (Set[str]): A set of vowels used to determine whether an apostrophe is needed
+
+        Returns:
+            bool: True if an apostrophe is needed, False otherwise
+        """
+        return (prev_syllable[-1] in vowels and curr_syllable[0] in vowels) or \
+            (prev_syllable.endswith('er') and curr_syllable[0] in vowels) or \
+            (prev_syllable[-1] == 'n' and curr_syllable[0] in vowels) or \
+            (prev_syllable.endswith('ng') and curr_syllable[0] in vowels)
 
     def process_syllables(self) -> str:
-        self.convert()
         """
         Processes the syllables of the word by converting them, applying capitalization, and adding symbols.
 
         Returns:
             str: The final word after processing the syllables
         """
+        self.convert()
         self.apply_caps()
-
         self.add_symbols()
-
         return self.final_word
