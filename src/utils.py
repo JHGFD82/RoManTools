@@ -74,9 +74,7 @@ def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool 
         [['zhong', 'guo']]
     """
     config, chunks = _setup_and_process(text, method, crumbs, error_skip, error_report)
-
     segmented_result = []
-
     for chunk in chunks:
         if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
             # Return the full syllable attribute for each Syllable object
@@ -84,7 +82,6 @@ def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool 
         else:
             # Return the non-text elements as strings
             segmented_result.append(chunk)
-
     return segmented_result
 
 
@@ -100,6 +97,8 @@ def _conversion_processing(text: str, convert_from: str, convert_to: str, config
         else:
             concat_text.append(chunk)
     return " ".join(concat_text) if include_spaces else "".join(concat_text)
+
+
 @lru_cache(maxsize=1000000)
 def convert_text(text: str, convert_from: str, convert_to: str, crumbs: bool = False, error_skip: bool = False,
                  error_report: bool = False) -> str:
@@ -154,7 +153,6 @@ def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: boo
         [2]
     """
     config, chunks = _setup_and_process(text, method, crumbs, error_skip, error_report)
-
     return [lengths if all(syllable.valid for syllable in chunk) else 0 for chunk in chunks for lengths in [len(chunk)]]
 
 
@@ -237,7 +235,6 @@ def validator(text: str, method: str, per_word: bool = False, crumbs: bool = Fal
         True
     """
     config, chunks = _setup_and_process(text, method, crumbs, error_skip, error_report)
-
     if not per_word:
         return all(syllable.valid for chunk in chunks for syllable in chunk)
 
@@ -250,5 +247,4 @@ def validator(text: str, method: str, per_word: bool = False, crumbs: bool = Fal
             'valid': [chunk.valid for chunk in word_chunks]
         }
         result.append(word_result)
-
     return result
