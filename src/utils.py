@@ -88,6 +88,18 @@ def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool 
     return segmented_result
 
 
+## Conversion actions
+def _conversion_processing(text: str, convert_from: str, convert_to: str, config: Config, stopwords: Set[str],
+                           error_skip: bool, include_spaces: bool) -> str:
+    word_processor = WordProcessor(config, convert_from, convert_to, stopwords)
+    concat_text = []
+    for chunk in _setup_and_process(text, convert_from, config.crumbs, error_skip, config.error_report)[1]:
+        if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
+            word = word_processor.create_word(chunk)
+            concat_text.append(word.process_syllables())
+        else:
+            concat_text.append(chunk)
+    return " ".join(concat_text) if include_spaces else "".join(concat_text)
 @lru_cache(maxsize=1000000)
 def convert_text(text: str, convert_from: str, convert_to: str, crumbs: bool = False, error_skip: bool = False,
                  error_report: bool = False) -> str:
