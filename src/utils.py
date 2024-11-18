@@ -122,47 +122,13 @@ def convert_text(text: str, convert_from: str, convert_to: str, crumbs: bool = F
         >>> convert_text(text, convert_from="py", convert_to="wg")
         'Chung-kuo'
     """
-    config, chunks = _setup_and_process(text, convert_from, crumbs, error_skip, error_report)
-
-    converter = RomanizationConverter(f"{convert_from}_{convert_to}")
-
-    converted_words = []
-
-    for chunk in chunks:
-        converted_syllables = []
-        for syllable in chunk:
-            # Convert the syllable based on the specified method combination
-            converted_text = converter.convert(syllable.full_syllable)
-            capped_text = _apply_caps(converted_text, syllable)
-            converted_syllables.append(capped_text)
-
-        # Join syllables back into a word and add it to the result
-        if convert_to == "wg":
-            converted_word = "-".join(converted_syllables)
-        else:
-            converted_word = "".join(converted_syllables)
-        converted_words.append(converted_word)
-
-    # Join words back into a single string and return the converted text
-    return " ".join(converted_words)
 
 
 @lru_cache(maxsize=1000000)
 def cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = False, error_skip: bool = True,
                 error_report: bool = False) -> str:
-    config, chunks = _setup_and_process(text, convert_from, crumbs, error_skip, error_report)
-    stopwords = set(load_stopwords())
-    word_processor = WordProcessor(config, convert_from, convert_to, stopwords)
 
-    concat_text = []
-    for chunk in chunks:
-        if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
-            word = word_processor.create_word(chunk)
-            concat_text.append(word.process_syllables())
-        else:
-            concat_text.append(chunk)
 
-    return "".join(concat_text)
 
 
 @lru_cache(maxsize=1000000)
