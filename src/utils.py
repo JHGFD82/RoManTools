@@ -88,6 +88,21 @@ def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool 
 ## Conversion actions
 def _conversion_processing(text: str, convert_from: str, convert_to: str, config: Config, stopwords: Set[str],
                            error_skip: bool, include_spaces: bool) -> str:
+    """
+    Processes the given text for conversion between two romanization standards.
+
+    Args:
+        text (str): The text to be processed.
+        convert_from (str): The romanization standard to convert from.
+        convert_to (str): The romanization standard to convert to.
+        config (Config): The configuration object containing processing settings.
+        stopwords (Set[str]): A set of stopwords to exclude from processing.
+        error_skip (bool): Whether to skip errors.
+        include_spaces (bool): Whether to include spaces in the output.
+
+    Returns:
+        str: The converted text based on the selected romanization conversion mappings.
+    """
     word_processor = WordProcessor(config, convert_from, convert_to, stopwords)
     concat_text = []
     for chunk in _setup_and_process(text, convert_from, config.crumbs, error_skip, config.error_report)[1]:
@@ -126,9 +141,25 @@ def convert_text(text: str, convert_from: str, convert_to: str, crumbs: bool = F
 @lru_cache(maxsize=1000000)
 def cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = False, error_skip: bool = True,
                 error_report: bool = False) -> str:
+    """
+    Converts the given text from one romanization standard to another if detected as a valid romanized Mandarin word, and returns all over text.
 
+    Args:
+        text (str): The text to be converted.
+        convert_from (str): The romanization standard to convert from.
+        convert_to (str): The romanization standard to convert to.
+        crumbs (bool, optional): Whether to display debugging crumbs. Defaults to False.
+        error_skip (bool, optional): Whether to skip errors. Defaults to True.
+        error_report (bool, optional): Whether to report errors. Defaults to False.
 
+    Returns:
+        str: The converted text based on the selected romanization conversion mappings
 
+    Example:
+        >>> text = "This is Zhongguo."
+        >>> cherry_pick(text, convert_from="py", convert_to="wg")
+        'This is Chung-kuo.'
+    """
 
 @lru_cache(maxsize=1000000)
 # @profile
