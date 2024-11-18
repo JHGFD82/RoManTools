@@ -9,6 +9,7 @@ from functools import lru_cache
 # from memory_profiler import profile
 
 
+# Processing actions
 @lru_cache(maxsize=1000000)
 def _process_text(text: str, method: str, config: Config) -> List[Union[List[Syllable], Syllable]]:
     """
@@ -52,6 +53,7 @@ def _setup_and_process(text: str, method: str, crumbs: bool = False, error_skip:
     return config, chunks
 
 
+## Segmentation actions
 @lru_cache(maxsize=1000000)
 def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False) \
         -> List[Union[List[Syllable], Syllable]]:
@@ -107,10 +109,14 @@ def _conversion_processing(text: str, convert_from: str, convert_to: str, config
     concat_text = []
     for chunk in _setup_and_process(text, convert_from, config.crumbs, error_skip, config.error_report)[1]:
         if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
+            # When the chunk is a list of syllables, process them as a word, then append the result as strings
             word = word_processor.create_word(chunk)
             concat_text.append(word.process_syllables())
         else:
+            # When the chunk is a string, append it to the result
             concat_text.append(chunk)
+    # Return the concatenated text, with cherry_pick including spaces and symbols from original text,
+    # and convert_text adding spaces between words
     return " ".join(concat_text) if include_spaces else "".join(concat_text)
 
 
@@ -118,24 +124,27 @@ def _conversion_processing(text: str, convert_from: str, convert_to: str, config
 def convert_text(text: str, convert_from: str, convert_to: str, crumbs: bool = False, error_skip: bool = False,
                  error_report: bool = False) -> str:
     """
-    Converts the given text using the specified method combination.
+    Converts the given text from one romanization standard to another, returning errors for any invalid syllables.
 
     Args:
         text (str): The text to be converted.
-        convert_from (str): The romanization method to convert from.
-        convert_to (str): The romanization method to convert to.
+        convert_from (str): The romanization standard to convert from.
+        convert_to (str): The romanization standard to convert to.
         crumbs (bool, optional): Whether to display debugging crumbs. Defaults to False.
         error_skip (bool, optional): Whether to skip errors. Defaults to False.
         error_report (bool, optional): Whether to report errors. Defaults to False.
 
     Returns:
-        str: The converted text.
+        str: The converted text based on the selected romanization conversion mappings.
 
     Example:
         >>> text = "Zhongguo"
         >>> convert_text(text, convert_from="py", convert_to="wg")
         'Chung-kuo'
     """
+    config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
+    stopwords = set(load_stopwords())
+    return _conversion_processing(text, convert_from, convert_to, config, stopwords, error_skip, include_spaces=True)
 
 
 @lru_cache(maxsize=1000000)
@@ -160,7 +169,12 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = Fa
         >>> cherry_pick(text, convert_from="py", convert_to="wg")
         'This is Chung-kuo.'
     """
+    config = Config(crumbs=crumbs, error_skip=error_skip, error_report=error_report)
+    stopwords = set(load_stopwords())
+    return _conversion_processing(text, convert_from, convert_to, config, stopwords, error_skip, include_spaces=False)
 
+
+# Counting actions
 @lru_cache(maxsize=1000000)
 # @profile
 def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False) \
@@ -184,9 +198,11 @@ def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: boo
         [2]
     """
     config, chunks = _setup_and_process(text, method, crumbs, error_skip, error_report)
+    # Return the length of each chunk if all syllables are valid, otherwise return 0
     return [lengths if all(syllable.valid for syllable in chunk) else 0 for chunk in chunks for lengths in [len(chunk)]]
 
 
+# Detection and validation actions
 @lru_cache(maxsize=1000000)
 def detect_method(text: str, per_word: bool = False, crumbs: bool = False, error_skip: bool = False,
                   error_report: bool = False) -> Union[List[str], List[Dict[str, List[str]]]]:
@@ -267,9 +283,8 @@ def validator(text: str, method: str, per_word: bool = False, crumbs: bool = Fal
     """
     config, chunks = _setup_and_process(text, method, crumbs, error_skip, error_report)
     if not per_word:
+        # Perform validation for the entire text, returning a single boolean value
         return all(syllable.valid for chunk in chunks for syllable in chunk)
-
-    # Return detailed information per word
     result = []
     for word_chunks in chunks:
         word_result = {
@@ -279,3 +294,4 @@ def validator(text: str, method: str, per_word: bool = False, crumbs: bool = Fal
         }
         result.append(word_result)
     return result
+        # Perform validation per word, returning the validity of each word
