@@ -70,9 +70,9 @@ def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool 
         List[Union[List[Syllable], Syllable]]: A list of segmented syllables or syllable chunks.
 
     Example:
-        >>> text = "Zhongguo"
+        >>> text = "Zhongguo ti'an tianqi"
         >>> segment_text(text, method="py")
-        [['zhong', 'guo']]
+        [['zhong', 'guo'], ['ti', 'an'], ['tian', 'qi']]
     """
     config, chunks = _setup_and_process(text, method, crumbs, error_skip, error_report)
     segmented_result = []
