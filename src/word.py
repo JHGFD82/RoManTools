@@ -71,7 +71,7 @@ class Word:
             bool: True if the word is a contraction, False otherwise
         """
         return all(syl.valid for syl in self.syllables[:-1]) and \
-               (self.syllables[-1].has_apostrophe and self.syllables[-1].full_syllable in self.supported_contractions) \
+               (self.syllables[-1].has_apostrophe and self.syllables[-1].full_syllable in supported_contractions) \
             and self.processor.config.error_skip == True
 
     def is_convertable(self) -> bool:
@@ -135,7 +135,7 @@ class Word:
         else:
             self._append_all_syllables()
 
-    def _append_syllable(self, i: int, vowels: Set[str]):
+    def _append_syllable(self, i: int):
         """
         Appends a syllable to the final word with an apostrophe or a dash based on the conversion system and the
         presence of vowels.
