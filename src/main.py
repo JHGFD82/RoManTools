@@ -51,27 +51,27 @@ def _validate_arguments(args):
 
 # ACTION FUNCTIONS #
 def _segment_action(args):
-    return segment_text(args.text, args.method)
+    return segment_text(args.text, args.method, args.crumbs, args.error_skip, args.error_report)
 
 
 def _validator_action(args):
-    return validator(args.text, args.method, args.per_word)
+    return validator(args.text, args.method, args.per_word, args.crumbs, args.error_skip, args.error_report)
 
 
 def _convert_action(args):
-    return convert_text(args.text, args.convert_from, args.convert_to)
+    return convert_text(args.text, args.convert_from, args.convert_to, args.crumbs, args.error_skip, args.error_report)
 
 
 def _cherry_pick_action(args):
-    return cherry_pick(args.text, args.convert_from, args.convert_to)
+    return cherry_pick(args.text, args.convert_from, args.convert_to, args.crumbs, args.error_skip, args.error_report)
 
 
 def _syllable_count_action(args):
-    return syllable_count(args.text, args.method)
+    return syllable_count(args.text, args.method, args.crumbs, args.error_skip, args.error_report)
 
 
 def _detect_method_action(args):
-    return detect_method(args.text, args.per_word)
+    return detect_method(args.text, args.per_word, args.crumbs, args.error_skip, args.error_report)
 
 
 # Map actions to functions
