@@ -72,7 +72,6 @@ class TextChunkProcessor:
             # Default pattern for standard word splitting
             # **FUTURE: Add error messages for non-text elements
             pattern = r"[a-zA-ZüÜ]+(?:['’ʼ`\-–—][a-zA-ZüÜ]+)*"
-
         return re.findall(pattern, text)
 
     def _process_text(self):
@@ -82,7 +81,6 @@ class TextChunkProcessor:
         Depending on the configuration, it can use different regex patterns for splitting the text.
         """
         segments = self._split_text_into_segments(self.text)
-
         for segment in segments:
             if re.match(r"[a-zA-ZüÜ]+", segment):
                 split_words = self._split_word(segment)
@@ -90,7 +88,6 @@ class TextChunkProcessor:
             else:
                 # Non-text elements are directly appended as strings
                 self.chunks.append(segment)
-
         # Print cache information to ensure proper usage
         # print(self._send_to_syllable_processor.cache_info())  # Displays cache statistics
 
@@ -103,7 +100,6 @@ class TextChunkProcessor:
             remaining_text (str): The remaining text to process.
         """
         return self.syllable_processor.create_syllable(remaining_text)
-
         # This commented code is for debugging purposes to print the resulting syllable object
         # result = self.syllable_processor.create_syllable(remaining_text)
         # print(result.__dict__)
@@ -119,12 +115,10 @@ class TextChunkProcessor:
         syllables = []
         for syllable in split_words:
             remaining_text = syllable
-
             while remaining_text:
                 syllable_obj = self._send_to_syllable_processor(remaining_text)
                 syllables.append(syllable_obj)
                 remaining_text = syllable_obj.remainder
-
         self.chunks.append(syllables)
 
     def get_chunks(self) -> List[List[Syllable]]:

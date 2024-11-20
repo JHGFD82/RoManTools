@@ -59,7 +59,6 @@ class Syllable:
             remainder (str, optional): The remainder of the text to be processed. Defaults to "".
             processor (SyllableProcessor): The processor object used to validate the syllable.
         """
-
         self.text = text.lower()
         self.remainder = remainder
         self.processor = processor
@@ -101,7 +100,6 @@ class Syllable:
             bool: True if the text is in title case, considering contractions; otherwise, False.
         """
         import re
-
         # Remove all non-letter characters
         cleaned_text = re.sub(r'[^a-zA-Z]', '', text)
         self.capitalize = cleaned_text.istitle()
@@ -144,7 +142,6 @@ class Syllable:
             initial = ''
         else:
             final = self._find_final(text[len(initial):], initial)
-
         full_syllable = initial + final
         remainder_start = len(full_syllable)
         remainder = text[remainder_start:]
@@ -161,7 +158,6 @@ class Syllable:
         Returns:
             str: The initial part of the syllable or 'ø' if no valid initial is found.
         """
-
         for i, c in enumerate(text):
             if c in vowel:
                 if i == 0:
@@ -220,7 +216,6 @@ class Syllable:
         for f_item in self.processor.fin_list:
             if f_item.startswith(text[:i + 1]) and self._validate_final(initial, f_item):
                 test_finals.append(f_item)
-
         if not test_finals:
             if i == 0:
                 pass
@@ -240,7 +235,6 @@ class Syllable:
             str: The final part of the syllable.
         """
         remainder = len(text) - i - 1
-
         # Handle "er" and "erh"
         if text[i - 1:i + 1] == 'er':
             if remainder == 0 or (self.processor.method != 'wg' and text[i + 1] not in vowel):
@@ -248,14 +242,12 @@ class Syllable:
             elif self.processor.method == 'wg':
                 if remainder > 0 and text[i + 1] == 'h':
                     return text[:i + 2]
-
         # Handle "n" and "ng"
         elif text[i] == 'n':
             # Determine whether we are dealing with "ng" or just "n"
             next_char_is_g = remainder > 0 and text[i + 1] == 'g'
             valid_ng = next_char_is_g and (
                     remainder == 1 or text[i + 2] not in vowel or not self._validate_final(initial, text[:i + 1]))
-
             if valid_ng:
                 return text[:i + 2]  # Return "ng"
             elif next_char_is_g:
@@ -263,7 +255,6 @@ class Syllable:
             else:
                 valid_n = remainder == 0 or text[i + 1] not in vowel or not self._validate_final(initial, text[:i])
                 return text[:i + 1] if valid_n else text[:i]  # Return "n" or fall back
-
         # Default case: handle all other consonants
         return text[:i]
 
@@ -281,10 +272,8 @@ class Syllable:
         """
         initial_index = self.processor.init_list.index(initial) if initial in self.processor.init_list else -1
         final_index = self.processor.fin_list.index(final) if final in self.processor.fin_list else -1
-
         if initial_index == -1 or final_index == -1:
             return False
-
         return bool(self.processor.ar[initial_index, final_index])
 
     def _validate_syllable(self) -> bool:

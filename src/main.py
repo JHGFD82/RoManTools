@@ -7,14 +7,12 @@ def _normalize_method(method: str, context: str) -> str:
     Normalizes and validates the romanization or tone marking method based on the provided context.
     """
     method = method.lower()
-
     method_map = {
         'pinyin': 'py',
         'py': 'py',
         'wade-giles': 'wg',
         'wg': 'wg'
     }
-
     if method in method_map:
         return method_map[method]
     else:

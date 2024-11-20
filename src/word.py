@@ -155,7 +155,6 @@ class Word:
                 self.final_word += "-" + syl[0]
             else:
                 self.final_word += syl[0]
-
     @staticmethod
     def _needs_apostrophe(prev_syllable: str, curr_syllable: str, vowels: Set[str]) -> bool:
         """
