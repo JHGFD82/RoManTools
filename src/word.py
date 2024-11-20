@@ -33,6 +33,25 @@ class Word:
         self.valid = self.all_valid()
         self.contraction = self.is_contraction()
 
+    def _create_preview_word(self) -> str:
+        """
+        Creates a preview word by joining the full syllables of the word with apostrophes and dashes where necessary.
+        The preview word is used to determine whether the word is a stopword, which includes contractions such as
+        "we've" and "we're," which are potentially valid romanized syllables, even though they are not Mandarin terms.
+
+        Returns:
+            str: The preview word
+        """
+        word_parts = []
+        for syl in self.syllables:
+            if syl.has_apostrophe:
+                word_parts.append("'" + syl.full_syllable)
+            elif syl.has_dash:
+                word_parts.append("-" + syl.full_syllable)
+            else:
+                word_parts.append(syl.full_syllable)
+        return "".join(word_parts)
+
     def all_valid(self) -> bool:
         """
         Checks if all syllables in the word are valid by referencing the valid attribute of each syllable.
@@ -55,22 +74,14 @@ class Word:
                (self.syllables[-1].has_apostrophe and self.syllables[-1].full_syllable in self.supported_contractions) \
             and self.processor.config.error_skip == True
 
-    def _create_preview_word(self) -> str:
+    def is_convertable(self) -> bool:
         """
-        Creates a preview word by joining the full syllables of the word with apostrophes and dashes where necessary.
+        Checks if the word is valid or a contraction and not a stopword.
 
         Returns:
-            str: The preview word
+            bool: True if the word is valid or a contraction and not a stopword, False otherwise
         """
-        word_parts = []
-        for syl in self.syllables:
-            if syl.has_apostrophe:
-                word_parts.append("'" + syl.full_syllable)
-            elif syl.has_dash:
-                word_parts.append("-" + syl.full_syllable)
-            else:
-                word_parts.append(syl.full_syllable)
-        return "".join(word_parts)
+        return (self.valid or self.contraction) and self.preview_word not in self.processor.stopwords
 
     def convert(self):
         """
