@@ -25,17 +25,6 @@ class TextChunkProcessor:
     """
     def __init__(self, text: str, config: Config, ar: np.ndarray, init_list: List[str], fin_list: List[str],
                  method: str):
-        """
-        Initializes the TextChunkProcessor with the input text, configuration, and method details.
-
-        Args:
-            text (str): The input text to be processed.
-            config (Config): Configuration object that manages processing options.
-            ar (np.ndarray): The array used for validating initial-final combinations.
-            init_list (List[str]): The list of valid initials.
-            fin_list (List[str]): The list of valid finals.
-            method (str): The romanization method ("py" for Pinyin or "wg" for Wade-Giles).
-        """
         self.text = text
         self.config = config
         self.ar = ar

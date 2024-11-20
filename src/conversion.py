@@ -7,13 +7,6 @@ class RomanizationConverter:
     A class to convert romanized Chinese between different romanization systems.
     """
     def __init__(self, method_combination):
-        """
-        Initializes the RomanizationConverter.
-
-        Args:
-            method_combination (str): A string specifying the conversion direction (e.g., 'py_wg' for Pinyin to
-            Wade-Giles).
-        """
         self.conversion_dicts = load_conversion_data(method_combination)
 
     @lru_cache(maxsize=10000)

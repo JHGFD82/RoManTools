@@ -26,9 +26,6 @@ class WordProcessor:
         return Word(syllables, self)
 
 class Word:
-    """
-    A class to represent a word and process its syllables.
-    """
     def __init__(self, syllables: List[Syllable], processor: WordProcessor):
         self.syllables = syllables
         self.processor = processor
