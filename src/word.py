@@ -1,6 +1,7 @@
 from typing import List, Set, Tuple
 from .config import Config
 from .syllable import Syllable
+from .constants import vowels, supported_contractions
 from .conversion import RomanizationConverter
 
 class WordProcessor:
@@ -27,8 +28,6 @@ class Word:
         self.syllables = syllables
         self.processor = processor
         self.processed_syllables = []
-        self.supported_contractions = {"s", "d", "ll"}
-        self.unsupported_contractions = {"m", "t"}
         self.preview_word = self._create_preview_word()
         self.final_word = ""
         self.valid = self.all_valid()
@@ -116,13 +115,12 @@ class Word:
         Returns:
             str: The final word with added symbols
         """
-        vowels = {'a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ'}
         if (self.valid or self.contraction) and self.preview_word not in self.processor.stopwords:
         # Syllables have to be processed individually if conversion took place. Otherwise, they are combined in a
         # different process.
             self.final_word = self.processed_syllables[0][0]
             for i in range(1, len(self.processed_syllables)):
-                self._append_syllable(i, vowels)
+                self._append_syllable(i)
         else:
             self._append_all_syllables()
 
@@ -133,7 +131,6 @@ class Word:
 
         Args:
             i (int): The index of the syllable to be appended
-            vowels (Set[str]): A set of vowels used to determine whether an apostrophe is needed
 
         Returns:
             None
@@ -143,7 +140,7 @@ class Word:
         curr_syllable = self.processed_syllables[i][0]
         # For Pinyin, specific logic is applied to determine whether an apostrophe is needed between syllables.
         if self.processor.convert_to == 'py' and self.processed_syllables[i][1].valid:
-            if self._needs_apostrophe(prev_syllable, curr_syllable, vowels):
+            if self._needs_apostrophe(prev_syllable, curr_syllable):
                 self.final_word += "'" + curr_syllable
             else:
                 self.final_word += curr_syllable
@@ -168,7 +165,7 @@ class Word:
             else:
                 self.final_word += syl[0]
     @staticmethod
-    def _needs_apostrophe(prev_syllable: str, curr_syllable: str, vowels: Set[str]) -> bool:
+    def _needs_apostrophe(prev_syllable: str, curr_syllable: str) -> bool:
         """
         Determines whether an apostrophe is needed between two syllables based on the last character of the previous
         syllable and the first character of the current syllable.
@@ -176,7 +173,6 @@ class Word:
         Args:
             prev_syllable (str): The previous syllable
             curr_syllable (str): The current syllable
-            vowels (Set[str]): A set of vowels used to determine whether an apostrophe is needed
 
         Returns:
             bool: True if an apostrophe is needed, False otherwise

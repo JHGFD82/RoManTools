@@ -1,6 +1,7 @@
 import unittest
 from src.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
 from src.data_loader import load_syllable_list
+from src.constants import vowels
 import random
 import time
 # from memory_profiler import profile
@@ -35,7 +36,6 @@ def generate_random_syllable_from_list(syllable_list):
 
 
 def generate_random_text_from_list(method, num_syllables=0):
-    vowels = {'a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ'}
 
     def _validate_examples(random_text):
         final_words = random_text[0]

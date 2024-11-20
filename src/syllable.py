@@ -1,9 +1,8 @@
 from .config import Config
+from .constants import vowels, apostrophes, dashes
 from typing import Tuple, List
 import numpy as np
 # from functools import lru_cache
-
-vowel = ['a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ']
 
 
 class SyllableProcessor:
@@ -66,8 +65,6 @@ class Syllable:
         self.final = ""
         self.full_syllable = ""
         self.valid = False
-        self.apostrophes = ["'", "’", "ʼ", "`"]
-        self.dashes = ["-", "–", "—"]
         self.has_apostrophe = False
         self.has_dash = False
         self.capitalize = False
@@ -163,15 +160,15 @@ class Syllable:
             str: The initial part of the syllable or 'ø' if no valid initial is found.
         """
         for i, c in enumerate(text):
-            if c in vowel:
-                if i == 0:
+            if c in vowels:
+                if i == 0:  # If a vowel is found at the beginning of the syllable, return 'ø' to indicate no initial
                     return 'ø'
                 initial = text[:i]
                 if initial not in self.processor.init_list:
                     return text[:i]
                 return initial
-            elif self.processor.method == 'wg' and c in self.apostrophes:
-                return text[:i] + "'"  # ensure that the standard apostrophe is included in the initial
+            elif self.processor.method == 'wg' and c in apostrophes:  # In cases of valid apostrophes in Wade-Giles
+                return text[:i] + "'"  # Ensure that the standard apostrophe is included in the initial
 
         return text
 
@@ -244,7 +241,7 @@ class Syllable:
         remainder = len(text) - i - 1
         # Handle "er" and "erh"
         if text[i - 1:i + 1] == 'er':
-            if remainder == 0 or (self.processor.method != 'wg' and text[i + 1] not in vowel):
+            if remainder == 0 or (self.processor.method != 'wg' and text[i + 1] not in vowels):
                 return text[:i + 1]
             elif self.processor.method == 'wg':
                 if remainder > 0 and text[i + 1] == 'h':
@@ -257,14 +254,14 @@ class Syllable:
             # is a consonant, or if the current "n" final is invalid
             # This allows for "changan" to be split into "chan" and "gan" instead of "chang" and "an"
             valid_ng = next_char_is_g and (
-                    remainder == 1 or text[i + 2] not in vowel or not self._validate_final(initial, text[:i + 1]))
+                    remainder == 1 or text[i + 2] not in vowels or not self._validate_final(initial, text[:i + 1]))
             if valid_ng:
                 return text[:i + 2]  # Return "ng"
             elif next_char_is_g:
-                return text[:i + 1]  # Return just "n" if the "g" isn't valid
+                return text[:i + 1]  # Return just "n" if the "ng" final isn't valid
             else:
-                valid_n = remainder == 0 or text[i + 1] not in vowel or not self._validate_final(initial, text[:i])
-                return text[:i + 1] if valid_n else text[:i]  # Return "n" or fall back
+                valid_n = remainder == 0 or text[i + 1] not in vowels or not self._validate_final(initial, text[:i])
+                return text[:i + 1] if valid_n else text[:i]  # Return "n" or fall back to last vowel
         # Default case: handle all other consonants
         return text[:i]
 
