@@ -4,9 +4,6 @@ from .syllable import Syllable
 from .conversion import RomanizationConverter
 
 class WordProcessor:
-    """
-    A class to process a word by converting its syllables and applying capitalization and symbols.
-    """
     def __init__(self, config: Config, convert_from: str, convert_to: str, stopwords: Set[str]):
         self.config = config
         self.convert_from = convert_from

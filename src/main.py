@@ -4,7 +4,15 @@ from src.utils import convert_text, cherry_pick, segment_text, syllable_count, d
 
 def _normalize_method(method: str, context: str) -> str:
     """
-    Normalizes and validates the romanization or tone marking method based on the provided context.
+    Normalizes the romanization method string to a standard format.
+
+    Args:
+        method (str): The romanization method string.
+        context (str): The context in which the method is being used.
+
+    Returns:
+        str: The normalized romanization method string.
+
     """
     method = method.lower()
     method_map = {
@@ -22,7 +30,13 @@ def _normalize_method(method: str, context: str) -> str:
 
 def _validate_arguments(args):
     """
-    Validates the command-line arguments based on the selected action.
+    Validates the arguments based on the chosen action.
+
+    Args:
+        args: The parsed command-line arguments.
+
+    Returns:
+        None
     """
     if args.action in ['segment', 'validator', 'syllable_count', 'detect_method']:
         if not args.text:
