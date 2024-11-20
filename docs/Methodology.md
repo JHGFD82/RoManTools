@@ -18,7 +18,12 @@ This documentation details the process by which text is analyzed. Documentation 
 
 ### 1.1. Segment Generation
 
-Every tool ("action") contained within RoManTools involves Chunk Processing. A "chunk" is a block of text representing a single word that includes letters and may or may not include apostrophes or dashes depending on the romanization method specified by action parameters. RoManTools uses [Regular Expressions](https://regexr.com/) to create chunks from inputted text in two steps: 1. Splitting text into individual words ("chunks"), 2. splitting words into syllables ("segments") if supported symbols are found (e.g., apostrophes and dashes for Pinyin, dashes for Wade-Giles). Numbers, other symbols, and spaces are separated into their own blocks and are discarded, with the exception of actions that have the `error_skip` parameter marked as `True`. A "segment" may include multiple syllables if dashes or apostrophes are not supplied.
+Every tool ("action") contained within RoManTools involves Chunk Processing. A "chunk" is a block of text representing a single word that includes letters and may or may not include apostrophes or dashes depending on the romanization method specified by action parameters. RoManTools uses [Regular Expressions](https://regexr.com/) to create chunks from inputted text in two steps:
+
+1. Splitting text into individual words ("chunks")
+2. Splitting words into syllables ("segments") if supported symbols are found (e.g., apostrophes and dashes for Pinyin, dashes for Wade-Giles)
+
+Numbers, other symbols, and spaces are separated into their own blocks and are discarded, with the exception of actions that have the `error_skip` parameter marked as `True`. A "segment" may include multiple syllables if dashes or apostrophes are not supplied.
 
 Please see [Input_Requirements.md](Input_Requirements.md) for details on what is required for inputted text per romanization method.
 
@@ -40,7 +45,7 @@ Returned chunks with `error_skip` set to `True`:
 
 ### 1.2. Syllable Processing
 
-Each segment is converted into one or more Syllable objects. A Syllable object contains parameters that store details on each syllable's structure. Conditionals that determine whether the text was inputted with capital letters or whether it was preceeded by an apostrophe or dash, are detected first. This is then followed immediately with steps to analyze the text to extract a potential syllable's initial and final. Analyzation involves iterating over each letter individually.
+Each segment is converted into one or more Syllable objects. A Syllable object contains parameters that store details on each syllable's structure. Conditionals that determine whether the text was inputted with capital letters or whether it was preceeded by an apostrophe or dash are detected first. This is then followed immediately with steps to analyze the text to extract a potential syllable's initial and final. Analyzation involves iterating over each letter individually.
 
 #### Initials
 
@@ -48,12 +53,12 @@ The initial is detected first. An initial of a romanized Mandarin syllable can e
 
 #### Finals
 
-The Syllable Processor then iterates over vowels to determine the syllable's final. A final is typically one or more vowels (`i` for `ni`, `ao` for `hao`), however a consonant may be included in the final in certain situations such as:
+The Syllable Processor then iterates over vowels and consonants to determine the syllable's final. A final is typically one or more vowels (`i` for `ni`, `ao` for `hao`), however a consonant may be included in the final in certain situations such as:
 
 Pinyin & Wade-Giles:
 
-- `n`
-- `ng`
+- `n` (`chan`)
+- `ng` (`chang`)
 
 Pinyin:
 
@@ -64,7 +69,7 @@ Wade-Giles:
 - `rh` when preceeded by `e` (e.g., `sheerh`)
 - `h` when preceeded by `i` (e.g., `Chih`)
 
-Internal logic dictates whether a consonant appears in the final by looking ahead to see if a vowel follows the consonants. If so, and the vowel-consonant combination is a valid final, then the next syllable's vowel becomes the start of the next syllable. Otherwise, the current consonant being analyzed becomes the next syllable's initial.
+Internal logic dictates whether a consonant appears in the final by looking ahead to see if another vowel follows the consonants. If this is true, and the preceeding vowel and consonant combination is a valid final, then the next syllable's vowel becomes the start of the next syllable. Otherwise, the current consonant being analyzed becomes the next syllable's initial.
 
 #### Examples:
 
@@ -72,8 +77,6 @@ Internal logic dictates whether a consonant appears in the final by looking ahea
 - `zhongguo` -> `[zhong, guo]`
 
 The resulting syllable is then given a final validation check. This is performed by referencing an array of valid initial-final combinations.
-
-
 
 Completed Syllable objects are then returned to the Chunk Generator individually, with each syllable for a word compiled into a chunk.
 
@@ -85,11 +88,13 @@ For actions that involve converting text between romanization standards, chunks 
 
 The first process involves creating a "preview word," which is an assembly of the syllables in lowercase letters with all apostrophes and dashes in original placement, to be used in later evaluation.
 
-Steps are then taken to analyze the word's validity, first by checking whether all syllables are valid, and second by checking if the word is a contraction. For actions such as Cherry Pick, contractions are allowed to be converted since the only invalid text in the word appears after the apostrophe in the last Syllable object. `s`, `d`, and `ll` are considered supported contractions by RoManTools, with all over contractions marked as invalid.
+Steps are then taken to analyze the word's validity, first by checking whether all syllables are valid, and second by checking if the word is a contraction. For actions such as Cherry Pick, contractions are allowed to be converted since the only invalid text in the word appears after the apostrophe in the last Syllable object. `s`, `d`, and `ll` are considered supported contractions by RoManTools, with all other contractions marked as invalid.
 
-One final check is performed, which compares the preview word to a list of stopwords, to ensure that the word is able to be converted. The stopword list was generated by a separate process, combining the NLTK library for a list of English words that could be considered valid Pinyin accidentally, and the Wiktionary API which added words with Mandarin, Cantonese, Chinese, Pinyin, or Wade-Giles etymologies. These latter terms were necessary due to colloquial usage of terms that should not be converted under any circumstance (e.g., `China`, `Beijing`). Other words were manually added upon further testing and determined to be exceedingly rare by various Chinese language experts at Princeton University (e.g., `route`, `we've`, `we're`).
+#### Stopwords
 
-Conversion of syllables is then performed, skipping over contractions and returning the converted text back to each syllable. In case of conversion errors, `(!)` is returned next to the invalid syllable, to be replaced later by more meaningful feedback on what the specific error might be in the supplied text.
+One final check is performed which compares the preview word to a list of stopwords to ensure that the word is able to be converted. The stopword list was generated by a separate process, as detailed in the Jupyter Notebook for the protogenesis of the [Chinese Syllable Count Generator](https://github.com/JHGFD82/ChineseSyllableCountGeneratorDraftNotes/blob/master/Chinese%20Syllable%20Count%20Generator.ipynb), combining the NLTK library for a list of English words that could be considered valid romanized Mandarin accidentally, and the Wiktionary API which added words with Mandarin, Cantonese, Chinese, Pinyin, or Wade-Giles etymologies. These latter terms were necessary due to colloquial usage of terms that should not be converted under any circumstances (e.g., `China`, `Beijing`). Other words were manually added upon further testing and determined to be exceedingly rare by various Chinese language experts at Princeton University (e.g., `route`, `we've`, `we're`).
+
+Conversion of syllables is then performed, skipping over contractions, and returning the converted text back to each syllable. In case of conversion errors, `(!)` is returned next to the invalid syllable, to be replaced later by more meaningful feedback on what the specific error might be in the supplied text.
 
 Syllables are capitalized if they were inputted with capital letters. Dashes and apostrophes are also returned to the text if they were included and are not part of the romanization process (e.g., `second-class`, `Shutan's`). The following logic is then applied for multi-syllable words based on the target romanization method:
 
@@ -104,32 +109,42 @@ Syllables are capitalized if they were inputted with capital letters. Dashes and
 
 The concatenated word is then sent back to the action, which combines it into either a final string with spaces separating each converted term, or with all original symbols and spacing for the Cherry Pick action.
 
----
+## Actions
 
-The chunk processing in your code begins by breaking apart the input text into segments using regular expressions.
+Each action receives chunks from the Chunk Generator and treats the resulting groups of Syllable objects in different ways, all of which are narrativized below.
 
-This initial segmentation separates words and non-text elements based on the specified patterns.
+### 2.1. Segment Text
 
-For instance, words containing letters and certain punctuation marks are grouped together, while non-text elements are separated.
+Inputted text is returned from the Chunk Generator as a list comprised of lists of words. Each embedded list contains each syllable for multi-syllable words. In cases where the `error_skip` parameter is set to `True`, spaces and symbols are returned as ungrouped strings in the list.
 
-This segmentation is crucial for further processing as it allows the code to handle text and non-text elements differently, ensuring that only the relevant parts of the text are processed into syllables.
+### Example
 
-Once the text is segmented, the code processes each segment into syllables, with special attention to the specified romanization method.
+Entered text:
 
-For example, if the method is Wade-Giles, the code uses a specific pattern to handle apostrophes in syllable initials.
+`Huli gei ji bai nian.`
 
-Each word is split into smaller components, and these components are then processed into Syllable objects.
+Default result:
 
-The SyllableProcessor class is used to create these objects, which involves validating the syllables based on the romanization method and the configuration settings.
+`[['hu', 'li'], ['gei'], ['ji'], ['bai'], ['nian']]`
 
-This step ensures that each syllable is correctly identified and validated according to the rules of the chosen romanization method.
+Result with `error_skip` set to `True`:
 
-In cases where actions involve conversion, such as converting text from one romanization standard to another, the word processing becomes more complex.
+`[['hu', 'li'], ' ', ['gei'], ' ', ['ji'], ' ', ['bai'], ' ', ['nian'], '.']`
 
-The code processes each word into its constituent syllables, converts these syllables according to the specified conversion mappings, and then reassembles the words.
+### 2.2. Validator
 
-This process ensures that the converted text maintains the correct structure and meaning according to the target romanization standard.
+A simple boolean is returned if all inputted text is marked as valid. The `per_word` parameter will return a detailed list of inputted words separated and each syllable's validity included.
 
-The conversion process is handled by the cherry_pick function, which uses the configuration settings and stopwords to manage the conversion and handle any errors that may occur.
+### Example
 
-This detailed processing ensures that the text is accurately converted while preserving the nuances of the original romanization method.
+Entered text:
+
+`Huli gei ji bai nion.`
+
+Default result:
+
+`False`
+
+Result with `per_word` set to `True`:
+
+`[{'word': 'huli', 'syllables': ['hu', 'li'], 'valid': [True, True]}, {'word': 'gei', 'syllables': ['gei'], 'valid': [True]}, {'word': 'ji', 'syllables': ['ji'], 'valid': [True]}, {'word': 'bai', 'syllables': ['bai'], 'valid': [True]}, {'word': 'nion', 'syllables': ['ni', 'on'], 'valid': [True, False]}]`
