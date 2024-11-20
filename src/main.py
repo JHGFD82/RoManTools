@@ -35,7 +35,7 @@ def _validate_arguments(args):
                                                  f'{args.action} action.')
 
 
-#  BASIC ACTIONS #
+# ACTION FUNCTIONS #
 def _segment_action(args):
     return segment_text(args.text, args.method)
 
@@ -44,7 +44,6 @@ def _validator_action(args):
     return validator(args.text, args.method, args.per_word)
 
 
-# CONVERSION ACTIONS #
 def _convert_action(args):
     return convert_text(args.text, args.convert_from, args.convert_to)
 
@@ -53,7 +52,6 @@ def _cherry_pick_action(args):
     return cherry_pick(args.text, args.convert_from, args.convert_to)
 
 
-# OTHER UTILITY ACTIONS #
 def _syllable_count_action(args):
     return syllable_count(args.text, args.method)
 

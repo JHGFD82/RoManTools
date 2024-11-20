@@ -100,7 +100,7 @@ class Syllable:
             bool: True if the text is in title case, considering contractions; otherwise, False.
         """
         import re
-        # Remove all non-letter characters
+        # Remove all non-letter characters (.istitle() does not function properly with apostrophes and dashes)
         cleaned_text = re.sub(r'[^a-zA-Z]', '', text)
         self.capitalize = cleaned_text.istitle()
 
@@ -123,7 +123,9 @@ class Syllable:
         """
         Processes the syllable to extract the initial, final, and remainder parts and validates the syllable.
         """
+        # Construct parts of syllable
         self.initial, self.final, self.full_syllable, self.remainder = self._find_initial_final(self.text)
+        # Validate the syllable
         self.valid = self._validate_syllable()
 
     def _find_initial_final(self, text: str) -> Tuple[str, str, str, str]:
@@ -137,11 +139,13 @@ class Syllable:
             Tuple[str, str, str, str]: The initial, final, full syllable, and remainder of the input text.
         """
         initial = self._find_initial(text)
+        # If a "ø" is found, indicating no initial, find the final without the initial
         if initial == 'ø':
             final = self._find_final(text, initial)
             initial = ''
         else:
             final = self._find_final(text[len(initial):], initial)
+        # After finding final, concatenate initial and final to get the full syllable
         full_syllable = initial + final
         remainder_start = len(full_syllable)
         remainder = text[remainder_start:]
@@ -194,6 +198,7 @@ class Syllable:
                     return self._handle_consonant_case(text, i, initial)
             return text
         elif self.processor.method == 'wg':
+            # FUTURE: expand on this to handle missing dashes (very likely)
             return text
 
     def _handle_vowel_case(self, text: str, i: int, initial: str) -> str:
@@ -209,13 +214,15 @@ class Syllable:
             str: The final part of the syllable or a subset based on potential candidates.
         """
         if i + 1 == len(text):
-            return text  # This is a simple final with no further characters to process.
-
-        # Iterate over the list of potential finals that start with the current vowel.
+            return text  # This is a simple final with no further characters to process, usually in cases of no
+            # consonants or multi-vowel finals
+        # Iterate over the list of potential finals that start with the current vowel
         test_finals = []
+        # Generate list of possible finals from this point in the text
         for f_item in self.processor.fin_list:
             if f_item.startswith(text[:i + 1]) and self._validate_final(initial, f_item):
                 test_finals.append(f_item)
+        # If no valid finals are found, return the text up to the vowel
         if not test_finals:
             if i == 0:
                 pass
@@ -246,6 +253,9 @@ class Syllable:
         elif text[i] == 'n':
             # Determine whether we are dealing with "ng" or just "n"
             next_char_is_g = remainder > 0 and text[i + 1] == 'g'
+            # For possible "ng" cases, check if "g" is the last letter, if the next character after "g"
+            # is a consonant, or if the current "n" final is invalid
+            # This allows for "changan" to be split into "chan" and "gan" instead of "chang" and "an"
             valid_ng = next_char_is_g and (
                     remainder == 1 or text[i + 2] not in vowel or not self._validate_final(initial, text[:i + 1]))
             if valid_ng:
@@ -261,7 +271,9 @@ class Syllable:
     # @lru_cache(maxsize=100000)
     def _validate_final(self, initial, final: str) -> bool:
         """
-        Validates the final part of the syllable by checking against a predefined list of valid combinations.
+        Validates the final part of the syllable by checking against a predefined list of valid combinations. This
+        function is also referred to by _validate_syllable and is used to validate an entire syllable once it is fully
+        determined.
 
         Args:
             initial (str): The initial part of the syllable.
@@ -270,10 +282,15 @@ class Syllable:
         Returns:
             bool: True if the final is valid, otherwise False.
         """
+        # Indexes for both initial and final are both determined
         initial_index = self.processor.init_list.index(initial) if initial in self.processor.init_list else -1
         final_index = self.processor.fin_list.index(final) if final in self.processor.fin_list else -1
+        # If no valid indexes are found, return False
+        # FUTURE: Add custom error messages for invalid initials and finals (most likely no dashes for
+        # multi-syllable Wade-Giles terms)
         if initial_index == -1 or final_index == -1:
             return False
+        # Returns value found in the NumPy array
         return bool(self.processor.ar[initial_index, final_index])
 
     def _validate_syllable(self) -> bool:
@@ -283,6 +300,7 @@ class Syllable:
         Returns:
             bool: True if the syllable is valid, otherwise False.
         """
+        # Syllable validation is performed by _validate_final, but is referenced here; "ø" supplied again for no initial
         if self.initial == '':
             return self._validate_final('ø', self.final)
         else:

@@ -197,7 +197,8 @@ def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: boo
         [2]
     """
     config, chunks = _setup_and_process(text, method, crumbs, error_skip, error_report)
-    # Return the length of each chunk if all syllables are valid, otherwise return 0
+    # Return the length of each chunk if all syllables are valid, otherwise return 0 (will change to error messages
+    # in later update)
     return [lengths if all(syllable.valid for syllable in chunk) else 0 for chunk in chunks for lengths in [len(chunk)]]
 
 

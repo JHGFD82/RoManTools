@@ -21,4 +21,5 @@ class RomanizationConverter:
             str: The converted text based on the selected romanization conversion mappings.
         """
         lowercased_text = text.lower()
+        # FUTURE: Add error handling for missing conversion mappings
         return self.conversion_dicts.get(lowercased_text, text + '(!)')

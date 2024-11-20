@@ -84,13 +84,20 @@ class Word:
         Returns:
             Tuple[str, Syllable]: A tuple containing the converted syllable and the original syllable
         """
-        if not self.processor.config.error_skip: # For standard conversion requests
+        # For standard conversion requests, process syllables with error messages.
+        if not self.processor.config.error_skip:
             self.processed_syllables = [(self.processor.converter.convert(syl.full_syllable), syl) for syl in self.syllables]
-        elif (self.valid or self.contraction) and self.preview_word not in self.processor.stopwords: # For cherry_pick
+        # Otherwise, process syllables without error messages, specifically for the cherry_pick action.
+        # Convert the syllables if all are valid, or are part of a contraction, and the whole word is not a stopword.
+        # The last syllable will fail conversion, but no error message will be produced and the self.contraction
+        # attribute will be used later to allow proper processing of contractions.
+        elif self.is_convertable():
             self.processed_syllables = [
                 (self.processor.converter.convert(syl.full_syllable), syl) if syl.valid else (syl.full_syllable, syl)
                 for syl in self.syllables
             ]
+        # If this is for cherry_pick and there are an invalid number of valid syllables, and the word is not a
+        # stopword, process syllables without conversion or error messages (allows English words to pass through).
         else:
             self.processed_syllables = [(syl.full_syllable, syl) for syl in self.syllables]
 
@@ -101,6 +108,8 @@ class Word:
         Returns:
             Tuple[str, Syllable]: A tuple containing the capitalized syllable and the original syllable
         """
+        # The apply_caps method within the Syllable object is called on each syllable to apply capitalization based on
+        # titlecase or uppercase attributes within each syllable.
         self.processed_syllables = [(syl[1].apply_caps(syl[0]), syl[1]) for syl in self.processed_syllables]
 
     def add_symbols(self):
@@ -112,6 +121,8 @@ class Word:
         """
         vowels = {'a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ'}
         if (self.valid or self.contraction) and self.preview_word not in self.processor.stopwords:
+        # Syllables have to be processed individually if conversion took place. Otherwise, they are combined in a
+        # different process.
             self.final_word = self.processed_syllables[0][0]
             for i in range(1, len(self.processed_syllables)):
                 self._append_syllable(i, vowels)
@@ -130,13 +141,17 @@ class Word:
         Returns:
             None
         """
+        # Specific rules for romanization are contained here.
         prev_syllable = self.processed_syllables[i - 1][0]
         curr_syllable = self.processed_syllables[i][0]
+        # For Pinyin, specific logic is applied to determine whether an apostrophe is needed between syllables.
         if self.processor.convert_to == 'py' and self.processed_syllables[i][1].valid:
             if self._needs_apostrophe(prev_syllable, curr_syllable, vowels):
                 self.final_word += "'" + curr_syllable
             else:
                 self.final_word += curr_syllable
+        # For Wade-Giles, dashes are used to separate syllables except if this happens to be a contraction
+        # as part of the cherry_pick action.
         elif self.processor.convert_to == 'wg':
             self.final_word += "'" + curr_syllable if self.contraction and i == len(
                 self.processed_syllables) - 1 else "-" + curr_syllable
@@ -169,6 +184,10 @@ class Word:
         Returns:
             bool: True if an apostrophe is needed, False otherwise
         """
+        # The logic for apostrophes in Pinyin is based on the following rules in which the start of the next syllable
+        # is a vowel:
+        # - If the last character of the previous syllable and the first character of the current syllable is a vowel
+        # - If the previous syllable ends with 'er', 'n', or 'ng'
         return (prev_syllable[-1] in vowels and curr_syllable[0] in vowels) or \
             (prev_syllable.endswith('er') and curr_syllable[0] in vowels) or \
             (prev_syllable[-1] == 'n' and curr_syllable[0] in vowels) or \
