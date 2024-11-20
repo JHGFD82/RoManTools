@@ -36,26 +36,6 @@ class TextChunkProcessor:
         self.chunks = []
         self._process_text()
 
-    def _split_word(self, word: str) -> List[str]:
-        """
-        Splits a word into smaller components based on the specified romanization method.
-
-        Args:
-            word (str): The word to be split.
-
-        Returns:
-            List[str]: A list of split components of the word.
-        """
-
-        if self.method == 'wg':
-            pattern = r"[a-zA-ZüÜ]+(?:['’ʼ`][a-zA-ZüÜ]+)*"
-        else:
-            pattern = r"[a-zA-ZüÜ]+|['’ʼ`\-–—][a-zA-ZüÜ]+"
-
-        split_words = re.findall(pattern, word)
-
-        return split_words if len(split_words) > 1 else [word]
-
     def _split_text_into_segments(self, text: str) -> List[str]:
         """
         Splits text into segments (words and non-text) based on the specified regex pattern.
@@ -75,6 +55,25 @@ class TextChunkProcessor:
             # **FUTURE: Add error messages for non-text elements
             pattern = r"[a-zA-ZüÜ]+(?:['’ʼ`\-–—][a-zA-ZüÜ]+)*"
         return re.findall(pattern, text)
+
+    def _split_word(self, word: str) -> List[str]:
+        """
+        Splits a word into smaller components based on the specified romanization method.
+
+        Args:
+            word (str): The word to be split.
+
+        Returns:
+            List[str]: A list of split components of the word.
+        """
+        if self.method == 'wg':
+            # Splits string with respect to Wade-Giles's use of apostrophes in syllable initials
+            pattern = r"[a-zA-ZüÜ]+(?:['’ʼ`][a-zA-ZüÜ]+)*"
+        else:
+            # Splits string
+            pattern = r"[a-zA-ZüÜ]+|['’ʼ`\-–—][a-zA-ZüÜ]+"
+        split_words = re.findall(pattern, word)
+        return split_words if len(split_words) > 1 else [word]
 
     def _process_text(self):
         """
