@@ -108,12 +108,13 @@ class Syllable:
         Returns:
             str: The text with the first character removed if it was an apostrophe or dash.
         """
+        first_char = self.text[0]
+        if first_char in apostrophes:
+            self.has_apostrophe = True
+        elif first_char in dashes:
+            self.has_dash = True
 
-        if self.text[0] in self.apostrophes or self.text[0] in self.dashes:
-            if self.text[0] in self.apostrophes:
-                self.has_apostrophe = True
-            elif self.text[0] in self.dashes:
-                self.has_dash = True
+        if first_char in apostrophes or first_char in dashes:
             self.text = self.text[1:]
 
     def _process_syllable(self):
@@ -163,9 +164,9 @@ class Syllable:
             if c in vowels:
                 if i == 0:  # If a vowel is found at the beginning of the syllable, return 'ø' to indicate no initial
                     return 'ø'
-                initial = text[:i]
-                if initial not in self.processor.init_list:
-                    return text[:i]
+                initial = text[:i]  # Otherwise, all text up to this point is the initial
+                if initial not in self.processor.init_list:  # Check if the initial is valid
+                    return text[:i]  # Return text up to this point if not valid
                 return initial
             elif self.processor.method == 'wg' and c in apostrophes:  # In cases of valid apostrophes in Wade-Giles
                 return text[:i] + "'"  # Ensure that the standard apostrophe is included in the initial
@@ -185,11 +186,11 @@ class Syllable:
         """
         if self.processor.method == 'py':
             for i, c in enumerate(text):
-                if c in vowel:
+                # Handle cases where the final starts with a vowel or consonant, otherwise return whatever remaining
+                # text is left
+                if c in vowels:
                     final = self._handle_vowel_case(text, i, initial)
-                    if final is None:
-                        pass
-                    else:
+                    if final is not None:
                         return final
                 else:
                     return self._handle_consonant_case(text, i, initial)
