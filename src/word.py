@@ -161,20 +161,6 @@ class Word:
             self.final_word += "'" + curr_syllable if self.contraction and i == len(
                 self.processed_syllables) - 1 else "-" + curr_syllable
 
-    def _append_all_syllables(self):
-        """
-        Appends all syllables to the final word without adding any symbols.
-
-        Returns:
-            None
-        """
-        for syl in self.processed_syllables:
-            if syl[1].has_apostrophe:
-                self.final_word += "'" + syl[0]
-            elif syl[1].has_dash:
-                self.final_word += "-" + syl[0]
-            else:
-                self.final_word += syl[0]
     @staticmethod
     def _needs_apostrophe(prev_syllable: str, curr_syllable: str) -> bool:
         """
@@ -196,6 +182,21 @@ class Word:
             (prev_syllable.endswith('er') and curr_syllable[0] in vowels) or \
             (prev_syllable[-1] == 'n' and curr_syllable[0] in vowels) or \
             (prev_syllable.endswith('ng') and curr_syllable[0] in vowels)
+
+    def _append_all_syllables(self):
+        """
+        Appends all syllables to the final word, adding any symbols if they were in the original text.
+
+        Returns:
+            None
+        """
+        for syl in self.processed_syllables:
+            if syl[1].has_apostrophe:
+                self.final_word += "'" + syl[0]
+            elif syl[1].has_dash:
+                self.final_word += "-" + syl[0]
+            else:
+                self.final_word += syl[0]
 
     def process_syllables(self) -> str:
         """
