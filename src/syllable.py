@@ -168,7 +168,8 @@ class Syllable:
                 if initial not in self.processor.init_list:  # Check if the initial is valid
                     return text[:i]  # Return text up to this point if not valid
                 return initial
-            elif self.processor.method == 'wg' and c in apostrophes:  # In cases of valid apostrophes in Wade-Giles
+            elif self.processor.method == 'wg' and c in apostrophes:  # In cases of valid apostrophes in
+                # Wade-Giles
                 return text[:i] + "'"  # Ensure that the standard apostrophe is included in the initial
 
         return text

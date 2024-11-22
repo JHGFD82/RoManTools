@@ -67,9 +67,11 @@ class TextChunkProcessor:
             List[str]: A list of split components of the word.
         """
         if self.method == 'wg':
+            # Splits string with respect to Wade-Giles's use of apostrophes in syllable initials and dashes for
+            # between syllables
             pattern = r"[a-zA-ZüÜ'’ʼ`]+|[\-–—][a-zA-ZüÜ'’ʼ`]+"
         else:
-            # Splits string
+            # Splits string with respect to Pinyin's use of apostrophes for multi-syllable words
             pattern = r"[a-zA-ZüÜ]+|['’ʼ`\-–—][a-zA-ZüÜ]+"
         split_words = re.findall(pattern, word)
         return split_words if len(split_words) > 1 else [word]
