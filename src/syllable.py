@@ -114,7 +114,7 @@ class Syllable:
         elif first_char in dashes:
             self.has_dash = True
 
-        if first_char in apostrophes or first_char in dashes:
+        if (first_char in apostrophes and self.processor.method != 'wg') or first_char in dashes:
             self.text = self.text[1:]
 
     def _process_syllable(self):
