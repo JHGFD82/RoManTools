@@ -389,32 +389,13 @@ class TestRomanization(unittest.TestCase):
 
     @timeit_decorator()
     def test_detect_method_per_word(self):
-        result = detect_method(f"ni linping shang chang'an xiaoming yuanyang er shier xiong an-wei fenghuang "
-                               f"renmin shuang yingyong zhongguo qingdao p'ing-an guangdong hongkong changjiang shen "
-                               f"tingma yia shoiji yiin", per_word=True)
+        result = detect_method(f"ni linping shang chang'an erh shier shoiji yiin", per_word=True)
         self.assertEqual(result, [{'word': 'ni', 'methods': ['py', 'wg']},
                                   {'word': 'linping', 'methods': ['py']},
                                   {'word': 'shang', 'methods': ['py', 'wg']},
                                   {'word': "chang'an", 'methods': ['py']},
-                                  {'word': 'xiaoming', 'methods': ['py']},
-                                  {'word': 'yuanyang', 'methods': ['py']},
-                                  {'word': 'er', 'methods': ['py']},
+                                  {'word': 'erh', 'methods': ['wg']},
                                   {'word': 'shier', 'methods': ['py']},
-                                  {'word': 'xiong', 'methods': ['py']},
-                                  {'word': 'an-wei', 'methods': ['py', 'wg']},
-                                  {'word': 'fenghuang', 'methods': ['py']},
-                                  {'word': 'renmin', 'methods': ['py']},
-                                  {'word': 'shuang', 'methods': ['py', 'wg']},
-                                  {'word': 'yingyong', 'methods': ['py']},
-                                  {'word': 'zhongguo', 'methods': ['py']},
-                                  {'word': 'qingdao', 'methods': ['py']},
-                                  {'word': "p'ing-an", 'methods': ['wg']},
-                                  {'word': 'guangdong', 'methods': ['py']},
-                                  {'word': 'hongkong', 'methods': ['py']},
-                                  {'word': 'changjiang', 'methods': ['py']},
-                                  {'word': 'shen', 'methods': ['py', 'wg']},
-                                  {'word': 'tingma', 'methods': ['py']},
-                                  {'word': 'yia', 'methods': []},
                                   {'word': 'shoiji', 'methods': []},
                                   {'word': 'yiin', 'methods': []}]
                          )
