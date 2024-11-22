@@ -67,8 +67,7 @@ class TextChunkProcessor:
             List[str]: A list of split components of the word.
         """
         if self.method == 'wg':
-            # Splits string with respect to Wade-Giles's use of apostrophes in syllable initials
-            pattern = r"[a-zA-ZüÜ]+(?:['’ʼ`][a-zA-ZüÜ]+)*"
+            pattern = r"[a-zA-ZüÜ'’ʼ`]+|[\-–—][a-zA-ZüÜ'’ʼ`]+"
         else:
             # Splits string
             pattern = r"[a-zA-ZüÜ]+|['’ʼ`\-–—][a-zA-ZüÜ]+"
