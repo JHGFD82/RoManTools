@@ -185,19 +185,49 @@ class Syllable:
             str: The final part of the syllable.
         """
         if self.processor.method == 'py':
-            for i, c in enumerate(text):
-                # Handle cases where the final starts with a vowel or consonant, otherwise return whatever remaining
-                # text is left
-                if c in vowels:
-                    final = self._handle_vowel_case(text, i, initial)
-                    if final is not None:
-                        return final
-                else:
-                    return self._handle_consonant_case(text, i, initial)
-            return text
+            return self._find_final_py(text, initial)
         elif self.processor.method == 'wg':
-            # FUTURE: expand on this to handle missing dashes (very likely)
-            return text
+            return self._find_final_wg(text)
+        return text
+
+    def _find_final_py(self, text: str, initial: str) -> str:
+        """
+        Handles the final part extraction for Pinyin method.
+
+        Args:
+            text (str): The syllable text to be processed.
+            initial (str): The initial part of the syllable used for validation.
+
+        Returns:
+            str: The final part of the syllable.
+        """
+        for i, c in enumerate(text):
+            # Handle cases where the final starts with a vowel or consonant, otherwise return whatever remaining
+            # text is left
+            if c in vowels:
+                final = self._handle_vowel_case(text, i, initial)
+                if final is not None:
+                    return final
+            else:
+                return self._handle_consonant_case(text, i, initial)
+        return text
+
+    @staticmethod
+    def _find_final_wg(text: str) -> str:
+        """
+        Handles the final part extraction for Wade-Giles method.
+
+        Args:
+            text (str): The syllable text to be processed.
+
+        Returns:
+            str: The final part of the syllable.
+        """
+        # FUTURE: expand on this to handle missing dashes (very likely)
+        for i, c in enumerate(text):
+            if c in apostrophes:
+                return text[:i]
+        return text
 
     def _handle_vowel_case(self, text: str, i: int, initial: str) -> str:
         """
