@@ -63,7 +63,7 @@ def _convert_action(args):
 
 
 def _cherry_pick_action(args):
-    return cherry_pick(args.text, args.convert_from, args.convert_to, args.crumbs, args.error_skip, args.error_report)
+    return cherry_pick(args.text, args.convert_from, args.convert_to, args.crumbs, True, args.error_report)
 
 
 def _syllable_count_action(args):
