@@ -70,9 +70,15 @@ class Word:
         Returns:
             bool: True if the word is a contraction, False otherwise
         """
-        return all(syl.valid for syl in self.syllables[:-1]) and \
-               (self.syllables[-1].has_apostrophe and self.syllables[-1].full_syllable in supported_contractions) \
-            and self.processor.config.error_skip == True
+        valid_syllables = all(syl.valid for syl in self.syllables[:-1])
+        last_apostrophe = self.syllables[-1].has_apostrophe
+        if self.processor.convert_from == 'wg':
+            possible_contraction = self.syllables[-1].full_syllable = self.syllables[-1].full_syllable.replace("'", "")
+            contraction = possible_contraction in supported_contractions
+        else:
+            contraction = self.syllables[-1].full_syllable in supported_contractions
+        error_skip = self.processor.config.error_skip
+        return all([valid_syllables, last_apostrophe, contraction, error_skip])
 
     def is_convertable(self) -> bool:
         """
