@@ -44,7 +44,7 @@ class Word:
         """
         word_parts = []
         for syl in self.syllables:
-            if syl.has_apostrophe:
+            if syl.has_apostrophe and self.processor.convert_from != 'wg':
                 word_parts.append("'" + syl.full_syllable)
             elif syl.has_dash:
                 word_parts.append("-" + syl.full_syllable)
