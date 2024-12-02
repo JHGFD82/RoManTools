@@ -18,201 +18,258 @@ This documentation details the process by which text is analyzed. Documentation 
 
 ### 1.1. Segment Generation
 
-Every tool ("action") contained within RoManTools involves Chunk Processing. A "chunk" is a block of text representing a single word that includes letters and may or may not include apostrophes or dashes depending on the romanization method specified by action parameters. RoManTools uses [Regular Expressions](https://regexr.com/) to create chunks from inputted text in two steps:
+Chunk processing is a foundational step in all RoManTools actions. A **chunk** represents a single word or block of text that may include letters, apostrophes, and dashes, depending on the romanization method specified by the action parameters.
 
-1. Splitting text into individual words ("chunks")
-2. Splitting words into syllables ("segments") if supported symbols are found (e.g., apostrophes and dashes for Pinyin, dashes for Wade-Giles)
+#### Key Steps
 
-Numbers, other symbols, and spaces are separated into their own blocks and are discarded, with the exception of actions that have the `error_skip` parameter marked as `True`. A "segment" may include multiple syllables if dashes or apostrophes are not supplied.
+1. **Text Splitting**:
+   * The input text is split into individual chunks using **Regular Expressions**.
+   * Words are further divided into **segments** based on supported symbols:
+     * Apostrophes and dashes (Pinyin).
+     * Dashes (Wade-Giles).
+2. **Symbol and Space Handling**:
+   * Numbers, symbols, and spaces are separated into their own chunks.
+   * These are discarded unless the `error_skip` parameter is set to `True`, in which case they are retained.
+3. **Segment Definition**:
+   * A **segment** can consist of one or more syllables. For example, if no apostrophes or dashes are present, multiple syllables may be grouped into a single segment.
 
-Please see [Input_Requirements.md](Input_Requirements.md) for details on what is required for inputted text per romanization method.
+#### Input Requirements
 
-### Example
+Details on input text requirements for each romanization method are provided in the [Input Requirements](Input_Requirements.md) documentation.
 
-Entered text:
+#### Examples
 
+**Entered Text**:
 `Huli gei ji bai nian.`
 
-Returned chunks with `error_skip` set to `False`:
+**Results with `error_skip=False`**:
 
-`[['hu', 'li'], ['gei'], ['ji'], ['bai'], ['nian']]`
+```python
+[['hu', 'li'], ['gei'], ['ji'], ['bai'], ['nian']]
+```
 
-Returned chunks with `error_skip` set to `True`:
+**Results with `error_skip=True`**:
 
-`[['hu', 'li'], ' ', ['gei'], ' ', ['ji'], ' ', ['bai'], ' ', ['nian'], '.']`
+```python
+[['hu', 'li'], ' ', ['gei'], ' ', ['ji'], ' ', ['bai'], ' ', ['nian'], '.']
+```
+
+By processing text into structured chunks, RoManTools enables precise analysis and manipulation for various romanization methods and text transformations.
 
 ---
 
 ### 1.2. Syllable Processing
 
-Each segment is converted into one or more Syllable objects. A Syllable object contains parameters that store details on each syllable's structure. Conditionals that determine whether the text was inputted with capital letters or whether it was preceeded by an apostrophe or dash are detected first. This is then followed immediately with steps to analyze the text to extract a potential syllable's initial and final. Analyzation involves iterating over each letter individually.
+The syllable processing step converts each segment into one or more **Syllable** objects, representing detailed structural information for each syllable. The processing includes:
 
-#### Initials
+1. **Initial Detection**:
+   The initial part of the syllable, often a consonant (`n` in `ni`), is identified first. If no initial exists, it is represented as `ø` (e.g., `ø` for `An`). The processor appends consonants to the initial until a vowel is detected, ensuring special cases like `ss` in Wade-Giles are handled correctly.
+2. **Final Detection**:
+   The processor analyzes the remaining characters to identify the syllable's final. This typically consists of one or more vowels (`i` in `ni` or `ao` in `hao`), but may include consonants under specific rules. For example:
 
-The initial is detected first. An initial of a romanized Mandarin syllable can either be a consonant (`n` for `ni`) or nothing, symbolized by the `ø` symbol (`ø` for `An`). In the Syllable Processor, one or more consonants are added to the initial as they appear first, allowing for special cases such as `ss` in Wade-Giles to be detected correctly. The process stops when a vowel appears next.
+   * **Pinyin & Wade-Giles**: Final consonants like `n` (`chan`) or `ng` (`chang`).
+   * **Pinyin**: `r` following `e` (e.g., `sheer`).
+   * **Wade-Giles**: `rh` following `e` (`sheerh`) or `h` following `i` (`Chih`).
 
-#### Finals
+   The logic ensures that valid consonant-vowel pairs are included in the final, while any remaining vowels start the next syllable.
+3. **Validation**:
+   After constructing a Syllable object, its initial-final combination is validated against a predefined list of acceptable patterns. Invalid syllables are flagged for correction or feedback.
 
-The Syllable Processor then iterates over vowels and consonants to determine the syllable's final. A final is typically one or more vowels (`i` for `ni`, `ao` for `hao`), however a consonant may be included in the final in certain situations such as:
+**Example:**
 
-Pinyin & Wade-Giles:
+```python
+# Input
+segment = "zhongguo"
+# Output
+syllables = ["zhong", "guo"]
+```
 
-- `n` (`chan`)
-- `ng` (`chang`)
-
-Pinyin:
-
-- `r` when preceeded by `e` (e.g., `sheer`)
-
-Wade-Giles:
-
-- `rh` when preceeded by `e` (e.g., `sheerh`)
-- `h` when preceeded by `i` (e.g., `Chih`)
-
-Internal logic dictates whether a consonant appears in the final by looking ahead to see if another vowel follows the consonants. If this is true, and the preceeding vowel and consonant combination is a valid final, then the next syllable's vowel becomes the start of the next syllable. Otherwise, the current consonant being analyzed becomes the next syllable's initial.
-
-#### Examples:
-
-- `changan` -> `[chang, an]`
-- `zhongguo` -> `[zhong, guo]`
-
-The resulting syllable is then given a final validation check. This is performed by referencing an array of valid initial-final combinations.
-
-Completed Syllable objects are then returned to the Chunk Generator individually, with each syllable for a word compiled into a chunk.
+Each validated Syllable object is returned to the Chunk Processor, grouped within a chunk for further processing.
 
 ---
 
 ### 1.3. Conversion (Word Processing)
 
-For actions that involve converting text between romanization standards, chunks are returned back to the action, which are then used to initialize the Word Processor. Word objects are a collection of Syllable objects and other details that determine its validity as a whole.
+Text conversion actions use the chunks from the **Chunk Generator** to initialize the **Word Processor**, which aggregates **Syllable** objects and evaluates the validity of entire words. The conversion process involves the following steps:
 
-The first process involves creating a "preview word," which is an assembly of the syllables in lowercase letters with all apostrophes and dashes in original placement, to be used in later evaluation.
+1. **Preview Word Creation**:
+   A "preview word" is assembled by combining syllables into lowercase text with original apostrophes and dashes retained. This serves as a basis for validation and further processing.
+2. **Validation**:
 
-Steps are then taken to analyze the word's validity, first by checking whether all syllables are valid, and second by checking if the word is a contraction, where all syllables are valid except for the last. For actions such as Cherry Pick, contractions are allowed to be converted since the only invalid text in the word appears after the apostrophe within the last Syllable object. `s`, `d`, and `ll` are considered supported contractions by RoManTools, with all other contractions marked as invalid.
+   * Each syllable in the word is checked for validity.
+   * Contractions, where only the final syllable is invalid (e.g., `'s`, `'d`, `'ll`), are permitted under specific actions like `Cherry Pick`.
+3. **Stopword Check**:
+   The word is compared against a stopword list to ensure that it does not represent a term that should not be converted (e.g., `China`, `Beijing`). This list combines English stopwords, Mandarin romanization exceptions, and manually reviewed entries.
+4. **Syllable Conversion**:
+   Each syllable is converted according to the target romanization method. Errors in conversion are flagged with `(!)` to indicate invalid input.
+5. **Final Assembly**:
 
-#### Stopwords
+   * Capitalization is restored if present in the original input.
+   * Apostrophes and dashes are inserted based on the target romanization method's rules:
+     * **Pinyin**: Apostrophes separate consecutive vowels (`ti'an`).
+     * **Wade-Giles**: Dashes connect all syllables (`Chih-p'ing`).
 
-One final check is performed which compares the preview word to a list of stopwords to ensure that the word is able to be converted. The stopword list was generated by a separate process, as detailed in the Jupyter Notebook for this project's protogenesis, the [Chinese Syllable Count Generator](https://github.com/JHGFD82/ChineseSyllableCountGeneratorDraftNotes/blob/master/Chinese%20Syllable%20Count%20Generator.ipynb), combining the NLTK library for a list of English words that could be considered valid romanized Mandarin accidentally, and the Wiktionary API which added words with Mandarin, Cantonese, Chinese, Pinyin, or Wade-Giles etymologies. These latter terms were necessary due to colloquial usage of terms that should not be converted under any circumstances (e.g., `China`, `Beijing`). Other words were manually added upon further testing and determined to be exceedingly rare by various Chinese language experts at Princeton University (e.g., `route`, `we've`, `we're`).
+   The processed word is then combined into a final string, either preserving original spacing and symbols (`error_skip=True`) or standardizing formatting.
 
-Conversion of syllables is then performed, skipping over contractions, and returning the converted text back to each syllable. In case of conversion errors, `(!)` is returned next to the invalid syllable's text result, to be replaced later by more meaningful feedback on what the specific error might be in the supplied text.
+#### Examples
 
-Syllables are capitalized if they were inputted with capital letters. Dashes and apostrophes are also returned to the text if they were included and are not part of the romanization process (e.g., `second-class`, `Shutan's`). The following logic is then applied for multi-syllable words based on the target romanization method:
+**Pinyin to Wade-Giles**:
 
-#### Pinyin:
+```python
+# Input
+text = "Yanjing li rong bu xia sharen."
+# Output
+"Yen-ching li jung pu hsia sha-jen"
+```
 
-- Apostrophes added when a vowel ends one syllable and begins the following syllable (`[ti, an]` -> `ti'an`)
-- Apostrophes added when `er`, `n`, or `ng` are followed by a vowel (`['chang', 'an']` -> `chang'an`)
+**Wade-Giles to Pinyin:**
 
-#### Wade-Giles:
-
-- Dashes added for all multi-Syllable-object words, with the exception of contractions (`['Chih', "p'ing", "'s"]` -> `Chih-p'ing's`)
-
-The concatenated word is then sent back to the action, which combines it into either a final string with spaces separating each converted term, or with all original symbols and spacing for any action with the `error_skip` parameter set to `True`.
+```python
+# Input
+text = "Chih-p'ing's specialty is in Chinese language."
+# Output
+"Zhiping's specialty is in Chinese language."
+```
 
 ## 2. Actions
 
-Each action receives chunks from the Chunk Generator and treats the resulting groups of Syllable objects in different ways, all of which are narrativized below.
+The **Actions** in RoManTools utilize the chunks generated during **Chunk Processing** to perform various text analyses and transformations. Each action processes groups of **Syllable** objects differently, depending on its specific functionality. Below are descriptions and examples for each available action.
 
 ### 2.1. Segment Text
 
-Inputted text is returned from the Chunk Generator as a list comprised of lists of words. Each embedded list contains each syllable for multi-syllable words. In cases where the `error_skip` parameter is set to `True`, spaces and symbols are returned as ungrouped strings in the list.
+Splits the input text into a structured list of words and their syllables. Each embedded list represents a word, containing its syllables. If `error_skip=True`, spaces and symbols are also included as separate items.
 
-### Example
+#### Examples
 
-Entered text:
-
+**Input**:
 `Huli gei ji bai nian.`
 
-Default result:
+**Default Output**:
 
-`[['hu', 'li'], ['gei'], ['ji'], ['bai'], ['nian']]`
+```python
+[['hu', 'li'], ['gei'], ['ji'], ['bai'], ['nian']]
+```
 
-Result with `error_skip` set to `True`:
+**Output with `error_skip=True`**:
 
-`[['hu', 'li'], ' ', ['gei'], ' ', ['ji'], ' ', ['bai'], ' ', ['nian'], '.']`
+```python
+[['hu', 'li'], ' ', ['gei'], ' ', ['ji'], ' ', ['bai'], ' ', ['nian'], '.']
+```
 
 ---
 
 ### 2.2. Validator
 
-A simple boolean is returned if all inputted text is marked as valid. The `per_word` parameter will return a detailed list of inputted words separated and each syllable's validity included.
+Checks the validity of the input text according to romanization rules. By default, it returns `True` or `False` for the entire text. With `per_word=True`, a detailed breakdown of each word and syllable’s validity is provided.
 
-#### Example
+#### Examples
 
-Entered text:
-
+**Input**:
 `Huli gei ji bai nion.`
 
-Default result:
+**Default Output**:
 
-`False`
+```python
+False
+```
 
-Result with `per_word` set to `True`:
+**Output with `per_word=True`**:
 
-`[{'word': 'huli', 'syllables': ['hu', 'li'], 'valid': [True, True]}, {'word': 'gei', 'syllables': ['gei'], 'valid': [True]}, {'word': 'ji', 'syllables': ['ji'], 'valid': [True]}, {'word': 'bai', 'syllables': ['bai'], 'valid': [True]}, {'word': 'nion', 'syllables': ['ni', 'on'], 'valid': [True, False]}]`
+```python
+[
+    {'word': 'huli', 'syllables': ['hu', 'li'], 'valid': [True, True]},
+    {'word': 'gei', 'syllables': ['gei'], 'valid': [True]},
+    {'word': 'ji', 'syllables': ['ji'], 'valid': [True]},
+    {'word': 'bai', 'syllables': ['bai'], 'valid': [True]},
+    {'word': 'nion', 'syllables': ['ni', 'on'], 'valid': [True, False]}
+]
+```
 
 ---
 
 ### 2.3. Detect Method
 
-The list of chunks is validated through each romanization method, returning only those that are valid for all inputted syllables. In the case of the `per_word` parameter marked as `True`, a detailed list of inputted words will be returned with each valid romanization method supplied.
+Identifies which romanization methods (e.g., Pinyin, Wade-Giles) are valid for the input text. By default, it returns a list of valid methods for the entire input. With `per_word=True`, it provides detailed results for each word.
 
-#### Example
+#### Examples
 
-Entered text:
-
+**Input**:
 `Yanjing li rong bu xia sharen`
 
-Default result:
+**Default Output**:
 
-`['py']`
+```python
+['py']
+```
 
-Result with `per_word` set to `True`:
+**Output with `per_word=True`**:
 
-`[{'word': 'Yanjing', 'methods': ['py']}, {'word': 'li', 'methods': ['py', 'wg']}, {'word': 'rong', 'methods': ['py']}, {'word': 'bu', 'methods': ['py']}, {'word': 'xia', 'methods': ['py']}, {'word': 'sharen', 'methods': ['py']}]`
+```python
+[
+    {'word': 'Yanjing', 'methods': ['py']},
+    {'word': 'li', 'methods': ['py', 'wg']},
+    {'word': 'rong', 'methods': ['py']},
+    {'word': 'bu', 'methods': ['py']},
+    {'word': 'xia', 'methods': ['py']},
+    {'word': 'sharen', 'methods': ['py']}
+]
+```
 
 ---
 
 ### 2.4. Syllable Count
 
-A list of syllables is returned for each valid word supplied in the inputted string. If the word contains any invalid syllables, the result is `[0]`.
+Counts the number of syllables in each valid word. If a word contains any invalid syllables, it returns `[0]` for that word.
 
 #### Example
 
+**Input**:
 `Yanjing li rong bu xia sharen`
 
-Result:
+**Output**:
 
-`[2, 1, 1, 1, 1, 2]`
+```python
+[2, 1, 1, 1, 1, 2]
+```
 
 ---
 
 ### 2.5. Convert
 
-Chunks are passed into Word Processing (see section 1.3.), which is then returned as a string with spaces in between each inputted term. If the `error_skip` parameter is set to `True`, any supplied spaces and symbols are returned. Note: setting the `error_skip` parameter returns the original spaces in between the spaces that are added between each word, hence the prevalence of triple-spacing between words if only a space existed between two words.
+Converts the input text between romanization standards. The resulting text is returned as a string, with spaces separating converted words. If `error_skip=True`, the original spaces and symbols are preserved.
 
-#### Pinyin to Wade-Giles Example
+#### Examples
 
+**Pinyin to Wade-Giles**:
+**Input**:
 `Yanjing li rong bu xia sharen.`
 
-Default result:
+**Default Output**:
 
-`Yen-ching li jung pu hsia sha-jen`
+```python
+"Yen-ching li jung pu hsia sha-jen"
+```
 
-Result with `error_skip` set to `True`:
+**Output with `error_skip=True`**:
 
-`Yen-ching   li   rong   bu   hsia   sha-jen .`
+```python
+"Yen-ching   li   rong   bu   hsia   sha-jen ."
+```
 
 ---
 
 ### 2.6. Cherry Pick
 
-Chunks are passed into Word Processing (see section 1.3.), which is then returned as a string. Any words that are detected as valid romanized Mandarin, either by themselves or as supported contractions (ending in `'s`, `'d`, or `'ll`), will be returned in their converted form. Words that are invalid are returned unaltered, and all symbols and spacing are returned. Note: The Cherry Pick action always runs with the `error_skip` parameter set to `True`.
+Selectively converts valid romanized Mandarin words while leaving invalid words unchanged. Symbols and spacing are always preserved, as this action runs with `error_skip=True` by default.
 
-#### Wade-Giles to Pinyin Example
+#### Example
 
+**Wade-Giles to Pinyin**:
+**Input**:
 `This is the biography of Chih-p'ing Chou. Chih-p'ing's specialty was in Chinese language.`
 
-Result:
+**Output:**
 
-`This is the biography of Zhiping Zhou. Zhiping's specialty was in Chinese language.`
+```python
+"This is the biography of Zhiping Zhou. Zhiping's specialty was in Chinese language."
+```
