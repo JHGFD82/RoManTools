@@ -224,7 +224,7 @@ class Syllable:
         Returns:
             str: The final part of the syllable.
         """
-        # FUTURE: expand on this to handle missing dashes (very likely)
+        # FUTURE: expand on this to handle missing dashes (very likely), involves linking to _handle_consonant_case.
         for i, c in enumerate(text):
             if c in apostrophes:
                 return text[:i]
@@ -275,6 +275,7 @@ class Syllable:
         if text[i - 1:i + 1] == 'er':
             if remainder == 0 or (self.processor.method != 'wg' and text[i + 1] not in vowels):
                 return text[:i + 1]
+            # FUTURE: adjust logic below for Wade-Giles (currently unused)
             elif self.processor.method == 'wg':
                 if remainder > 0 and text[i + 1] == 'h':
                     return text[:i + 2]
