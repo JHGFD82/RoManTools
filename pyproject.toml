@@ -24,7 +24,7 @@ urls = { "Homepage" = "https://github.com/JHGFD82/RoManTools", "Documentation" =
 dependencies = [ "numpy>=1.19.2" ]
 
 [project.scripts]
-romantools = "main:main"
+romantools = "RoManTools.main:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
