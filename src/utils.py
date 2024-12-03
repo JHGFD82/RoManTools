@@ -1,5 +1,6 @@
 from typing import Dict, Union, List, Tuple, Set
 from config import Config
+from chunker import TextChunkProcessor
 from syllable import Syllable
 from word import WordProcessor
 from data_loader import load_method_params, load_stopwords
