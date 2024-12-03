@@ -382,10 +382,10 @@ class TestRomanization(unittest.TestCase):
         self.assertIn('py', result, f"'py' not found in text: {random_text}")
 
     @timeit_decorator(repeats=1000)
-    def test_detect_method_wg(self, repeat_num=None):
+    def test_detect_method_wg(self):
         random_text = generate_random_text_from_list('wg', 3)
         result = detect_method(random_text)
-        self.assertIn('wg', result, f"Test {repeat_num}: 'wg' not found in text: {random_text}")
+        self.assertIn('wg', result, f"'wg' not found in text: {random_text}")
 
     @timeit_decorator()
     def test_detect_method_per_word(self):
