@@ -1,8 +1,8 @@
 from typing import List, Set, Tuple
-from .config import Config
-from .syllable import Syllable
-from .constants import vowels, supported_contractions
-from .conversion import RomanizationConverter
+from config import Config
+from syllable import Syllable
+from constants import vowels, supported_contractions
+from conversion import RomanizationConverter
 
 class WordProcessor:
     def __init__(self, config: Config, convert_from: str, convert_to: str, stopwords: Set[str]):
