@@ -11,19 +11,16 @@ setup(
     package_dir={"": "src"},
     entry_points={
         'console_scripts': [
-            'romantools=main:main'
+            'romantools=src.main:main'
         ],
     },
-    install_requires=[
-        "numpy>=1.19.2"
-    ],
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-        "Operating System :: OS Independent",
-        "Intended Audience :: Education",
-        "Intended Audience :: Science/Research",
-        "Topic :: Text Processing :: Linguistic"
-    ],
+    # classifiers=[
+    #     "Programming Language :: Python :: 3",
+    #     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    #     "Operating System :: OS Independent",
+    #     "Intended Audience :: Education",
+    #     "Intended Audience :: Science/Research",
+    #     "Topic :: Text Processing :: Linguistic"
+    # ],
     python_requires=">=3.6"
 )

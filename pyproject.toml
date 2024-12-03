@@ -12,19 +12,20 @@ license = {text = "GPL-3.0 license"}
 authors = [
     { name = "Jeff Heller", email = "jsheller@princeton.edu" }
 ]
-
+classifiers=[
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Topic :: Text Processing :: Linguistic"
+]
 urls = { "Homepage" = "https://github.com/JHGFD82/RoManTools", "Documentation" = "https://github.com/JHGFD82/RoManTools/docs", "Source" = "https://github.com/JHGFD82/RoManTools", "Tracker" = "https://github.com/JHGFD82/RoManTools/issues" }
+dependencies = [ "numpy>=1.19.2" ]
 
-dependencies = [
-    "numpy>=1.19.2"
-]
-
-[tool.setuptools.entry-points]
-console_scripts = [
-    "romantools = main:main",
-]
+[project.scripts]
+romantools = "main:main"
 
 [tool.setuptools.packages.find]
-
-[project.entry-points."console_scripts"]
-romantools = "main:main"
+where = ["src"]
+include = ["tests"]
