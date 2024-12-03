@@ -1,5 +1,5 @@
-from config import Config
-from syllable import SyllableProcessor, Syllable
+from .config import Config
+from .syllable import SyllableProcessor, Syllable
 from typing import List
 import numpy as np
 import re

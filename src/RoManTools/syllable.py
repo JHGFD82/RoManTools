@@ -1,5 +1,5 @@
-from config import Config
-from constants import vowels, apostrophes, dashes
+from .config import Config
+from .constants import vowels, apostrophes, dashes
 from typing import Tuple, List
 import numpy as np
 # from functools import lru_cache

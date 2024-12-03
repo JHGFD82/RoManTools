@@ -1,5 +1,5 @@
 from functools import lru_cache
-from data_loader import load_conversion_data
+from .data_loader import load_conversion_data
 
 
 class RomanizationConverter:

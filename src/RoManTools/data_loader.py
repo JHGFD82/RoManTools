@@ -1,4 +1,4 @@
-from config import Config
+from .config import Config
 from typing import Tuple, List, Dict, Union
 import numpy as np
 import os, csv
