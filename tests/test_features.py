@@ -197,8 +197,8 @@ class TestRomanization(unittest.TestCase):
 
     @timeit_decorator()
     def test_convert_text_wg_py(self):
-        result = convert_text('ni hao ch\'ang-an yüan', convert_from='wg', convert_to='py')
-        self.assertEqual(result, "ni hao chang'an yuan")
+        result = convert_text('ni hao ch\'ang-an yüan ti-an', convert_from='wg', convert_to='py')
+        self.assertEqual(result, "ni hao chang'an yuan di'an")
 
     @timeit_decorator()
     def test_convert_text_titlecase(self):
