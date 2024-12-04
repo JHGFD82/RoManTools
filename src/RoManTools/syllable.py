@@ -1,3 +1,19 @@
+"""
+Syllable processing for romanized Mandarin text.
+
+This module provides classes and methods for processing and validating syllables in romanized
+Mandarin text. It includes functionality for:
+- Initializing syllable processing with configuration settings.
+- Creating and validating syllables.
+- Handling different romanization methods (Pinyin and Wade-Giles).
+
+Classes:
+    SyllableProcessor: Handles the loading of configuration settings and initializes data required
+                       for processing syllables.
+    Syllable: Represents a syllable and its components (initial, final) in the context of a
+              romanization method.
+"""
+
 from .config import Config
 from .constants import vowels, apostrophes, dashes
 from typing import Tuple, List
@@ -7,7 +23,8 @@ import numpy as np
 
 class SyllableProcessor:
     """
-    Handles the loading of configuration settings and initializes data required for processing syllables.
+    Handles the loading of configuration settings and initializes data required for processing
+    syllables.
     """
 
     def __init__(self, config: Config, ar: np.ndarray, init_list: List[str], fin_list: List[str], method: str):

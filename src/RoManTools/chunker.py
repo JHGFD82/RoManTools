@@ -1,3 +1,18 @@
+"""
+Text chunking for romanized Mandarin text.
+
+This module provides the `TextChunkProcessor` class, which is used to process text into chunks
+based on the specified romanization method (e.g., Pinyin, Wade-Giles). It includes functionality
+for:
+- Splitting text into segments (words and non-text).
+- Processing each segment into syllables or leaving it as is.
+- Handling different romanization methods.
+
+Classes:
+    TextChunkProcessor: Processes text into chunks for further processing based on the specified
+                        romanization method.
+"""
+
 from .config import Config
 from .syllable import SyllableProcessor, Syllable
 from typing import List

@@ -1,3 +1,22 @@
+"""
+This module serves as the main entry point for the RoManTools package, providing command-line
+interface (CLI) functionality for various romanized Mandarin text processing actions.
+
+Functions:
+    main(): The main entry point for the script. Sets up command-line argument parsing and calls
+            the appropriate function based on the provided arguments.
+
+Usage Example:
+    $ romantools segment -i "Zhongguo ti'an tianqi" -m py
+    [['zhong', 'guo'], ['ti', 'an'], ['tian', 'qi']]
+
+Author:
+    Jeff Heller <jsheller@princeton.edu>
+
+Version:
+    1.0.0
+"""
+
 import argparse
 from .utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
 

@@ -1,11 +1,44 @@
 from typing import List, Set, Tuple
+"""
+Word processing for romanized Mandarin text.
+
+This module provides the `WordProcessor` and `Word` classes, which are used to process words and their syllables
+based on the specified romanization method (e.g., Pinyin, Wade-Giles). It includes functionality for:
+- Creating words from syllables.
+- Validating and converting syllables.
+- Handling contractions and stopwords.
+
+Classes:
+    WordProcessor: Processes words and their syllables based on the specified romanization method.
+    Word: Represents a word and its syllables, providing methods for validation and conversion.
+"""
 from .config import Config
 from .syllable import Syllable
 from .constants import vowels, supported_contractions
 from .conversion import RomanizationConverter
 
+
 class WordProcessor:
+    """
+    Processes words and their syllables based on the specified romanization method.
+
+    Attributes:
+        config (Config): Configuration object that manages processing options like crumbs, error skipping, and error reporting.
+        convert_from (str): The romanization method to convert from (e.g., 'py' for Pinyin).
+        convert_to (str): The romanization method to convert to (e.g., 'wg' for Wade-Giles).
+        stopwords (Set[str]): A set of stopwords to be excluded from processing.
+        converter (RomanizationConverter): The converter object used for romanization conversion.
+    """
     def __init__(self, config: Config, convert_from: str, convert_to: str, stopwords: Set[str]):
+        """
+        Initializes the WordProcessor with the provided configuration and romanization method parameters.
+
+        Args:
+            config (Config): Configuration object that manages processing options like crumbs, error skipping, and error reporting.
+            convert_from (str): The romanization method to convert from (e.g., 'py' for Pinyin).
+            convert_to (str): The romanization method to convert to (e.g., 'wg' for Wade-Giles).
+            stopwords (Set[str]): A set of stopwords to be excluded from processing.
+        """
         self.config = config
         self.convert_from = convert_from
         self.convert_to = convert_to
@@ -23,8 +56,28 @@ class WordProcessor:
         """
         return Word(syllables, self)
 
+
 class Word:
+    """
+    Represents a word and its syllables, providing methods for validation and conversion.
+
+    Attributes:
+        syllables (List[Syllable]): A list of syllables that make up the word.
+        processor (WordProcessor): The processor object used to handle syllable validation and conversion.
+        processed_syllables (List[Tuple[str, Syllable]]): A list of tuples containing the converted syllable and the original syllable.
+        preview_word (str): A preview of the word used to determine if it is a stopword.
+        final_word (str): The final processed word.
+        valid (bool): Indicates if all syllables in the word are valid.
+        contraction (bool): Indicates if the word is a contraction.
+    """
     def __init__(self, syllables: List[Syllable], processor: WordProcessor):
+        """
+        Initializes a Word object with the provided syllables and processor.
+
+        Args:
+            syllables (List[Syllable]): A list of syllables that make up the word.
+            processor (WordProcessor): The processor object used to handle syllable validation and conversion.
+        """
         self.syllables = syllables
         self.processor = processor
         self.processed_syllables = []

@@ -1,3 +1,55 @@
+"""
+Utilities for handling romanized Mandarin validation and conversion.
+
+This module provides helper functions and methods used across the RoManTools package. It includes functionality for:
+- Detecting romanization patterns.
+- Validating input text.
+- Segmenting text into syllables.
+- Converting text between different romanization standards.
+- Counting syllables in text.
+
+Functions:
+    segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False)
+                 -> List[Union[List[Syllable], Syllable]]:
+        Segments the given text into syllables based on the selected method.
+    convert_text(text: str, convert_from: str, convert_to: str, crumbs: bool = False, error_skip: bool = False,
+                 error_report: bool = False) -> str:
+        Converts the given text from one romanization standard to another.
+    cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = False, error_skip: bool = True,
+                error_report: bool = False) -> str:
+        Converts the given text from one romanization standard to another if detected as a valid romanized Mandarin word.
+    syllable_count(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False)
+                   -> list[int]:
+        Returns the count of syllables for each word in the processed text.
+    detect_method(text: str, per_word: bool = False, crumbs: bool = False, error_skip: bool = False,
+                  error_report: bool = False) -> Union[List[str], List[Dict[str, List[str]]]]:
+        Detects the romanization method of the given text or individual words.
+    validator(text: str, method: str, per_word: bool = False, crumbs: bool = False, error_skip: bool = False,
+              error_report: bool = False) -> Union[bool, list[dict]]:
+        Validates the processed text or individual words based on the selected method.
+
+Usage Example:
+    >>> from RoManTools import segment_text, convert_text, cherry_pick, syllable_count, detect_method, validator
+    >>> segment_text("Zhongguo ti'an tianqi", method="py")
+    [['zhong', 'guo'], ['ti', 'an'], ['tian', 'qi']]
+    >>> convert_text("Zhongguo", convert_from="py", convert_to="wg")
+    'Chung-kuo'
+    >>> cherry_pick("This is Zhongguo.", convert_from="py", convert_to="wg")
+    'This is Chung-kuo.'
+    >>> syllable_count("Zhongguo", method="py")
+    [2]
+    >>> detect_method("Zhongguo")
+    ['py']
+    >>> validator("Zhongguo", method="py")
+    True
+
+Author:
+    Jeff Heller <jsheller@princeton.edu>
+
+Version:
+    1.0.0
+"""
+
 from typing import Dict, Union, List, Tuple, Set
 from .config import Config
 from .chunker import TextChunkProcessor

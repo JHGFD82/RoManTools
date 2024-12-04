@@ -1,5 +1,33 @@
 from .config import Config
 from typing import Tuple, List, Dict, Union
+"""
+Data loading utilities for romanized Mandarin text processing.
+
+This module provides functions to load various data required for processing romanized Mandarin text,
+including:
+- Romanization data (initials, finals, and valid combinations).
+- Conversion mappings between different romanization methods.
+- Method parameters for specific romanization methods.
+- Stopwords list.
+- Syllable list.
+
+Functions:
+    load_romanization_data(file_path: str) -> Tuple[List[str], List[str], np.ndarray]:
+        Loads romanization data from a CSV file and returns initials, finals, and a 2D array indicating valid combinations.
+
+    load_conversion_data(method_combination: str) -> Dict[str, str]:
+        Loads the conversion mappings based on the specified method combination.
+
+    load_method_params(method: str, config: Config) -> Dict[str, Union[List[str], np.ndarray]]:
+        Loads romanization method parameters including initials, finals, and the valid combinations array.
+
+    load_stopwords() -> List[str]:
+        Loads a list of stopwords from a text file.
+
+    load_syllable_list(method: str) -> List[str]:
+        Loads a list of syllables from a CSV file for the specified romanization method.
+"""
+
 import numpy as np
 import os, csv
 
