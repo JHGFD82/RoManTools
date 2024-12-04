@@ -81,7 +81,7 @@ class Word:
         """
         self.syllables = syllables
         self.processor = processor
-        self.processed_syllables = []
+        self.processed_syllables = []  # Will contain tuples with the converted syllable and the original syllable
         self.preview_word = self._create_preview_word()
         self.final_word = ""
         self.valid = self.all_valid()
