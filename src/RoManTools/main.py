@@ -117,8 +117,6 @@ def main():
     parser.add_argument('action', choices=[
         'convert',
         'cherry_pick',
-        'tone_mark',
-        'pronunciation',
         'segment',
         'syllable_count',
         'detect_method',
