@@ -106,7 +106,7 @@ def _setup_and_process(text: str, method: str, crumbs: bool = False, error_skip:
     return config, chunks
 
 
-## Segmentation actions
+# Segmentation actions
 @lru_cache(maxsize=1000000)
 def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False) \
         -> List[Union[List[Syllable], Syllable]]:
@@ -140,7 +140,7 @@ def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool 
     return segmented_result
 
 
-## Conversion actions
+# Conversion actions
 def _conversion_processing(text: str, convert_from: str, convert_to: str, config: Config, stopwords: Set[str],
                            error_skip: bool, include_spaces: bool) -> str:
     """
