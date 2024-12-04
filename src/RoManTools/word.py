@@ -147,9 +147,6 @@ class Word:
         """
         Converts the syllables of the word, returning error messages for invalid syllables if error_skip is False.
         Otherwise, errors are ignored.
-
-        Returns:
-            Tuple[str, Syllable]: A tuple containing the converted syllable and the original syllable
         """
         # For standard conversion requests, process syllables with error messages.
         if not self.processor.config.error_skip:
@@ -171,9 +168,6 @@ class Word:
     def apply_caps(self):
         """
         Applies capitalization to the converted syllables.
-
-        Returns:
-            Tuple[str, Syllable]: A tuple containing the capitalized syllable and the original syllable
         """
         # The apply_caps method within the Syllable object is called on each syllable to apply capitalization based on
         # titlecase or uppercase attributes within each syllable.
