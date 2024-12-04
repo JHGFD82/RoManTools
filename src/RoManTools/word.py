@@ -1,4 +1,3 @@
-from typing import List, Set, Tuple
 """
 Word processing for romanized Mandarin text.
 
@@ -12,6 +11,8 @@ Classes:
     WordProcessor: Processes words and their syllables based on the specified romanization method.
     Word: Represents a word and its syllables, providing methods for validation and conversion.
 """
+
+from typing import List, Set
 from .config import Config
 from .syllable import Syllable
 from .constants import vowels, supported_contractions

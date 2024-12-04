@@ -1,5 +1,3 @@
-from .config import Config
-from typing import Tuple, List, Dict, Union
 """
 Data loading utilities for romanized Mandarin text processing.
 
@@ -28,8 +26,12 @@ Functions:
         Loads a list of syllables from a CSV file for the specified romanization method.
 """
 
+import os
+import csv
 import numpy as np
-import os, csv
+from typing import Tuple, List, Dict, Union
+from .config import Config
+
 
 base_path = os.path.dirname(__file__)
 
