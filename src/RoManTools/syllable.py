@@ -247,7 +247,7 @@ class Syllable:
                 return text[:i]
         return text
 
-    def _handle_vowel_case(self, text: str, i: int, initial: str) -> str:
+    def _handle_vowel_case(self, text: str, i: int, initial: str) -> Optional[str]:
         """
         Handles cases where the final starts with a vowel.
 
@@ -271,9 +271,10 @@ class Syllable:
         # If no valid finals are found, return the text up to the vowel
         if not test_finals:
             if i == 0:
-                pass
-            else:
-                return text[:i]
+                return None
+            up_to_vowel = text[:i]
+            return up_to_vowel
+        return None
 
     def _handle_consonant_case(self, text: str, i: int, initial: str) -> str:
         """
