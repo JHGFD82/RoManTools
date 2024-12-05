@@ -128,7 +128,7 @@ result = validate_text(text, method)
 print(result)  # Output: False
 
 result = validate_text(text, method, per_word=True)
-print(result) # Output: [{'word': 'bai', 'syllables': ['bai'], 'valid': [True]}, {'word': 'julyi', 'syllables': ['ju', 'lyi'], 'valid': [True, False]}]
+print(result)  # Output: [{'word': 'bai', 'syllables': ['bai'], 'valid': [True]}, {'word': 'julyi', 'syllables': ['ju', 'lyi'], 'valid': [True, False]}]
 ```
 
 ### `syllable_count`
