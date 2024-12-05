@@ -68,7 +68,7 @@ def load_conversion_data(method_combination: str):
     accepted_methods = ['py_wg', 'wg_py']
     if method_combination in accepted_methods:
         source_file = os.path.join(base_path, 'data', f'{method_combination}.csv')
-        with open(source_file) as file:
+        with open(source_file, encoding='utf-8') as file:
             r = csv.reader(file)
             return {rows[0]: rows[1] for rows in r}
     else:
@@ -106,7 +106,7 @@ def load_stopwords() -> List[str]:
         List[str]: A list of stopwords.
     """
     file_path = os.path.join(base_path, 'data', 'stopwords.txt')
-    with open(file_path, 'r') as f:
+    with open(file_path, encoding='utf-8') as f:
         stopwords = f.read().splitlines()
     return stopwords
 
@@ -119,6 +119,6 @@ def load_syllable_list(method: str) -> List[str]:
         List[str]: A list of Pinyin syllables.
     """
     source_file = os.path.join(base_path, 'data', f"{method}List.csv")
-    with open(source_file) as file:
+    with open(source_file, encoding='utf-8') as file:
         reader = csv.reader(file)
         return [item for sublist in reader for item in sublist]
