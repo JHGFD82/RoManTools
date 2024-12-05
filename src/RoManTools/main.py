@@ -18,7 +18,7 @@ Version:
 """
 
 import argparse
-from .utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
+from RoManTools.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
 
 
 def _normalize_method(method: str, context: str) -> str:
