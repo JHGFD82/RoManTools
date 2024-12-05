@@ -18,8 +18,8 @@ Version:
 """
 
 import argparse
-from config import Config
-from utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
+from .config import Config
+from .utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
 
 
 def _normalize_method(method: str, context: str) -> str:
