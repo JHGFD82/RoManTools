@@ -18,7 +18,8 @@ Version:
 """
 
 import argparse
-from RoManTools.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
+from config import Config
+from utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
 
 
 def _normalize_method(method: str, context: str) -> str:
@@ -69,28 +70,29 @@ def _validate_arguments(args):
 
 
 # ACTION FUNCTIONS #
-def _segment_action(args):
-    return segment_text(args.text, args.method, args.crumbs, args.error_skip, args.error_report)
+def _segment_action(args, config):
+    return segment_text(args.text, args.method, config)
 
 
-def _validator_action(args):
-    return validator(args.text, args.method, args.per_word, args.crumbs, args.error_skip, args.error_report)
+def _validator_action(args, config):
+    return validator(args.text, args.method, args.per_word, config)
 
 
-def _convert_action(args):
-    return convert_text(args.text, args.convert_from, args.convert_to, args.crumbs, args.error_skip, args.error_report)
+def _convert_action(args, config):
+    return convert_text(args.text, args.convert_from, args.convert_to, config)
 
 
-def _cherry_pick_action(args):
-    return cherry_pick(args.text, args.convert_from, args.convert_to, args.crumbs, True, args.error_report)
+def _cherry_pick_action(args, config):
+    config.error_skip = True  # Set the specific value for cherry_pick
+    return cherry_pick(args.text, args.convert_from, args.convert_to, config)
 
 
-def _syllable_count_action(args):
-    return syllable_count(args.text, args.method, args.crumbs, args.error_skip, args.error_report)
+def _syllable_count_action(args, config):
+    return syllable_count(args.text, args.method, config)
 
 
-def _detect_method_action(args):
-    return detect_method(args.text, args.per_word, args.crumbs, args.error_skip, args.error_report)
+def _detect_method_action(args, config):
+    return detect_method(args.text, args.per_word, config)
 
 
 # Map actions to functions
@@ -153,8 +155,11 @@ def main():
     # Validate common arguments here
     _validate_arguments(args)
 
-    # Call the appropriate function
-    print(ACTIONS[args.action](args))
+    # Create the Config object
+    config = Config(crumbs=args.crumbs, error_skip=args.error_skip, error_report=args.error_report)
+
+    # Call the appropriate function with the Config object
+    print(ACTIONS[args.action](args, config))
 
 
 if __name__ == '__main__':
