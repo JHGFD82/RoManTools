@@ -30,9 +30,6 @@ class TextChunkProcessor:
         text (str): The input text to be processed.
         config (Config): Configuration object that manages processing options like crumbs, error skipping, and error
         reporting.
-        ar (np.ndarray): The array used for validating initial-final combinations.
-        init_list (List[str]): The list of valid initials.
-        fin_list (List[str]): The list of valid finals.
         method (str): The romanization method being used ("py" for Pinyin or "wg" for Wade-Giles).
         syllable_processor (SyllableProcessor): The processor used to handle syllable creation and validation.
         chunks (List[Union[List[Syllable], str]]): The processed chunks of text, where each chunk is either a list of
@@ -42,9 +39,6 @@ class TextChunkProcessor:
                  method: str):
         self.text = text
         self.config = config
-        self.ar = ar
-        self.init_list = init_list
-        self.fin_list = fin_list
         self.method = method
         # Syllable processor is initialized with the configuration and romanization method parameters
         self.syllable_processor = SyllableProcessor(config, ar, init_list, fin_list, method)
