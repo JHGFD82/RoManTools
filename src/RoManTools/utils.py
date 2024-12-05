@@ -128,7 +128,7 @@ def segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool 
         >>> segment_text(text, method="py")
         [['zhong', 'guo'], ['ti', 'an'], ['tian', 'qi']]
     """
-    config, chunks = _setup_and_process(text, method, crumbs, error_skip, error_report)
+    _, chunks = _setup_and_process(text, method, crumbs, error_skip, error_report)
     segmented_result = []
     for chunk in chunks:
         if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
@@ -250,7 +250,7 @@ def syllable_count(text: str, method: str, crumbs: bool = False, error_skip: boo
         >>> syllable_count(text, method="py")
         [2]
     """
-    config, chunks = _setup_and_process(text, method, crumbs, error_skip, error_report)
+    _, chunks = _setup_and_process(text, method, crumbs, error_skip, error_report)
     # Return the length of each chunk if all syllables are valid, otherwise return 0 (will change to error messages
     # in later update)
     return [lengths if all(syllable.valid for syllable in chunk) else 0 for chunk in chunks for lengths in [len(chunk)]]
@@ -333,7 +333,7 @@ def validator(text: str, method: str, per_word: bool = False, crumbs: bool = Fal
         >>> validator(text, method="py")
         True
     """
-    config, chunks = _setup_and_process(text, method, crumbs, error_skip, error_report)
+    _, chunks = _setup_and_process(text, method, crumbs, error_skip, error_report)
     if not per_word:
         # Perform validation for the entire text, returning a single boolean value
         return all(syllable.valid for chunk in chunks for syllable in chunk)
