@@ -42,9 +42,9 @@ def _normalize_method(method: str, context: str) -> str:
     }
     if method in method_map:
         return method_map[method]
-    else:
-        if context == 'romanization':
-            raise argparse.ArgumentTypeError(f"Invalid romanization method: {method}")
+    if context == 'romanization':
+        raise argparse.ArgumentTypeError(f"Invalid romanization method: {method}")
+    return method
 
 
 def _validate_arguments(args):

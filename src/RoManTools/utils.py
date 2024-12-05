@@ -301,14 +301,13 @@ def detect_method(text: str, per_word: bool = False, crumbs: bool = False, error
     if not per_word:
         # Perform detection for the entire text, returning a single list of valid methods
         return detect_for_chunk(text)
-    else:
-        # Perform detection per word, returning the valid methods for each word
-        words = text.split()
-        results = []
-        for word in words:
-            valid_methods = detect_for_chunk(word)
-            results.append({"word": word, "methods": valid_methods})
-        return results
+    # Perform detection per word, returning the valid methods for each word
+    words = text.split()
+    results = []
+    for word in words:
+        valid_methods = detect_for_chunk(word)
+        results.append({"word": word, "methods": valid_methods})
+    return results
 
 
 @lru_cache(maxsize=1000000)
@@ -338,14 +337,13 @@ def validator(text: str, method: str, per_word: bool = False, crumbs: bool = Fal
     if not per_word:
         # Perform validation for the entire text, returning a single boolean value
         return all(syllable.valid for chunk in chunks for syllable in chunk)
-    else:
-        # Perform validation per word, returning the validity of each word
-        result = []
-        for word_chunks in chunks:
-            word_result = {
-                'word': ''.join(chunk.full_syllable for chunk in word_chunks),
-                'syllables': [chunk.full_syllable for chunk in word_chunks],
-                'valid': [chunk.valid for chunk in word_chunks]
-            }
-            result.append(word_result)
-        return result
+    # Perform validation per word, returning the validity of each word
+    result = []
+    for word_chunks in chunks:
+        word_result = {
+            'word': ''.join(chunk.full_syllable for chunk in word_chunks),
+            'syllables': [chunk.full_syllable for chunk in word_chunks],
+            'valid': [chunk.valid for chunk in word_chunks]
+        }
+        result.append(word_result)
+    return result

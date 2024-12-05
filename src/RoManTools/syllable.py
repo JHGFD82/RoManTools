@@ -103,7 +103,7 @@ class Syllable:
         """
         if self.uppercase:
             return text.upper()
-        elif self.capitalize:
+        if self.capitalize:
             return text.capitalize()
         return text
 
@@ -185,7 +185,7 @@ class Syllable:
                 if initial not in self.processor.init_list:  # Check if the initial is valid
                     return text[:i]  # Return text up to this point if not valid
                 return initial
-            elif self.processor.method == 'wg' and c in apostrophes:  # In cases of valid apostrophes in
+            if self.processor.method == 'wg' and c in apostrophes:  # In cases of valid apostrophes in
                 # Wade-Giles
                 return text[:i] + "'"  # Ensure that the standard apostrophe is included in the initial
 
@@ -204,7 +204,7 @@ class Syllable:
         """
         if self.processor.method == 'py':
             return self._find_final_py(text, initial)
-        elif self.processor.method == 'wg':
+        if self.processor.method == 'wg':
             return self._find_final_wg(text)
         return text
 
@@ -293,11 +293,11 @@ class Syllable:
             if remainder == 0 or (self.processor.method != 'wg' and text[i + 1] not in vowels):
                 return text[:i + 1]
             # FUTURE: adjust logic below for Wade-Giles (currently unused)
-            elif self.processor.method == 'wg':
+            if self.processor.method == 'wg':
                 if remainder > 0 and text[i + 1] == 'h':
                     return text[:i + 2]
         # Handle "n" and "ng"
-        elif text[i] == 'n':
+        if text[i] == 'n':
             # Determine whether we are dealing with "ng" or just "n"
             next_char_is_g = remainder > 0 and text[i + 1] == 'g'
             # For possible "ng" cases, check if "g" is the last letter, if the next character after "g"
@@ -307,11 +307,10 @@ class Syllable:
                     remainder == 1 or text[i + 2] not in vowels or not self._validate_final(initial, text[:i + 1]))
             if valid_ng:
                 return text[:i + 2]  # Return "ng"
-            elif next_char_is_g:
+            if next_char_is_g:
                 return text[:i + 1]  # Return just "n" if the "ng" final isn't valid
-            else:
-                valid_n = remainder == 0 or text[i + 1] not in vowels or not self._validate_final(initial, text[:i])
-                return text[:i + 1] if valid_n else text[:i]  # Return "n" or fall back to last vowel
+            valid_n = remainder == 0 or text[i + 1] not in vowels or not self._validate_final(initial, text[:i])
+            return text[:i + 1] if valid_n else text[:i]  # Return "n" or fall back to last vowel
         # Default case: handle all other consonants
         return text[:i]
 
@@ -350,5 +349,4 @@ class Syllable:
         # Syllable validation is performed by _validate_final, but is referenced here; "ø" supplied again for no initial
         if self.initial == '':
             return self._validate_final('ø', self.final)
-        else:
-            return self._validate_final(self.initial, self.final)
+        return self._validate_final(self.initial, self.final)
