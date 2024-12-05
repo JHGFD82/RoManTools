@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "RoManTools"
-version = "1.0"
 description = "A toolkit for processing and converting Romanized Mandarin text."
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "GPL-3.0 license"}
+dynamic = ["version"]
 authors = [
     { name = "Jeff Heller", email = "jsheller@princeton.edu" }
 ]
@@ -26,6 +26,8 @@ dependencies = [ "numpy>=1.19.2" ]
 [project.scripts]
 RoManTools = "RoManTools.main:main"
 
-[tool.setuptools.packages.find]
-where = ["src"]
-include = ["tests"]
+[tool.setuptools]
+packages = ["RoManTools"]
+
+[tool.setuptools.dynamic]
+version = {attr = "RoManTools.__version__"}
