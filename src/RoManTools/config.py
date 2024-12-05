@@ -1,3 +1,16 @@
+"""
+Configuration settings for romanized Mandarin text processing.
+
+This module provides the `Config` class, which is used to manage various configuration options for text processing,
+including:
+- Including intermediate outputs (crumbs) during processing.
+- Skipping error reporting on invalid characters.
+- Reporting errors encountered during processing.
+
+Classes:
+    Config: Manages configuration settings for text processing.
+"""
+
 class Config:
     """
     Configuration settings for processing text. Options are ancillary to the main processing functions except
