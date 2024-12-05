@@ -26,10 +26,10 @@ Functions:
         Loads a list of syllables from a CSV file for the specified romanization method.
 """
 
+from typing import Tuple, List, Dict, Union
 import os
 import csv
 import numpy as np
-from typing import Tuple, List, Dict, Union
 from .config import Config
 
 

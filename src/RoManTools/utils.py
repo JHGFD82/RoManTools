@@ -50,13 +50,13 @@ Version:
     1.0.0
 """
 
+from functools import lru_cache
 from typing import Dict, Union, List, Tuple, Set
 from .config import Config
 from .chunker import TextChunkProcessor
 from .syllable import Syllable
 from .word import WordProcessor
 from .data_loader import load_method_params, load_stopwords
-from functools import lru_cache
 # from memory_profiler import profile
 
 __all__ = ['segment_text', 'convert_text', 'cherry_pick', 'syllable_count', 'detect_method', 'validator']

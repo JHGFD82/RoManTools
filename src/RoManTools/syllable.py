@@ -14,11 +14,12 @@ Classes:
               romanization method.
 """
 
+# from functools import lru_cache
+import re
+from typing import Tuple, List, Optional
+import numpy as np
 from .config import Config
 from .constants import vowels, apostrophes, dashes
-from typing import Tuple, List
-import numpy as np
-# from functools import lru_cache
 
 
 class SyllableProcessor:
@@ -113,7 +114,6 @@ class Syllable:
         Returns:
             bool: True if the text is in title case, considering contractions; otherwise, False.
         """
-        import re
         # Remove all non-letter characters (.istitle() does not function properly with apostrophes and dashes)
         cleaned_text = re.sub(r'[^a-zA-Z]', '', text)
         self.capitalize = cleaned_text.istitle()
