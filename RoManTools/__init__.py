@@ -1,4 +1,3 @@
-__version__ = '1.0.0'
 """
 RoManTools
 
@@ -31,4 +30,5 @@ Version:
 
 from .utils import segment_text, validator, convert_text, cherry_pick, syllable_count, detect_method
 
+__version__ = '1.0.0'
 __all__ = ['segment_text', 'validator', 'convert_text', 'cherry_pick', 'syllable_count', 'detect_method']
