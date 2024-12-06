@@ -11,6 +11,7 @@ Classes:
     Config: Manages configuration settings for text processing.
 """
 
+
 class Config:
     """
     Configuration settings for processing text. Options are ancillary to the main processing functions except
