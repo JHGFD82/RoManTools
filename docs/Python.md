@@ -21,7 +21,7 @@ Convert the given text from one romanization method to another.
 **Example:**
 
 ```python
-from RoManTools.utils import convert_text
+from RoManTools import convert_text
 
 result = convert_text("Bai Juyi", "py", "wg")
 print(result)  # Output: "Pai Chüi"
@@ -44,7 +44,7 @@ Convert only identified romanized Mandarin terms in the given text, excluding an
 **Example:**
 
 ```python
-from RoManTools.utils import cherry_pick
+from RoManTools import cherry_pick
 
 result = cherry_pick("This is a biography of Bai Juyi.", "py", "wg")
 print(result)  # Output: "This is the biography of Pai Chüi."
@@ -66,7 +66,7 @@ Segment the text into meaningful chunks.
 **Example:**
 
 ```python
-from RoManTools.utils import segment_text
+from RoManTools import segment_text
 
 result = segment_text("Bai Juyi", "py")
 print(result)  # Output: ['Bai', ['Ju', 'yi']]
@@ -88,7 +88,7 @@ Identify the romanization standard used in the input text.
 **Example:**
 
 ```python
-from RoManTools.utils import detect_method
+from RoManTools import detect_method
 
 # Example text to analyze
 text = "Bai Juyi"
@@ -119,7 +119,7 @@ Validate the supplied text.
 **Example:**
 
 ```python
-from RoManTools.utils import validate_text
+from RoManTools import validate_text
 
 text = "Bai Julyi"
 method = "py"
@@ -146,7 +146,7 @@ Count the number of syllables in the given text.
 **Example:**
 
 ```python
-from RoManTools.utils import syllable_count
+from RoManTools import syllable_count
 
 result = syllable_count("Bai Juyi")
 print(result)  # Output: 3

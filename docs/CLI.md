@@ -12,15 +12,9 @@
 
 ## 1. Initial Execution Instruction
 
-RoManTools can be executed from the command line by first navigating to the location where you have downloaded RoManTools and running the following command inside the `src` folder:
+After installing the package through pip or conda, RoManTools can be executed from the command line by typing `RoManTools` in your terminal or Jupyter Notebooks. Please note that use of capital letters in package names is unconventional—the vast majority of Python packages are written in lowercase.
 
-`python main.py`
-
-Or on systems with installations of both Python 2 and 3:
-
-`python3 main.py`
-
-You will receive an error since required arguments are not being supplied, however this will verify that you executed the command in the correct location.
+Upon running `RoManTools` you will receive an error. This is because required arguments are not being supplied. However, all supported arguments will be listed.
 
 ## 2. Commands
 
@@ -61,45 +55,46 @@ You will receive an error since required arguments are not being supplied, howev
 
 `-C / --crumbs`: Reports a breadcrumb trail from the analysis process.
 
+
 ## Examples
 
 ### Convert
 
-- `python main.py convert --input "Bai Juyi" --convert_from py --convert_to wg`
+- `RoManTools convert --input "Bai Juyi" --convert_from py --convert_to wg`
   - Output: `Pai Chüi`
 
 ### Cherry Pick
 
-- `python main.py cherry_pick -i "This is a biography of Bai Juyi." -f py -t wg`
+- `RoManTools cherry_pick -i "This is a biography of Bai Juyi." -f py -t wg`
   - Output: `This is the biography of Pai Chüi.`
 
 ### Segment
 
-- `python main.py segment -i "Bai Juyi" -m py`
+- `RoManTools segment -i "Bai Juyi" -m py`
   - Output: `['Bai', ['Ju', 'yi']]`
 
 ### Syllable Count
 
-- `python main.py syllable_count -i "Bai Juyi" -m py`
+- `RoManTools syllable_count -i "Bai Juyi" -m py`
   - Output: `[1, 2]`
 
 ### Detect Method
 
-- `python main.py detect_method -i "Bai Juyi"`
+- `RoManTools detect_method -i "Bai Juyi"`
   - Output: `py`
-- `python main.py detect_method -i "Bai Juyi" --per_word`
+- `RoManTools detect_method -i "Bai Juyi" --per_word`
   - Output: `[{'word': 'Bai', 'methods': ['py']}, {'word': 'Juyi', 'methods': ['py', 'wg']}]`
 
 ### Validator
 
-- `python main.py validator -i "Bai Julyi" -m py`
+- `RoManTools validator -i "Bai Julyi" -m py`
   - Output: `False`
-- `python main.py validator -i "Bai Julyi" -m py --per_word`
+- `RoManTools validator -i "Bai Julyi" -m py --per_word`
   - Output: `[{'word': 'bai', 'syllables': ['bai'], 'valid': [True]}, {'word': 'julyi', 'syllables': ['ju', 'lyi'], 'valid': [True, False]}]`
 
 ### Debugging Example (see above note in Section 5)
 
-- `python main.py validator -i "Bai Julyi" -m py -wC`
+- `RoManTools validator -i "Bai Julyi" -m py -wC`
   - Output:
     ```
     ### Analyzing Bai Julyi ###
@@ -112,7 +107,7 @@ You will receive an error since required arguments are not being supplied, howev
 ## Common Errors and Troubleshooting
 
 - **Error**: `No command supplied`
-  - **Solution**: Ensure you are providing a valid command after `python main.py`.
+  - **Solution**: Ensure you are providing a valid command after `RoManTools`.
 - **Error**: `Invalid method`
   - **Solution**: Check that the romanization method provided is one of the supported methods (`py`, `pinyin`, `wg`, `wade-giles`).
 
