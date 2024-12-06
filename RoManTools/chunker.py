@@ -16,7 +16,6 @@ Classes:
 from functools import lru_cache
 from typing import List
 import re
-import numpy as np
 from .config import Config
 from .syllable import SyllableProcessor, Syllable
 

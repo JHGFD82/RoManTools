@@ -16,8 +16,7 @@ Classes:
 
 # from functools import lru_cache
 import re
-from typing import Tuple, List, Optional
-import numpy as np
+from typing import Tuple, Optional
 from .config import Config
 from .constants import vowels, apostrophes, dashes
 
