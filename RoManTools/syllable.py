@@ -331,7 +331,7 @@ class Syllable:
             # is a consonant, or if the current "n" final is invalid
             # This allows for "changan" to be split into "chan" and "gan" instead of "chang" and "an"
             valid_ng = next_char_is_g and (
-                    remainder == 1 or text[i + 2] not in vowels or not self._validate_final(initial, text[:i + 1]))
+                remainder == 1 or text[i + 2] not in vowels or not self._validate_final(initial, text[:i + 1]))
             if valid_ng:
                 return text[:i + 2]  # Return "ng"
             if next_char_is_g:
