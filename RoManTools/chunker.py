@@ -34,13 +34,12 @@ class TextChunkProcessor:
         chunks (List[Union[List[Syllable], str]]): The processed chunks of text, where each chunk is either a list of
         syllables or a string.
     """
-    def __init__(self, text: str, config: Config, ar: np.ndarray, init_list: List[str], fin_list: List[str],
-                 method: str):
+    def __init__(self, text: str, config: Config, method_params: dict):
         self.text = text
         self.config = config
-        self.method = method
+        self.method = method_params['method']
         # Syllable processor is initialized with the configuration and romanization method parameters
-        self.syllable_processor = SyllableProcessor(config, ar, init_list, fin_list, method)
+        self.syllable_processor = SyllableProcessor(config, method_params)
         self.chunks = []
         self._process_text()
 

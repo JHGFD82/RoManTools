@@ -27,22 +27,19 @@ class SyllableProcessor:
     syllables.
     """
 
-    def __init__(self, config: Config, ar: np.ndarray, init_list: List[str], fin_list: List[str], method: str):
+    def __init__(self, config: Config, method_params: dict):
         """
         Initializes the SyllableProcessor with configuration settings and lists for processing.
 
         Args:
             config (Config): The configuration object with settings like error_skip and crumbs.
-            ar (np.ndarray): A NumPy array representing valid initial-final combinations.
-            init_list (List[str]): A list of valid initial sounds.
-            fin_list (List[str]): A list of valid final sounds.
-            method (str): The romanization method being used ('py' for Pinyin, 'wg' for Wade-Giles).
+            method_params (dict): The parameters for the romanization method, including the validation array.
         """
         self.config = config
-        self.ar = ar
-        self.init_list = init_list
-        self.fin_list = fin_list
-        self.method = method
+        self.ar = method_params['ar']
+        self.init_list = method_params['init_list']
+        self.fin_list = method_params['fin_list']
+        self.method = method_params['method']
 
     def create_syllable(self, text: str, remainder: str = "") -> "Syllable":
         """
