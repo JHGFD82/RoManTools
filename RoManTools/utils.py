@@ -51,7 +51,7 @@ Version:
 """
 
 from functools import lru_cache
-from typing import Dict, Union, List, Set, Any
+from typing import Dict, Union, List, Set, Optional
 from .config import Config
 from .chunker import TextChunkProcessor
 from .syllable import Syllable
@@ -79,13 +79,14 @@ def _process_text(text: str, method: str, config: Config) -> List[Union[List[Syl
     """
     if config.crumbs:
         print(f'# Analyzing {text} #')
-    processor = TextChunkProcessor(text, config, **load_method_params(method, config))
+    processor = TextChunkProcessor(text, config, load_method_params(method, config))
     return processor.get_chunks()
 
 
 # Segmentation actions
 @lru_cache(maxsize=1000000)
-def segment_text(text: str, method: str, **kwargs) -> List[Union[List[Syllable], Syllable]]:
+def segment_text(text: str, method: str, config: Optional[Config] = None, **kwargs) \
+        -> List[Union[List[Syllable], Syllable]]:
     """
     Segments the given text into syllables based on the selected method.
 
@@ -102,7 +103,8 @@ def segment_text(text: str, method: str, **kwargs) -> List[Union[List[Syllable],
         >>> segment_text(text, method="py")
         [['zhong', 'guo'], ['ti', 'an'], ['tian', 'qi']]
     """
-    config = Config(**kwargs)
+    if not config:
+        config = Config(**kwargs)
     chunks = _process_text(text, method, config)
     segmented_result = []
     for chunk in chunks:
@@ -116,15 +118,14 @@ def segment_text(text: str, method: str, **kwargs) -> List[Union[List[Syllable],
 
 
 # Conversion actions
-def _conversion_processing(text: str, convert_from: str, convert_to: str, config: Config, stopwords: Set[str],
-                           include_spaces: bool) -> str:
+def _conversion_processing(text: str, convert: dict, config: Config, stopwords: Set[str], include_spaces: bool) \
+        -> str:
     """
     Processes the given text for conversion between two romanization standards.
 
     Args:
         text (str): The text to be processed.
-        convert_from (str): The romanization standard to convert from.
-        convert_to (str): The romanization standard to convert to.
+        convert (Dict[str, str]): The conversion mapping for the romanization standards.
         config (Config): The configuration object containing processing settings.
         stopwords (Set[str]): A set of stopwords to exclude from processing.
         include_spaces (bool): Whether to include spaces in the output.
@@ -132,9 +133,9 @@ def _conversion_processing(text: str, convert_from: str, convert_to: str, config
     Returns:
         str: The converted text based on the selected romanization conversion mappings.
     """
-    word_processor = WordProcessor(config, convert_from, convert_to, stopwords)
+    word_processor = WordProcessor(config, convert['from'], convert['to'], stopwords)
     concat_text = []
-    for chunk in _process_text(text, convert_from, config):
+    for chunk in _process_text(text, convert['from'], config):
         if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
             # When the chunk is a list of syllables, process them as a word, then append the result as strings
             word = word_processor.create_word(chunk)
@@ -148,7 +149,7 @@ def _conversion_processing(text: str, convert_from: str, convert_to: str, config
 
 
 @lru_cache(maxsize=1000000)
-def convert_text(text: str, convert_from: str, convert_to: str, **kwargs) -> str:
+def convert_text(text: str, convert_from: str, convert_to: str, config: Optional[Config] = None, **kwargs) -> str:
     """
     Converts the given text from one romanization standard to another, returning errors for any invalid syllables.
 
@@ -156,7 +157,7 @@ def convert_text(text: str, convert_from: str, convert_to: str, **kwargs) -> str
         text (str): The text to be converted.
         convert_from (str): The romanization standard to convert from.
         convert_to (str): The romanization standard to convert to.
-        **kwargs: Additional keyword arguments for the configuration object.
+        config (Config, optional): The configuration object containing processing settings. Defaults to None.
 
     Returns:
         str: The converted text based on the selected romanization conversion mappings.
@@ -166,13 +167,15 @@ def convert_text(text: str, convert_from: str, convert_to: str, **kwargs) -> str
         >>> convert_text(text, convert_from="py", convert_to="wg")
         'Chung-kuo'
     """
-    config = Config(**kwargs)
+    if not config:
+        config = Config(**kwargs)
     stopwords = set(load_stopwords())
-    return _conversion_processing(text, convert_from, convert_to, config, stopwords, include_spaces=True)
+    convert = {"from": convert_from, "to": convert_to}
+    return _conversion_processing(text, convert, config, stopwords, include_spaces=True)
 
 
 @lru_cache(maxsize=1000000)
-def cherry_pick(text: str, convert_from: str, convert_to: str, **kwargs) -> str:
+def cherry_pick(text: str, convert_from: str, convert_to: str, config: Optional[Config] = None, **kwargs) -> str:
     """
     Converts the given text from one romanization standard to another if detected as a valid romanized Mandarin word, and returns all over text.
 
@@ -180,7 +183,7 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, **kwargs) -> str:
         text (str): The text to be converted.
         convert_from (str): The romanization standard to convert from.
         convert_to (str): The romanization standard to convert to.
-        **kwargs: Additional keyword arguments for the configuration object.
+        config (Config, optional): The configuration object containing processing settings. Defaults to None.
 
     Returns:
         str: The converted text based on the selected romanization conversion mappings
@@ -190,22 +193,24 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, **kwargs) -> str:
         >>> cherry_pick(text, convert_from="py", convert_to="wg")
         'This is Chung-kuo.'
     """
-    config = Config(error_skip=True, **kwargs)
+    if not config:
+        config = Config(error_skip=True, **kwargs)
     stopwords = set(load_stopwords())
-    return _conversion_processing(text, convert_from, convert_to, config, stopwords, include_spaces=False)
+    convert = {"from": convert_from, "to": convert_to}
+    return _conversion_processing(text, convert, config, stopwords, include_spaces=False)
 
 
 # Counting actions
 @lru_cache(maxsize=1000000)
 # @profile
-def syllable_count(text: str, method: str, **kwargs) -> list[int]:
+def syllable_count(text: str, method: str, config: Optional[Config] = None, **kwargs) -> list[int]:
     """
     Returns the count of syllables for each word in the processed text.
 
     Args:
         text (str): The text to be processed.
         method (str): The method of romanization for the supplied text.
-        **kwargs: Additional keyword arguments for the configuration object.
+        config (Config, optional): The configuration object containing processing settings. Defaults to None.
 
     Returns:
         List[int]: A list of lengths for each valid word in the processed text.
@@ -215,7 +220,8 @@ def syllable_count(text: str, method: str, **kwargs) -> list[int]:
         >>> syllable_count(text, method="py")
         [2]
     """
-    config = Config(**kwargs)
+    if not config:
+        config = Config(**kwargs)
     chunks = _process_text(text, method, config)
     # Return the length of each chunk if all syllables are valid, otherwise return 0 (will change to error messages
     # in later update)
@@ -224,14 +230,15 @@ def syllable_count(text: str, method: str, **kwargs) -> list[int]:
 
 # Detection and validation actions
 @lru_cache(maxsize=1000000)
-def detect_method(text: str, per_word: bool = False, **kwargs: Any) -> Union[List[str], List[Dict[str, List[str]]]]:
+def detect_method(text: str, per_word: bool = False, config: Optional[Config] = None, **kwargs) \
+        -> Union[List[str], List[Dict[str, List[str]]]]:
     """
     Detects the romanization method of the given text or individual words.
 
     Args:
         text (str): The text to be analyzed.
         per_word (bool, optional): Whether to report the possible romanization methods for each word. Defaults to False.
-        **kwargs: Additional keyword arguments for the configuration object.
+        config (Config, optional): The configuration object containing processing settings. Defaults to None.
 
     Returns:
         Union[List[str], List[Dict[str, List[str]]]]: A list of detected methods, either for the full text or per word.
@@ -241,7 +248,8 @@ def detect_method(text: str, per_word: bool = False, **kwargs: Any) -> Union[Lis
         >>> detect_method(text)
         ['py']
     """
-    config = Config(**kwargs)
+    if not config:
+        config = Config(**kwargs)
     methods = ['py', 'wg']
 
     def detect_for_chunk(chunk: str) -> List[str]:
@@ -274,7 +282,8 @@ def detect_method(text: str, per_word: bool = False, **kwargs: Any) -> Union[Lis
 
 
 @lru_cache(maxsize=1000000)
-def validator(text: str, method: str, per_word: bool = False, **kwargs: Any) -> Union[bool, list[dict]]:
+def validator(text: str, method: str, per_word: bool = False, config: Optional[Config] = None, **kwargs) \
+        -> Union[bool, list[dict]]:
     """
     Validates the processed text or individual words based on the selected method.
 
@@ -282,7 +291,7 @@ def validator(text: str, method: str, per_word: bool = False, **kwargs: Any) -> 
         text (str): The text to be validated.
         method (str): The method to apply for validation.
         per_word (bool, optional): Whether to report the validity of the entire text or each word. Defaults to False.
-        **kwargs: Additional keyword arguments for the configuration object.
+        config (Config, optional): The configuration object containing processing settings. Defaults to None.
 
     Returns:
         Union[bool, list[dict]]: Validation results, either as a boolean for the entire text or a detailed list per
@@ -293,7 +302,8 @@ def validator(text: str, method: str, per_word: bool = False, **kwargs: Any) -> 
         >>> validator(text, method="py")
         True
     """
-    config = Config(**kwargs)
+    if config is None:
+        config = Config(**kwargs)
     chunks = _process_text(text, method, config)
     if not per_word:
         # Perform validation for the entire text, returning a single boolean value
