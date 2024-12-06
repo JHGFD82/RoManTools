@@ -108,7 +108,7 @@ def segment_text(text: str, method: str, **kwargs) -> List[Union[List[Syllable],
     for chunk in chunks:
         if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
             # Return the full syllable attribute for each Syllable object
-            segmented_result.append([syl.full_syllable for syl in chunk])
+            segmented_result.append([syl.text_attr.full_syllable for syl in chunk])
         else:
             # Return the non-text elements as strings
             segmented_result.append(chunk)
@@ -302,8 +302,8 @@ def validator(text: str, method: str, per_word: bool = False, **kwargs: Any) -> 
     result = []
     for word_chunks in chunks:
         word_result = {
-            'word': ''.join(chunk.full_syllable for chunk in word_chunks),
-            'syllables': [chunk.full_syllable for chunk in word_chunks],
+            'word': ''.join(chunk.text_attr.full_syllable for chunk in word_chunks),
+            'syllables': [chunk.text_attr.full_syllable for chunk in word_chunks],
             'valid': [chunk.valid for chunk in word_chunks]
         }
         result.append(word_result)

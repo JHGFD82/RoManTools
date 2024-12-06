@@ -132,7 +132,7 @@ class TextChunkProcessor:
                 # Send remaining text to syllable processor to create a syllable object
                 syllable_obj = self._send_to_syllable_processor(remaining_text)
                 syllables.append(syllable_obj)
-                remaining_text = syllable_obj.remainder
+                remaining_text = syllable_obj.text_attr.remainder
         self.chunks.append(syllables)
 
     def get_chunks(self) -> List[List[Syllable]]:

@@ -58,11 +58,59 @@ class SyllableProcessor:
         return Syllable(text, self, remainder)
 
 
+class SyllableTextAttributes:
+    """
+    Represents the text attributes of a syllable, including the initial, final, and full syllable.
+    """
+    def __init__(self, text: str, remainder: str = ""):
+        """
+        Initializes the SyllableTextAttributes object with the provided text and remainder.
+
+        Args:
+            text: The syllable text to be processed.
+            remainder: The remainder of the text to be processed.
+        """
+        self.text = text.lower()
+        self.remainder = remainder
+        self.initial = ""
+        self.final = ""
+        self.full_syllable = ""
+
+
+class SyllableStatusAttributes:
+    """
+    Represents the status attributes of a syllable, including capitalization, apostrophes, and dashes.
+    """
+    def __init__(self, text: str):
+        """
+        Initializes the SyllableStatusAttributes object with the provided text.
+
+        Args:
+            text: The syllable text to be processed.
+        """
+        self.has_apostrophe = False
+        self.has_dash = False
+        self.capitalize = False
+        self.uppercase = text.isupper()
+        self._is_titlecase(text)
+
+    def _is_titlecase(self, text: str):
+        """
+        Checks if the syllable text is in title case, considering contractions.
+
+        Returns:
+            bool: True if the text is in title case, considering contractions; otherwise, False.
+        """
+        # Remove all non-letter characters (.istitle() does not function properly with apostrophes and dashes)
+        cleaned_text = re.sub(r'[^a-zA-Z]', '', text)
+        self.capitalize = cleaned_text.istitle()
+
+
 class Syllable:
     """
     Represents a syllable and its components (initial, final) in the context of a romanization method.
     """
-    def __init__(self, text: str, processor: SyllableProcessor, remainder: str = ""):
+    def __init__(self, text: str, processor: SyllableProcessor, remainder):
 
         """
         Initializes a Syllable object with provided configuration and text.
@@ -72,18 +120,10 @@ class Syllable:
             remainder (str, optional): The remainder of the text to be processed. Defaults to "".
             processor (SyllableProcessor): The processor object used to validate the syllable.
         """
-        self.text = text.lower()
-        self.remainder = remainder
         self.processor = processor
-        self.initial = ""
-        self.final = ""
-        self.full_syllable = ""
+        self.text_attr = SyllableTextAttributes(text, remainder)
         self.valid = False
-        self.has_apostrophe = False
-        self.has_dash = False
-        self.capitalize = False
-        self.uppercase = text.isupper()
-        self._is_titlecase(text)
+        self.status_attr = SyllableStatusAttributes(text)
         self._handle_first_char()
         self._process_syllable()
 
@@ -97,22 +137,11 @@ class Syllable:
         Returns:
             str: The transformed text with applied capitalization.
         """
-        if self.uppercase:
+        if self.status_attr.uppercase:
             return text.upper()
-        if self.capitalize:
+        if self.status_attr.capitalize:
             return text.capitalize()
         return text
-
-    def _is_titlecase(self, text: str):
-        """
-        Checks if the syllable text is in title case, considering contractions.
-
-        Returns:
-            bool: True if the text is in title case, considering contractions; otherwise, False.
-        """
-        # Remove all non-letter characters (.istitle() does not function properly with apostrophes and dashes)
-        cleaned_text = re.sub(r'[^a-zA-Z]', '', text)
-        self.capitalize = cleaned_text.istitle()
 
     def _handle_first_char(self):
         """
@@ -121,21 +150,22 @@ class Syllable:
         Returns:
             str: The text with the first character removed if it was an apostrophe or dash.
         """
-        first_char = self.text[0]
+        first_char = self.text_attr.text[0]
         if first_char in apostrophes:
-            self.has_apostrophe = True
+            self.status_attr.has_apostrophe = True
         elif first_char in dashes:
-            self.has_dash = True
+            self.status_attr.has_dash = True
 
         if (first_char in apostrophes and self.processor.method != 'wg') or first_char in dashes:
-            self.text = self.text[1:]
+            self.text_attr.text = self.text_attr.text[1:]
 
     def _process_syllable(self):
         """
         Processes the syllable to extract the initial, final, and remainder parts and validates the syllable.
         """
         # Construct parts of syllable
-        self.initial, self.final, self.full_syllable, self.remainder = self._find_initial_final(self.text)
+        self.text_attr.initial, self.text_attr.final, self.text_attr.full_syllable, self.text_attr.remainder = (
+            self._find_initial_final(self.text_attr.text))
         # Validate the syllable
         self.valid = self._validate_syllable()
 
@@ -344,6 +374,6 @@ class Syllable:
             bool: True if the syllable is valid, otherwise False.
         """
         # Syllable validation is performed by _validate_final, but is referenced here; "ø" supplied again for no initial
-        if self.initial == '':
-            return self._validate_final('ø', self.final)
-        return self._validate_final(self.initial, self.final)
+        if self.text_attr.initial == '':
+            return self._validate_final('ø', self.text_attr.final)
+        return self._validate_final(self.text_attr.initial, self.text_attr.final)

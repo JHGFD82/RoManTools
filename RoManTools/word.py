@@ -98,12 +98,12 @@ class Word:
         """
         word_parts = []
         for syl in self.syllables:
-            if syl.has_apostrophe and self.processor.convert_from != 'wg':
-                word_parts.append("'" + syl.full_syllable)
-            elif syl.has_dash:
-                word_parts.append("-" + syl.full_syllable)
+            if syl.status_attr.has_apostrophe and self.processor.convert_from != 'wg':
+                word_parts.append("'" + syl.text_attr.full_syllable)
+            elif syl.status_attr.has_dash:
+                word_parts.append("-" + syl.text_attr.full_syllable)
             else:
-                word_parts.append(syl.full_syllable)
+                word_parts.append(syl.text_attr.full_syllable)
         return "".join(word_parts)
 
     def all_valid(self) -> bool:
@@ -125,12 +125,13 @@ class Word:
             bool: True if the word is a contraction, False otherwise
         """
         valid_syllables = all(syl.valid for syl in self.syllables[:-1])
-        last_apostrophe = self.syllables[-1].has_apostrophe
+        last_apostrophe = self.syllables[-1].status_attr.has_apostrophe
         if self.processor.convert_from == 'wg':
-            possible_contraction = self.syllables[-1].full_syllable = self.syllables[-1].full_syllable.replace("'", "")
+            possible_contraction = self.syllables[-1].text_attr.full_syllable = (
+                self.syllables[-1].text_attr.full_syllable.replace("'", ""))
             contraction = possible_contraction in supported_contractions
         else:
-            contraction = self.syllables[-1].full_syllable in supported_contractions
+            contraction = self.syllables[-1].text_attr.full_syllable in supported_contractions
         error_skip = self.processor.config.error_skip
         return all([valid_syllables, last_apostrophe, contraction, error_skip])
 
@@ -150,20 +151,20 @@ class Word:
         """
         # For standard conversion requests, process syllables with error messages.
         if not self.processor.config.error_skip:
-            self.processed_syllables = [(self.processor.converter.convert(syl.full_syllable), syl) for syl in self.syllables]
+            self.processed_syllables = [(self.processor.converter.convert(syl.text_attr.full_syllable), syl) for syl in self.syllables]
         # Otherwise, process syllables without error messages, specifically for the cherry_pick action.
         # Convert the syllables if all are valid, or are part of a contraction, and the whole word is not a stopword.
         # The last syllable will fail conversion, but no error message will be produced and the self.contraction
         # attribute will be used later to allow proper processing of contractions.
         elif self.is_convertable():
             self.processed_syllables = [
-                (self.processor.converter.convert(syl.full_syllable), syl) if syl.valid else (syl.full_syllable, syl)
+                (self.processor.converter.convert(syl.text_attr.full_syllable), syl) if syl.valid else (syl.text_attr.full_syllable, syl)
                 for syl in self.syllables
             ]
         # If this is for cherry_pick and there are an invalid number of valid syllables, and the word is not a
         # stopword, process syllables without conversion or error messages (allows English words to pass through).
         else:
-            self.processed_syllables = [(syl.full_syllable, syl) for syl in self.syllables]
+            self.processed_syllables = [(syl.text_attr.full_syllable, syl) for syl in self.syllables]
 
     def apply_caps(self):
         """
@@ -247,9 +248,9 @@ class Word:
             None
         """
         for syl in self.processed_syllables:
-            if syl[1].has_apostrophe:
+            if syl[1].status_attr.has_apostrophe:
                 self.final_word += "'" + syl[0]
-            elif syl[1].has_dash:
+            elif syl[1].status_attr.has_dash:
                 self.final_word += "-" + syl[0]
             else:
                 self.final_word += syl[0]
