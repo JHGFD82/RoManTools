@@ -1,7 +1,11 @@
 import unittest
+from typing import List
+
 from RoManTools.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
-from RoManTools.data_loader import load_syllable_list
+from RoManTools.data_loader import load_conversion_data, load_method_params
 from RoManTools.constants import vowels
+import os
+import csv
 import random
 import time
 # from memory_profiler import profile
