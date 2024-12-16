@@ -21,7 +21,7 @@ classifiers=[
     "Topic :: Text Processing :: Linguistic"
 ]
 urls = { "Homepage" = "https://github.com/JHGFD82/RoManTools", "Documentation" = "https://github.com/JHGFD82/RoManTools/docs", "Source" = "https://github.com/JHGFD82/RoManTools", "Tracker" = "https://github.com/JHGFD82/RoManTools/issues" }
-dependencies = [ "numpy>=1.19.2" ]
+dependencies = [ "numpy" ]
 
 [project.scripts]
 RoManTools = "RoManTools.main:main"
