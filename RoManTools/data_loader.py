@@ -82,9 +82,10 @@ def load_method_params(method: str) -> Dict[str, Union[List[str], np.ndarray]]:
         Dict[str, List[str], np.ndarray]: A dictionary containing initials, finals, and the valid combinations array.
     """
     method_file = f'{method}DF'
-    init_list, fin_list, ar = load_romanization_data(os.path.join(base_path, 'data', f'{method_file}.csv'))
-    if config.crumbs:
-        print(f"# {method.upper()} romanization data loaded #")
+    try:
+        init_list, fin_list, ar = load_romanization_data(os.path.join(base_path, 'data', f'{method_file}.csv'))
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Syllable array for method '{method}' not found.")
     # if config.crumbs:
     #     print(f"# {method.upper()} romanization data loaded #")
     return {
