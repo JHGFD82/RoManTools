@@ -202,7 +202,7 @@ class Word:
             None
         """
         # Specific rules for romanization are contained here.
-        prev_syllable = self.processed_syllables[i - 1][0]
+        # prev_syllable = self.processed_syllables[i - 1][0]
         curr_syllable = self.processed_syllables[i][0]
         is_last_syllable = i == len(self.processed_syllables) - 1
         # Regardless of the romanization method, all contractions require the apostrophe to be added.
@@ -210,35 +210,32 @@ class Word:
             self.final_word += "'" + curr_syllable
         # For Pinyin, specific logic is applied to determine whether an apostrophe is needed between syllables.
         elif self.processor.convert_to == 'py':
-            if self.processed_syllables[i][1].valid and self._needs_apostrophe(prev_syllable, curr_syllable):
-                self.final_word += "'" + curr_syllable
-            else:
-                self.final_word += curr_syllable
+            self.final_word += "'" + curr_syllable
+            # if self.processed_syllables[i][1].valid and self._needs_apostrophe(prev_syllable, curr_syllable):
+            #     self.final_word += "'" + curr_syllable
+            # else:
+            #     self.final_word += curr_syllable
         # For Wade-Giles, dashes are used to separate syllables except if this happens to be a contraction.
         elif self.processor.convert_to == 'wg':
             self.final_word += "-" + curr_syllable
 
-    @staticmethod
-    def _needs_apostrophe(prev_syllable: str, curr_syllable: str) -> bool:
-        """
-        Determines whether an apostrophe is needed between two syllables based on the last character of the previous
-        syllable and the first character of the current syllable.
-
-        Args:
-            prev_syllable (str): The previous syllable
-            curr_syllable (str): The current syllable
-
-        Returns:
-            bool: True if an apostrophe is needed, False otherwise
-        """
-        # The logic for apostrophes in Pinyin is based on the following rules in which the start of the next syllable
-        # is a vowel:
-        # - If the last character of the previous syllable and the first character of the current syllable is a vowel
-        # - If the previous syllable ends with 'er', 'n', or 'ng'
-        return (prev_syllable[-1] in vowels and curr_syllable[0] in vowels) or \
-            (prev_syllable.endswith('er') and curr_syllable[0] in vowels) or \
-            (prev_syllable[-1] == 'n' and curr_syllable[0] in vowels) or \
-            (prev_syllable.endswith('ng') and curr_syllable[0] in vowels)
+    # @staticmethod
+    # def _needs_apostrophe(prev_syllable: str, curr_syllable: str) -> bool:
+    #     """
+    #     Determines whether an apostrophe is needed between two syllables based on the last character of the previous
+    #     syllable and the first character of the current syllable.
+    #
+    #     Args:
+    #         prev_syllable (str): The previous syllable
+    #         curr_syllable (str): The current syllable
+    #
+    #     Returns:
+    #         bool: True if an apostrophe is needed, False otherwise
+    #     """
+    #     # The logic for apostrophes in Pinyin is based on the following rules in which the start of the next syllable
+    #     # is a vowel:
+    #     # - If the last character of the previous syllable and the first character of the current syllable is a vowel
+    #     # - If the previous syllable ends with 'er', 'n', or 'ng'
     #     conditions = {
     #         'vowel_vowel': prev_syllable[-1] in vowels and curr_syllable[0] in vowels,
     #         'er_vowel': prev_syllable.endswith('er') and curr_syllable[0] in vowels,

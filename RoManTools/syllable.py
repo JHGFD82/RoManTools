@@ -327,9 +327,9 @@ class Syllable:
             if remainder == 0 or (self.processor.method != 'wg' and text[i + 1] not in vowels):
                 return text[:i + 1]
             # FUTURE: adjust logic below for Wade-Giles (currently unused)
-            if self.processor.method == 'wg':
-                if remainder > 0 and text[i + 1] == 'h':
-                    return text[:i + 2]
+            # if self.processor.method == 'wg':
+            #     if remainder > 0 and text[i + 1] == 'h':
+            #         return text[:i + 2]
         # Handle "n" and "ng"
         if text[i] == 'n':
             # Determine whether we are dealing with "ng" or just "n"
