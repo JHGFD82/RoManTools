@@ -71,9 +71,9 @@ def _process_text(text: str, method: str, config: Config) -> List[Union[List[Syl
         List[Union[List[Syllable], Syllable]]: A list of processed text chunks,
         which could be individual syllables or lists of syllables.
     """
-    if config.crumbs:
-        print(f'# Analyzing {text} #')
-    processor = TextChunkProcessor(text, config, load_method_params(method, config))
+    # if config.crumbs:
+    #     print(f'# Analyzing {text} #')
+    processor = TextChunkProcessor(text, config, load_method_params(method))
     return processor.get_chunks()
 
 

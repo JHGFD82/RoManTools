@@ -27,7 +27,6 @@ from typing import Tuple, List, Dict, Union
 import os
 import csv
 import numpy as np
-from .config import Config
 
 
 base_path = os.path.dirname(__file__)
@@ -72,13 +71,12 @@ def load_conversion_data(method_combination: str):
         raise ValueError(f'Method {method_combination} not supported.')
 
 
-def load_method_params(method: str, config: Config) -> Dict[str, Union[List[str], np.ndarray]]:
+def load_method_params(method: str) -> Dict[str, Union[List[str], np.ndarray]]:
     """
     Loads romanization method parameters including initials, finals, and the valid combinations array.
 
     Args:
         method (str): The romanization method (e.g., 'py', 'wg').
-        config (Config): Configuration object containing settings like crumbs, error_skip, and error_report.
 
     Returns:
         Dict[str, List[str], np.ndarray]: A dictionary containing initials, finals, and the valid combinations array.
@@ -87,6 +85,8 @@ def load_method_params(method: str, config: Config) -> Dict[str, Union[List[str]
     init_list, fin_list, ar = load_romanization_data(os.path.join(base_path, 'data', f'{method_file}.csv'))
     if config.crumbs:
         print(f"# {method.upper()} romanization data loaded #")
+    # if config.crumbs:
+    #     print(f"# {method.upper()} romanization data loaded #")
     return {
         'ar': ar,
         'init_list': init_list,
