@@ -239,6 +239,13 @@ class Word:
             (prev_syllable.endswith('er') and curr_syllable[0] in vowels) or \
             (prev_syllable[-1] == 'n' and curr_syllable[0] in vowels) or \
             (prev_syllable.endswith('ng') and curr_syllable[0] in vowels)
+    #     conditions = {
+    #         'vowel_vowel': prev_syllable[-1] in vowels and curr_syllable[0] in vowels,
+    #         'er_vowel': prev_syllable.endswith('er') and curr_syllable[0] in vowels,
+    #         'n_vowel': prev_syllable[-1] == 'n' and curr_syllable[0] in vowels,
+    #         'ng_vowel': prev_syllable.endswith('ng') and curr_syllable[0] in vowels
+    #     }
+    #     return any(conditions.values())
 
     def _append_all_syllables(self):
         """

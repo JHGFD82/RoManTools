@@ -228,11 +228,18 @@ class Syllable:
         Returns:
             str: The final part of the syllable.
         """
-        if self.processor.method == 'py':
+        def _send_to_find_final_py():
             return self._find_final_py(text, initial)
-        if self.processor.method == 'wg':
+
+        def _send_to_find_final_wg():
             return self._find_final_wg(text)
-        return text
+
+        method_map = {
+            'py': _send_to_find_final_py,
+            'wg': _send_to_find_final_wg
+        }
+        find_final_func = method_map.get(self.processor.method, lambda: text)
+        return find_final_func()
 
     def _find_final_py(self, text: str, initial: str) -> str:
         """
