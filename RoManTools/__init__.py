@@ -20,12 +20,6 @@ Usage Example:
     >>> text = "Zhongguo ti'an tianqi"
     >>> converted_text = convert_text(text, from_method='py', to_method='wg')
     >>> print(converted_text)
-
-Author:
-    Jeff Heller <jsheller@princeton.edu>
-
-Version:
-    1.0.0
 """
 
 from .utils import segment_text, validator, convert_text, cherry_pick, syllable_count, detect_method

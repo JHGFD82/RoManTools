@@ -42,12 +42,6 @@ Usage Example:
     ['py']
     >>> validator("Zhongguo", method="py")
     True
-
-Author:
-    Jeff Heller <jsheller@princeton.edu>
-
-Version:
-    1.0.0
 """
 
 from functools import lru_cache

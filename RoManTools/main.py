@@ -9,12 +9,6 @@ Functions:
 Usage Example:
     $ romantools segment -i "Zhongguo ti'an tianqi" -m py
     [['zhong', 'guo'], ['ti', 'an'], ['tian', 'qi']]
-
-Author:
-    Jeff Heller <jsheller@princeton.edu>
-
-Version:
-    1.0.0
 """
 
 import argparse
