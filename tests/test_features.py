@@ -171,6 +171,17 @@ class TestRomanization(unittest.TestCase):
                                   ['yüan', 'yang'], ['erh'], ['shih', 'erh'], ['hsiung'], ['an', 'wei'],
                                   ['feng', 'huang'], ['jen', 'min']])
 
+    # ERROR CATCHING TESTS #
+    @timeit_decorator(repeats=1)
+    def test_load_conversion_data_error(self):
+        with self.assertRaises(ValueError):
+            load_conversion_data('pa_wv')
+
+    @timeit_decorator(repeats=1)
+    def test_load_method_params_error(self):
+        with self.assertRaises(FileNotFoundError):
+            load_method_params('pa')
+
     # SYLLABLE VALIDATION TESTING #
     @timeit_decorator()
     def test_validator_true(self):
