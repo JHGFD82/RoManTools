@@ -37,6 +37,19 @@ def generate_random_syllable_from_list(syllable_list):
 
 def generate_random_text_from_list(method, num_syllables=0):
 
+    def _load_syllable_list(method_var: str) -> List[str]:
+        """
+        Loads a list of Pinyin syllables from a CSV file.
+
+        Returns:
+            List[str]: A list of Pinyin syllables.
+        """
+        base_path = os.path.dirname(os.path.dirname(__file__))
+        source_file = os.path.join(base_path, 'RoManTools', 'data', f"{method_var}List.csv")
+        with open(source_file, encoding='utf-8') as file:
+            reader = csv.reader(file)
+            return [item for sublist in reader for item in sublist]
+
     def _validate_examples(random_text):
         final_words = random_text[0]
         for i in range(1, len(random_text)):
@@ -54,7 +67,7 @@ def generate_random_text_from_list(method, num_syllables=0):
                 final_words += "-" + curr_syllable
         return final_words
 
-    syllable_list = load_syllable_list(method)
+    syllable_list = _load_syllable_list(method)
     syllables = [generate_random_syllable_from_list(syllable_list) for _ in range(num_syllables)]
     return _validate_examples(syllables)
 

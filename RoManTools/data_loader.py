@@ -21,9 +21,6 @@ Functions:
 
     load_stopwords() -> List[str]:
         Loads a list of stopwords from a text file.
-
-    load_syllable_list(method: str) -> List[str]:
-        Loads a list of syllables from a CSV file for the specified romanization method.
 """
 
 from typing import Tuple, List, Dict, Union
@@ -109,16 +106,3 @@ def load_stopwords() -> List[str]:
     with open(file_path, encoding='utf-8') as f:
         stopwords = f.read().splitlines()
     return stopwords
-
-
-def load_syllable_list(method: str) -> List[str]:
-    """
-    Loads a list of Pinyin syllables from a CSV file.
-
-    Returns:
-        List[str]: A list of Pinyin syllables.
-    """
-    source_file = os.path.join(base_path, 'data', f"{method}List.csv")
-    with open(source_file, encoding='utf-8') as file:
-        reader = csv.reader(file)
-        return [item for sublist in reader for item in sublist]
