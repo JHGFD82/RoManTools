@@ -181,8 +181,8 @@ class Word:
             str: The final word with added symbols
         """
         # Syllables have to be processed individually if conversion took place. Otherwise, they are combined in a
-        # different process.
-        if self.is_convertable():
+        # different process. If the error_skip is False, then assume conversion took place.
+        if not self.processor.config.error_skip or self.is_convertable():
             self.final_word = self.processed_syllables[0][0]
             for i in range(1, len(self.processed_syllables)):
                 self._append_syllable(i)
