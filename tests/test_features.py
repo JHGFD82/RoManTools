@@ -220,13 +220,13 @@ class TestRomanization(unittest.TestCase):
     # ROMANIZATON CONVERSION TESTING #
     @timeit_decorator()
     def test_convert_text_py_wg(self):
-        result = convert_text('ni hao chang\'an yuan', convert_from='py', convert_to='wg')
-        self.assertEqual(result, "ni hao ch'ang-an yüan")
+        result = convert_text('ni hao chang\'an yuan di\'an sheer zongtao', convert_from='py', convert_to='wg')
+        self.assertEqual(result, "ni hao ch'ang-an yüan ti-an she-erh tsung-t'ao")
 
     @timeit_decorator()
     def test_convert_text_wg_py(self):
-        result = convert_text('ni hao ch\'ang-an yüan ti-an', convert_from='wg', convert_to='py')
-        self.assertEqual(result, "ni hao chang'an yuan di'an")
+        result = convert_text('ni hao ch\'ang-an yüan ti-an she-erh tsung-t\'ao', convert_from='wg', convert_to='py')
+        self.assertEqual(result, "ni hao chang'an yuan di'an she'er zongtao")
 
     @timeit_decorator()
     def test_convert_text_titlecase(self):
