@@ -127,8 +127,7 @@ class Word:
         valid_syllables = all(syl.valid for syl in self.syllables[:-1])
         last_apostrophe = self.syllables[-1].status_attr.has_apostrophe
         if self.processor.convert_from == 'wg':
-            possible_contraction = self.syllables[-1].text_attr.full_syllable = (
-                self.syllables[-1].text_attr.full_syllable.replace("'", ""))
+            possible_contraction = self.syllables[-1].text_attr.full_syllable.replace("'", "")
             contraction = possible_contraction in supported_contractions
         else:
             contraction = self.syllables[-1].text_attr.full_syllable in supported_contractions
