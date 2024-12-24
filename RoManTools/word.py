@@ -30,6 +30,7 @@ class WordProcessor:
         stopwords (Set[str]): A set of stopwords to be excluded from processing.
         converter (RomanizationConverter): The converter object used for romanization conversion.
     """
+
     def __init__(self, config: Config, convert_from: str, convert_to: str, stopwords: Set[str]):
         """
         Initializes the WordProcessor with the provided configuration and romanization method parameters.
@@ -40,6 +41,7 @@ class WordProcessor:
             convert_to (str): The romanization method to convert to (e.g., 'wg' for Wade-Giles).
             stopwords (Set[str]): A set of stopwords to be excluded from processing.
         """
+
         self.config = config
         self.convert_from = convert_from
         self.convert_to = convert_to
@@ -55,6 +57,7 @@ class WordProcessor:
         Returns:
             Word: A Word object created from the given syllables.
         """
+
         return Word(syllables, self)
 
 
@@ -71,6 +74,7 @@ class Word:
         valid (bool): Indicates if all syllables in the word are valid.
         contraction (bool): Indicates if the word is a contraction.
     """
+
     def __init__(self, syllables: List[Syllable], processor: WordProcessor):
         """
         Initializes a Word object with the provided syllables and processor.
@@ -79,6 +83,7 @@ class Word:
             syllables (List[Syllable]): A list of syllables that make up the word.
             processor (WordProcessor): The processor object used to handle syllable validation and conversion.
         """
+
         self.syllables = syllables
         self.processor = processor
         self.processed_syllables = []  # Will contain tuples with the converted syllable and the original syllable
@@ -96,6 +101,7 @@ class Word:
         Returns:
             str: The preview word
         """
+
         word_parts = []
         for syl in self.syllables:
             if syl.status_attr.has_apostrophe and self.processor.convert_from != 'wg':
@@ -113,6 +119,7 @@ class Word:
         Returns:
             bool: True if all syllables are valid, False otherwise
         """
+
         return all(syl.valid for syl in self.syllables)
 
     def is_contraction(self) -> bool:
@@ -124,6 +131,7 @@ class Word:
         Returns:
             bool: True if the word is a contraction, False otherwise
         """
+
         valid_syllables = all(syl.valid for syl in self.syllables[:-1])
         last_apostrophe = self.syllables[-1].status_attr.has_apostrophe
         if self.processor.convert_from == 'wg':
@@ -141,6 +149,7 @@ class Word:
         Returns:
             bool: True if the word is valid or a contraction and not a stopword, False otherwise
         """
+
         return (self.valid or self.contraction) and self.preview_word not in self.processor.stopwords
 
     def convert(self):
@@ -148,6 +157,7 @@ class Word:
         Converts the syllables of the word, returning error messages for invalid syllables if error_skip is False.
         Otherwise, errors are ignored.
         """
+
         # For standard conversion requests, process syllables with error messages.
         if not self.processor.config.error_skip:
             self.processed_syllables = [(self.processor.converter.convert(syl.text_attr.full_syllable), syl) for syl in self.syllables]
@@ -169,6 +179,7 @@ class Word:
         """
         Applies capitalization to the converted syllables.
         """
+
         # The apply_caps method within the Syllable object is called on each syllable to apply capitalization based on
         # titlecase or uppercase attributes within each syllable.
         self.processed_syllables = [(syl[1].apply_caps(syl[0]), syl[1]) for syl in self.processed_syllables]
@@ -180,6 +191,7 @@ class Word:
         Returns:
             str: The final word with added symbols
         """
+
         # Syllables have to be processed individually if conversion took place. Otherwise, they are combined in a
         # different process. If the error_skip is False, then assume conversion took place.
         if not self.processor.config.error_skip or self.is_convertable():
@@ -200,6 +212,7 @@ class Word:
         Returns:
             None
         """
+
         # Specific rules for romanization are contained here.
         prev_syllable = self.processed_syllables[i - 1][0]
         curr_syllable = self.processed_syllables[i][0]
@@ -231,6 +244,7 @@ class Word:
         Returns:
             bool: True if an apostrophe is needed, False otherwise
         """
+
         # The logic for apostrophes in Pinyin is based on the following rules in which the start of the next syllable
         # is a vowel:
         # - If the last character of the previous syllable and the first character of the current syllable is a vowel
@@ -250,6 +264,7 @@ class Word:
         Returns:
             None
         """
+
         for syl in self.processed_syllables:
             if syl[1].status_attr.has_apostrophe:
                 self.final_word += "'" + syl[0]
@@ -265,6 +280,7 @@ class Word:
         Returns:
             str: The final word after processing the syllables
         """
+
         self.convert()
         self.apply_caps()
         self.add_symbols()

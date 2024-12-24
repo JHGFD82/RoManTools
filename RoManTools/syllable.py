@@ -35,6 +35,7 @@ class SyllableProcessor:
             config (Config): The configuration object with settings like error_skip and crumbs.
             method_params (dict): The parameters for the romanization method, including the validation array.
         """
+
         self.config = config
         self.ar = method_params['ar']
         self.init_list = method_params['init_list']
@@ -52,6 +53,7 @@ class SyllableProcessor:
         Returns:
             Syllable: A Syllable object with information about the initial, final, and validity.
         """
+
         # result = Syllable(text, self, remainder)
         # print(result.__dict__)
         # return result
@@ -62,6 +64,7 @@ class SyllableTextAttributes:
     """
     Represents the text attributes of a syllable, including the initial, final, and full syllable.
     """
+
     def __init__(self, text: str, remainder: str = ""):
         """
         Initializes the SyllableTextAttributes object with the provided text and remainder.
@@ -70,6 +73,7 @@ class SyllableTextAttributes:
             text: The syllable text to be processed.
             remainder: The remainder of the text to be processed.
         """
+
         self.text = text.lower()
         self.remainder = remainder
         self.initial = ""
@@ -81,6 +85,7 @@ class SyllableStatusAttributes:
     """
     Represents the status attributes of a syllable, including capitalization, apostrophes, and dashes.
     """
+
     def __init__(self, text: str):
         """
         Initializes the SyllableStatusAttributes object with the provided text.
@@ -88,6 +93,7 @@ class SyllableStatusAttributes:
         Args:
             text: The syllable text to be processed.
         """
+
         self.has_apostrophe = False
         self.has_dash = False
         self.capitalize = False
@@ -101,6 +107,7 @@ class SyllableStatusAttributes:
         Returns:
             bool: True if the text is in title case, considering contractions; otherwise, False.
         """
+
         # Remove all non-letter characters (.istitle() does not function properly with apostrophes and dashes)
         cleaned_text = re.sub(r'[^a-zA-Z]', '', text)
         self.capitalize = cleaned_text.istitle()
@@ -110,6 +117,7 @@ class Syllable:
     """
     Represents a syllable and its components (initial, final) in the context of a romanization method.
     """
+
     def __init__(self, text: str, processor: SyllableProcessor, remainder):
 
         """
@@ -120,6 +128,7 @@ class Syllable:
             remainder (str, optional): The remainder of the text to be processed. Defaults to "".
             processor (SyllableProcessor): The processor object used to validate the syllable.
         """
+
         self.processor = processor
         self.text_attr = SyllableTextAttributes(text, remainder)
         self.valid = False
@@ -137,6 +146,7 @@ class Syllable:
         Returns:
             str: The transformed text with applied capitalization.
         """
+
         if self.status_attr.uppercase:
             return text.upper()
         if self.status_attr.capitalize:
@@ -150,6 +160,7 @@ class Syllable:
         Returns:
             str: The text with the first character removed if it was an apostrophe or dash.
         """
+
         first_char = self.text_attr.text[0]
         if first_char in apostrophes:
             self.status_attr.has_apostrophe = True
@@ -163,6 +174,7 @@ class Syllable:
         """
         Processes the syllable to extract the initial, final, and remainder parts and validates the syllable.
         """
+
         # Construct parts of syllable
         self.text_attr.initial, self.text_attr.final, self.text_attr.full_syllable, self.text_attr.remainder = (
             self._find_initial_final(self.text_attr.text))
@@ -179,6 +191,7 @@ class Syllable:
         Returns:
             Tuple[str, str, str, str]: The initial, final, full syllable, and remainder of the input text.
         """
+
         initial = self._find_initial(text)
         # If a "ø" is found, indicating no initial, find the final without the initial
         if initial == 'ø':
@@ -203,6 +216,7 @@ class Syllable:
         Returns:
             str: The initial part of the syllable or 'ø' if no valid initial is found.
         """
+
         for i, c in enumerate(text):
             if c in vowels:
                 if i == 0:  # If a vowel is found at the beginning of the syllable, return 'ø' to indicate no initial
@@ -228,6 +242,7 @@ class Syllable:
         Returns:
             str: The final part of the syllable.
         """
+
         def _send_to_find_final_py():
             return self._find_final_py(text, initial)
 
@@ -252,6 +267,7 @@ class Syllable:
         Returns:
             str: The final part of the syllable.
         """
+
         for i, c in enumerate(text):
             # Handle cases where the final starts with a vowel or consonant, otherwise return whatever remaining
             # text is left
@@ -274,6 +290,7 @@ class Syllable:
         Returns:
             str: The final part of the syllable.
         """
+
         # FUTURE: expand on this to handle missing dashes (very likely), involves linking to _handle_consonant_case.
         for i, c in enumerate(text):
             if c in apostrophes:
@@ -292,6 +309,7 @@ class Syllable:
         Returns:
             str: The final part of the syllable or a subset based on potential candidates.
         """
+
         if i + 1 == len(text):
             return text  # This is a simple final with no further characters to process, usually in cases of no
             # consonants or multi-vowel finals
@@ -321,6 +339,7 @@ class Syllable:
         Returns:
             str: The final part of the syllable.
         """
+
         remainder = len(text) - i - 1
         # Handle "er" and "erh"
         if text[i - 1:i + 1] == 'er':
@@ -362,6 +381,7 @@ class Syllable:
         Returns:
             bool: True if the final is valid, otherwise False.
         """
+
         # Indexes for both initial and final are both determined
         initial_index = self.processor.init_list.index(initial) if initial in self.processor.init_list else -1
         final_index = self.processor.fin_list.index(final) if final in self.processor.fin_list else -1
@@ -380,6 +400,7 @@ class Syllable:
         Returns:
             bool: True if the syllable is valid, otherwise False.
         """
+
         # Syllable validation is performed by _validate_final, but is referenced here; "ø" supplied again for no initial
         if self.text_attr.initial == '':
             return self._validate_final('ø', self.text_attr.final)

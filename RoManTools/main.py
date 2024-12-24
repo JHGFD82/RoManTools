@@ -26,8 +26,8 @@ def _normalize_method(method: str, context: str) -> str:
 
     Returns:
         str: The normalized romanization method string.
-
     """
+
     method = method.lower()
     method_map = {
         'pinyin': 'py',
@@ -52,6 +52,7 @@ def _validate_arguments(args):
     Returns:
         None
     """
+
     if args.action in ['segment', 'validator', 'syllable_count', 'detect_method']:
         if not args.text:
             raise argparse.ArgumentTypeError(f'The --text argument is required for the {args.action} action.')
@@ -107,6 +108,7 @@ def main():
     Raises:
         argparse.ArgumentError: If invalid arguments are provided.
     """
+
     parser = argparse.ArgumentParser(description='RoManTools: Romanized Mandarin Tools')
 
     # REQUIRED PARAMETERS

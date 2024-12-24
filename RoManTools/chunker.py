@@ -34,6 +34,7 @@ class TextChunkProcessor:
         chunks (List[Union[List[Syllable], str]]): The processed chunks of text, where each chunk is either a list of
         syllables or a string.
     """
+
     def __init__(self, text: str, config: Config, method_params: dict):
         self.text = text
         self.config = config
@@ -53,6 +54,7 @@ class TextChunkProcessor:
         Returns:
             List[str]: A list of split segments.
         """
+
         if self.config.error_skip:
             # Regular expression splits text into groups of words (including apostrophes and dashes) with
             # non-text elements separated
@@ -73,6 +75,7 @@ class TextChunkProcessor:
         Returns:
             List[str]: A list of split components of the word.
         """
+
         if self.method == 'wg':
             # Splits string with respect to Wade-Giles's use of apostrophes in syllable initials and dashes for
             # between syllables
@@ -89,6 +92,7 @@ class TextChunkProcessor:
 
         Depending on the configuration, it can use different regex patterns for splitting the text.
         """
+
         # Collect segments using regular expressions
         segments = self._split_text_into_segments(self.text)
         for segment in segments:
@@ -112,6 +116,7 @@ class TextChunkProcessor:
         Args:
             remaining_text (str): The remaining text to process.
         """
+
         return self.syllable_processor.create_syllable(remaining_text)
         # This commented code is for debugging purposes to print the resulting syllable object
         # result = self.syllable_processor.create_syllable(remaining_text)
@@ -125,6 +130,7 @@ class TextChunkProcessor:
         Args:
             split_words (List[str]): The split words to process.
         """
+
         syllables = []
         for syllable in split_words:
             remaining_text = syllable
@@ -143,4 +149,5 @@ class TextChunkProcessor:
             List[Union[List[Syllable], str]]: A list of processed chunks where each chunk is either a list of Syllable
             objects or a string.
         """
+
         return self.chunks

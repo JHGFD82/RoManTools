@@ -71,6 +71,7 @@ def _process_text(text: str, method: str, config: Config) -> List[Union[List[Syl
         List[Union[List[Syllable], Syllable]]: A list of processed text chunks,
         which could be individual syllables or lists of syllables.
     """
+
     # if config.crumbs:
     #     print(f'# Analyzing {text} #')
     processor = TextChunkProcessor(text, config, load_method_params(method))
@@ -97,6 +98,7 @@ def segment_text(text: str, method: str, config: Optional[Config] = None, **kwar
         >>> segment_text(text, method="py")
         [['zhong', 'guo'], ['ti', 'an'], ['tian', 'qi']]
     """
+
     if not config:
         config = Config(**kwargs)
     chunks = _process_text(text, method, config)
@@ -127,6 +129,7 @@ def _conversion_processing(text: str, convert: dict, config: Config, stopwords: 
     Returns:
         str: The converted text based on the selected romanization conversion mappings.
     """
+
     word_processor = WordProcessor(config, convert['from'], convert['to'], stopwords)
     concat_text = []
     for chunk in _process_text(text, convert['from'], config):
@@ -161,6 +164,7 @@ def convert_text(text: str, convert_from: str, convert_to: str, config: Optional
         >>> convert_text(text, convert_from="py", convert_to="wg")
         'Chung-kuo'
     """
+
     if not config:
         config = Config(**kwargs)
     stopwords = set(load_stopwords())
@@ -187,6 +191,7 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, config: Optional[
         >>> cherry_pick(text, convert_from="py", convert_to="wg")
         'This is Chung-kuo.'
     """
+
     if not config:
         config = Config(error_skip=True, **kwargs)
     stopwords = set(load_stopwords())
@@ -214,6 +219,7 @@ def syllable_count(text: str, method: str, config: Optional[Config] = None, **kw
         >>> syllable_count(text, method="py")
         [2]
     """
+
     if not config:
         config = Config(**kwargs)
     chunks = _process_text(text, method, config)
@@ -242,6 +248,7 @@ def detect_method(text: str, per_word: bool = False, config: Optional[Config] = 
         >>> detect_method(text)
         ['py']
     """
+
     if not config:
         config = Config(**kwargs)
     methods = ['py', 'wg']
@@ -256,6 +263,7 @@ def detect_method(text: str, per_word: bool = False, config: Optional[Config] = 
         Returns:
             List[str]: A list of methods that are valid for processing the given chunk.
         """
+
         result = []
         for method in methods:
             chunks = _process_text(chunk, method, config)
@@ -296,6 +304,7 @@ def validator(text: str, method: str, per_word: bool = False, config: Optional[C
         >>> validator(text, method="py")
         True
     """
+
     if config is None:
         config = Config(**kwargs)
     chunks = _process_text(text, method, config)

@@ -46,6 +46,7 @@ def load_romanization_data(file_path: str) -> Tuple[List[str], List[str], np.nda
             - List of finals.
             - A 2D numpy array representing valid initial-final combinations.
     """
+
     data = np.genfromtxt(file_path, delimiter=',', dtype=str)
     init_list = list(data[1:, 0])
     fin_list = list(data[0, 1:])
@@ -61,6 +62,7 @@ def load_conversion_data(method_combination: str):
         method_combination (str): A string specifying the conversion direction (e.g., 'py_wg' for Pinyin to
         Wade-Giles).
     """
+
     accepted_methods = ['py_wg', 'wg_py']
     if method_combination in accepted_methods:
         source_file = os.path.join(base_path, 'data', f'{method_combination}.csv')
@@ -81,6 +83,7 @@ def load_method_params(method: str) -> Dict[str, Union[List[str], np.ndarray]]:
     Returns:
         Dict[str, List[str], np.ndarray]: A dictionary containing initials, finals, and the valid combinations array.
     """
+
     method_file = f'{method}DF'
     try:
         init_list, fin_list, ar = load_romanization_data(os.path.join(base_path, 'data', f'{method_file}.csv'))
@@ -103,6 +106,7 @@ def load_stopwords() -> List[str]:
     Returns:
         List[str]: A list of stopwords.
     """
+
     file_path = os.path.join(base_path, 'data', 'stopwords.txt')
     with open(file_path, encoding='utf-8') as f:
         stopwords = f.read().splitlines()

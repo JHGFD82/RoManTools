@@ -21,6 +21,7 @@ class RomanizationConverter:
             method_combination (str): A string specifying the conversion direction (e.g., 'py_wg' for Pinyin to
             Wade-Giles).
         """
+
         self.conversion_dicts = load_conversion_data(method_combination)
 
     @lru_cache(maxsize=10000)
@@ -34,6 +35,7 @@ class RomanizationConverter:
         Returns:
             str: The converted text based on the selected romanization conversion mappings.
         """
+
         lowercased_text = text.lower()
         # FUTURE: Add error handling for missing conversion mappings
         return self.conversion_dicts.get(lowercased_text, text + '(!)')
