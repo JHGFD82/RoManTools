@@ -51,15 +51,16 @@ def _validate_arguments(args):
         None
     """
 
-    if args.action in ['segment', 'validator', 'syllable_count', 'detect_method']:
-        if not args.text:
-            raise argparse.ArgumentTypeError(f'The --text argument is required for the {args.action} action.')
+    # Additional checks for method-related actions
+    if args.action in ['segment', 'validator', 'syllable_count']:
+        if not args.method:
+            print(f'The --method argument is required for the {args.action} action.', file=sys.stderr)
+            raise SystemExit(2)
 
-        # Additional checks for method-related actions
-        if args.action in ['convert_text', 'cherry_pick']:
-            if not args.convert_from or not args.convert_to:
-                raise argparse.ArgumentTypeError(f'Both --convert_from and --convert_to arguments are required for the '
-                                                 f'{args.action} action.')
+    if args.action in ['convert', 'cherry_pick']:
+        if not args.convert_from or not args.convert_to:
+            print(f'Both --convert_from and --convert_to arguments are required for the {args.action} action.', file=sys.stderr)
+            raise SystemExit(2)
 
 
 # ACTION FUNCTIONS #
