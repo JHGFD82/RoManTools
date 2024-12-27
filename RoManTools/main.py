@@ -16,7 +16,7 @@ from RoManTools.config import Config
 from RoManTools.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
 
 
-def _normalize_method(method: str, context: str) -> str:
+def _normalize_method(method: str) -> str:
     """
     Normalizes the romanization method string to a standard format.
 
@@ -37,9 +37,7 @@ def _normalize_method(method: str, context: str) -> str:
     }
     if method in method_map:
         return method_map[method]
-    if context == 'romanization':
-        raise argparse.ArgumentTypeError(f"Invalid romanization method: {method}")
-    return method
+    raise argparse.ArgumentTypeError(f"Invalid romanization method: {method}")
 
 
 def _validate_arguments(args):
