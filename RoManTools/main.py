@@ -12,6 +12,7 @@ Usage Example:
 """
 
 import argparse
+import sys
 from RoManTools.config import Config
 from RoManTools.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
 
@@ -123,12 +124,12 @@ def main():
                         help='Text to process')
 
     # CONDITIONAL PARAMETERS (BASED ON CHOSEN ACTION)
-    parser.add_argument('-m', '--method', type=lambda x: _normalize_method(x, 'romanization'),
+    parser.add_argument('-m', '--method', type=_normalize_method,
                         help='Romanization method for functions (pinyin/py, wade-giles/wg)')
-    parser.add_argument('-f', '--convert_from', type=lambda x: _normalize_method(x, 'romanization'),
+    parser.add_argument('-f', '--convert_from', type=_normalize_method,
                         help='Source romanization method for convert and cherry_pick actions '
                              '(pinyin/py, wade-giles/wg)')
-    parser.add_argument('-t', '--convert_to', type=lambda x: _normalize_method(x, 'romanization'),
+    parser.add_argument('-t', '--convert_to', type=_normalize_method,
                         help='Target romanization method for convert and cherry_pick actions '
                              '(pinyin/py, wade-giles/wg)')
 
@@ -145,7 +146,10 @@ def main():
     parser.add_argument('-R', '--error_report', action='store_true',
                         help='Include error messages in the output')
 
-    args = parser.parse_args()
+    if args is None:
+        args = parser.parse_args()
+    else:
+        args = parser.parse_args(args)
 
     # Validate common arguments here
     _validate_arguments(args)
