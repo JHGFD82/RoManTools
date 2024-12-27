@@ -76,7 +76,7 @@ def generate_random_text_from_list(method, num_syllables=0):
     return _validate_examples(syllables)
 
 
-class TestRomanization(unittest.TestCase):
+class TestRoManToolsActions(unittest.TestCase):
 
     # PINYIN CHUNK GENERATION TESTING #
     @timeit_decorator()
