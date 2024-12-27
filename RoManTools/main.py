@@ -101,7 +101,7 @@ ACTIONS = {
 }
 
 
-def main():
+def main(args=None):
     """
     The main entry point for the script. Sets up command-line argument parsing and calls the appropriate function.
 
