@@ -161,5 +161,5 @@ def main(args=None):
     print(ACTIONS[args.action](args, config))
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     main()
