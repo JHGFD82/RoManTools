@@ -434,7 +434,3 @@ class TestRoManToolsActions(unittest.TestCase):
         result = segment_text("Bai Juyi lived during the Middle Tang period.", method='py', error_skip=True)
         self.assertEqual(result, [['bai'], ' ', ['ju', 'yi'], ' ', ['li', 'v', 'e', 'd'], ' ', ['du', 'ring'], ' ',
                                   ['the'], ' ', ['mi', 'ddle'], ' ', ['tang'], ' ', ['pe', 'ri', 'o', 'd'], '.'])
-
-
-if __name__ == '__main__':
-    unittest.main()
