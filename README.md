@@ -1,7 +1,7 @@
 # RoManTools - Romanized Mandarin Tools
 
 ![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
-![Python](https://img.shields.io/badge/python-3.8%2B-blue)
+![Python](https://img.shields.io/badge/python-3.9%2B-blue)
 ![Flake8](https://img.shields.io/badge/code%20style-flake8-brightgreen)
 ![Pylint](https://img.shields.io/badge/pylint-10.0%2F10-brightgreen)
 
@@ -24,7 +24,7 @@ Python packages:
 
 * numpy
 
-Packages will be installed along with RoMantools. This package has been tested to work with Python 3.8+.
+Packages will be installed along with RoMantools. This package has been tested to work with Python 3.9+.
 
 ## Installation
 
