@@ -3,6 +3,9 @@ import unittest
 import subprocess
 import sys
 
+# Set the PYTHONPATH to include the directory containing the RoManTools package
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from RoManTools.main import main
 
 
