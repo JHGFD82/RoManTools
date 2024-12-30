@@ -54,11 +54,13 @@ class TestMainExecutionFromIDE(unittest.TestCase):
 class TestMainExecutionFromCLI(unittest.TestCase):
 
     def test_main_execution(self):
-        result = subprocess.run([sys.executable, 'main.py', 'segment', '-i', 'Zhongguo ti\'an tianqi', '-m', 'py'], capture_output=True, text=True)
+        result = subprocess.run([sys.executable, 'RoManTools/main.py', 'segment', '-i', 'Zhongguo ti\'an tianqi', '-m',
+                                 'py'],
+                                capture_output=True, text=True)
         self.assertEqual(result.returncode, 0)
         self.assertIn("[['zhong', 'guo'], ['ti', 'an'], ['tian', 'qi']]", result.stdout)
 
     def test_main_execution_error(self):
-        result = subprocess.run([sys.executable, 'main.py'], capture_output=True, text=True)
+        result = subprocess.run([sys.executable, 'RoManTools/main.py'], capture_output=True, text=True)
         self.assertEqual(result.returncode, 2)
         self.assertIn("error message or output", result.stderr)
