@@ -28,6 +28,10 @@ RoManTools = "RoManTools.main:main"
 
 [tool.setuptools]
 packages = ["RoManTools"]
+include_package_data = true
+
+[tool.setuptools.package-data]
+"your_package_name" = ["data/*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "RoManTools.__version__"}
