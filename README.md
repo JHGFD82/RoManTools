@@ -1,5 +1,12 @@
 # RoManTools - Romanized Mandarin Tools
 
+```
+![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
+![Python](https://img.shields.io/badge/python-3.8%2B-blue)
+![Flake8](https://img.shields.io/badge/code%20style-flake8-brightgreen)
+![Pylint](https://img.shields.io/badge/pylint-10.0%2F10-brightgreen)
+```
+
 This package comprises a set of tools designed to facilitate the handling of romanized Mandarin text. It is currently under active development by Jeff Heller, Digital Project Specialist for the Department of East Asian Studies at Princeton University. This is a beta release, open for testing and forking.
 
 ## Features Planned for Version 1.0
@@ -26,6 +33,30 @@ Packages will be installed along with RoMantools. This package has been tested t
 To install RoManTools, the easiest method is through pip:
 
 ``pip -m install RoManTools``
+
+## Execution
+
+RoManTools can be executed in three ways.
+
+* From the command-line using the installed command:
+
+```bash
+RoManTools [action] -i [input]
+```
+
+* From the command-line using the ```python``` command on main.py (after navigating to where RoManTools is installed):
+
+```bash
+python main.py
+```
+
+* From within the Python console or scripts via import:
+
+```python
+from RoManTools import *
+```
+
+Documentation on command-line execution can be found in [CLI.md](docs/CLI.md), as well as execution within Python from [Python.md](docs/Python.md). Other documentation include requirements for inputted text as well as the package's methodology for text analysis.
 
 ## Possible Future Goals (suggestions welcome!)
 
