@@ -1,11 +1,9 @@
 # RoManTools - Romanized Mandarin Tools
 
-```
 ![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.8%2B-blue)
 ![Flake8](https://img.shields.io/badge/code%20style-flake8-brightgreen)
 ![Pylint](https://img.shields.io/badge/pylint-10.0%2F10-brightgreen)
-```
 
 This package comprises a set of tools designed to facilitate the handling of romanized Mandarin text. It is currently under active development by Jeff Heller, Digital Project Specialist for the Department of East Asian Studies at Princeton University. This is a beta release, open for testing and forking.
 
