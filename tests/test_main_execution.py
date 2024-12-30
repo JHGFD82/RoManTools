@@ -7,6 +7,7 @@ from RoManTools.main import main
 
 
 os.environ['COVERAGE_PROCESS_START'] = '.coveragerc'
+os.environ['PYTHONPATH'] = os.path.abspath(os.path.dirname(__file__))
 
 class TestMainExecutionFromIDE(unittest.TestCase):
 
