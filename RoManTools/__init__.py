@@ -18,7 +18,7 @@ Functions:
 Usage Example:
     >>> from RoManTools import convert_text
     >>> text = "Zhongguo ti'an tianqi"
-    >>> converted_text = convert_text(text, from_method='py', to_method='wg')
+    >>> converted_text = convert_text(text, convert_from='py', convert_to='wg')
     >>> print(converted_text)
 """
 
