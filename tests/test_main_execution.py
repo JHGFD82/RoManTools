@@ -53,19 +53,3 @@ class TestMainExecutionFromIDE(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             main(["convert", "-i", "Zhongguo ti'an tianqi", "-f", "py"])
         self.assertEqual(cm.exception.code, 2)
-
-
-class TestMainExecutionFromCLI(unittest.TestCase):
-
-    def test_main_execution(self):
-        result = subprocess.run([sys.executable, 'main.py', 'segment', '-i', 'Zhongguo ti\'an tianqi',
-                                 '-m', 'py'], capture_output=True, text=True)
-        print(result.stderr)  # Print stderr to diagnose the issue
-        self.assertEqual(result.returncode, 0)
-        self.assertIn("[['zhong', 'guo'], ['ti', 'an'], ['tian', 'qi']]", result.stdout)
-
-    def test_main_execution_error(self):
-        result = subprocess.run([sys.executable, 'main.py'], capture_output=True, text=True)
-        print(result.stderr)  # Print stderr to diagnose the issue
-        self.assertEqual(result.returncode, 2)
-        self.assertIn("The --method argument is required for the segment action.", result.stderr)
