@@ -32,6 +32,8 @@ To install RoManTools, the easiest method is through pip:
 
 ``pip -m install RoManTools``
 
+You can also download the package directly from the GitHub repository. This method is ***not recommended*** as it requires a specific execution process, detailed in the last bullet point below.
+
 ## Execution
 
 RoManTools can be executed in three ways.
@@ -52,6 +54,10 @@ python main.py
 
 ```python
 from RoManTools import *
+* From the command-line after downloading the package directly from GitHub:
+
+```bash
+python -m RoManTools.main [action] -i [input] [other parameters]
 ```
 
 Documentation on command-line execution can be found in [CLI.md](docs/CLI.md), as well as execution within Python from [Python.md](docs/Python.md). Other documentation include requirements for inputted text as well as the package's methodology for text analysis.
