@@ -145,7 +145,6 @@ def _conversion_processing(text: str, convert: dict, config: Config, stopwords: 
     return " ".join(concat_text) if include_spaces else "".join(concat_text)
 
 
-@lru_cache(maxsize=1000000)
 def convert_text(text: str, convert_from: str, convert_to: str, config: Optional[Config] = None, **kwargs) -> str:
     """
     Converts the given text from one romanization standard to another, returning errors for any invalid syllables.
@@ -155,6 +154,7 @@ def convert_text(text: str, convert_from: str, convert_to: str, config: Optional
         convert_from (str): The romanization standard to convert from.
         convert_to (str): The romanization standard to convert to.
         config (Config, optional): The configuration object containing processing settings. Defaults to None.
+        **kwargs: Additional keyword arguments to initialize the Config object if not provided.
 
     Returns:
         str: The converted text based on the selected romanization conversion mappings.
@@ -165,11 +165,27 @@ def convert_text(text: str, convert_from: str, convert_to: str, config: Optional
         'Chung-kuo'
     """
 
-    if not config:
-        config = Config(**kwargs)
-    stopwords = set(load_stopwords())
-    convert = {"from": convert_from, "to": convert_to}
-    return _conversion_processing(text, convert, config, stopwords, include_spaces=True)
+    @lru_cache(maxsize=1000000)
+    def _cached_convert_text(config_info: Optional[Config] = None) -> str:
+        """
+        Converts the given text using the cached conversion logic.
+
+        Args:
+            config_info (Config, optional): The configuration object containing processing settings. Defaults to None.
+
+        Returns:
+            str: The converted text based on the selected romanization conversion mappings.
+        """
+        if not config_info:
+            config_info = Config(**kwargs)
+        stopwords = set(load_stopwords())
+        convert = {"from": convert_from, "to": convert_to}
+        return _conversion_processing(text, convert, config_info, stopwords, include_spaces=True)
+
+    if kwargs or (config and any([config.crumbs, config.error_skip, config.error_report])):
+        return _cached_convert_text.__wrapped__(config)
+    else:
+        return _cached_convert_text()
 
 
 @lru_cache(maxsize=1000000)
