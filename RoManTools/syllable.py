@@ -180,6 +180,8 @@ class Syllable:
             self._find_initial_final(self.text_attr.text))
         # Validate the syllable
         self.valid = self._validate_syllable()
+        self.processor.config.print_crumb(3, f'"{self.text_attr.full_syllable}" valid', str(self.valid))
+        self.processor.config.print_crumb(0, '', '---')
 
     def _find_initial_final(self, text: str) -> Tuple[str, str, str, str]:
         """
@@ -193,12 +195,14 @@ class Syllable:
         """
 
         initial = self._find_initial(text)
+        self.processor.config.print_crumb(2, "initial found", initial)
         # If a "ø" is found, indicating no initial, find the final without the initial
         if initial == 'ø':
             final = self._find_final(text, initial)
             initial = ''
         else:
             final = self._find_final(text[len(initial):], initial)
+        self.processor.config.print_crumb(2, "final found", final)
         # After finding final, concatenate initial and final to get the full syllable
         full_syllable = initial + final
         remainder_start = len(full_syllable)

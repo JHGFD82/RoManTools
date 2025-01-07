@@ -117,6 +117,7 @@ class TextChunkProcessor:
             remaining_text (str): The remaining text to process.
         """
 
+        self.config.print_crumb(1, 'Analyzing syllable', remaining_text)
         return self.syllable_processor.create_syllable(remaining_text)
         # This commented code is for debugging purposes to print the resulting syllable object
         # result = self.syllable_processor.create_syllable(remaining_text)

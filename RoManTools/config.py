@@ -31,3 +31,9 @@ class Config:
         self.crumbs = crumbs
         self.error_skip = error_skip
         self.error_report = error_report
+
+    def print_crumb(self, level: int = 0, stage: str = '', message: str = ''):
+        if self.crumbs:
+            prefix = '#' * level + ' ' if level > 0 else ''
+            stage = f'{stage}: ' if stage else ''
+            print(f'{prefix}{stage}{message}')
