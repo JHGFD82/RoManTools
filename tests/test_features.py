@@ -4,35 +4,13 @@ from typing import List
 from RoManTools.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
 from RoManTools.data_loader import load_conversion_data, load_method_params
 from RoManTools.constants import vowels
+from decorators import timeit_decorator
+
 import os
 import csv
 import random
 import time
 # from memory_profiler import profile
-
-# Initialize the counter for the number of tests
-test_counter = 0
-
-def timeit_decorator(repeats=10):
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            global test_counter
-            test_counter += 1
-            total_time = 0.0
-            result = 0
-            for i in range(repeats):
-                start_time = time.time()
-                try:
-                    result = func(*args, **kwargs, repeat_num=i + 1)
-                except TypeError:
-                    result = func(*args, **kwargs)  # Fallback for functions that don't accept repeat_num
-                end_time = time.time()
-                total_time += end_time - start_time
-            average_time = total_time / repeats
-            print(f"Test {test_counter}: Function {func.__name__} executed in average: {average_time:.8f} seconds over {repeats} runs")
-            return result
-        return wrapper
-    return decorator
 
 
 def generate_random_syllable_from_list(syllable_list):
