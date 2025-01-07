@@ -1,7 +1,8 @@
 import os
 import unittest
-import subprocess
 import sys
+from io import StringIO
+
 
 # Set the PYTHONPATH to include the directory containing the RoManTools package
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -14,6 +15,18 @@ os.environ['COVERAGE_PROCESS_START'] = '.coveragerc'
 
 
 class TestMainExecutionFromIDE(unittest.TestCase):
+
+    def setUp(self):
+        self.held_stdout = StringIO()
+        self.held_stderr = StringIO()
+        self.original_stdout = sys.stdout
+        self.original_stderr = sys.stderr
+        sys.stdout = self.held_stdout
+        sys.stderr = self.held_stderr
+
+    def tearDown(self):
+        sys.stdout = self.original_stdout
+        sys.stderr = self.original_stderr
 
     @timeit_decorator()
     def test_main_execution_segment(self):
