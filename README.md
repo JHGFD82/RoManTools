@@ -41,19 +41,16 @@ RoManTools can be executed in three ways.
 * From the command-line using the installed command:
 
 ```bash
-RoManTools [action] -i [input]
-```
-
-* From the command-line using the ```python``` command on main.py (after navigating to where RoManTools is installed):
-
-```bash
-python main.py
+RoManTools [action] -i [input] [other parameters]
 ```
 
 * From within the Python console or scripts via import:
 
 ```python
 from RoManTools import *
+[action]([input], [other parameters])
+```
+
 * From the command-line after downloading the package directly from GitHub:
 
 ```bash
