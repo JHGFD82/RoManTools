@@ -366,7 +366,7 @@ class TestRoManToolsActions(unittest.TestCase):
                                  "ending his exile.")
 
     # SYLLABLE_COUNT TESTING #
-    @timeit_decorator(repeats=10)
+    @timeit_decorator(repeats=100)
     def test_syllable_count_py(self):
         num_syllables = random.randint(1, 3)
         random_text = generate_random_text_from_list('py', num_syllables=num_syllables)
@@ -374,7 +374,7 @@ class TestRoManToolsActions(unittest.TestCase):
         # print(f"Test {test_counter}: {random_text} has {num_syllables} syllables")
         self.assertEqual(result, [num_syllables])
 
-    @timeit_decorator(repeats=10)
+    @timeit_decorator(repeats=100)
     def test_syllable_count_wg(self):
         num_syllables = random.randint(1, 3)
         random_text = generate_random_text_from_list('wg', num_syllables=num_syllables)
@@ -383,13 +383,13 @@ class TestRoManToolsActions(unittest.TestCase):
         self.assertEqual(result, [num_syllables])
 
     # METHOD DETECTION TESTING #
-    @timeit_decorator(repeats=10)
+    @timeit_decorator(repeats=100)
     def test_detect_method_py(self):
         random_text = generate_random_text_from_list('py', 3)
         result = detect_method(random_text)
         self.assertIn('py', result, f"'py' not found in text: {random_text}")
 
-    @timeit_decorator(repeats=10)
+    @timeit_decorator(repeats=100)
     def test_detect_method_wg(self):
         random_text = generate_random_text_from_list('wg', 3)
         result = detect_method(random_text)
