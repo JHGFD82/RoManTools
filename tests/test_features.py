@@ -1,4 +1,6 @@
 import unittest
+from unittest.mock import patch
+from io import StringIO
 from typing import List
 
 from RoManTools.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
@@ -405,6 +407,20 @@ class TestRoManToolsActions(unittest.TestCase):
                                   {'word': 'shoiji', 'methods': []},
                                   {'word': 'yiin', 'methods': []}]
                          )
+
+    # CRUMBS TESTING #
+    @timeit_decorator(repeats=10)
+    def test_convert_text_crumb(self):
+        with patch('sys.stdout', new=StringIO()) as fake_out:
+            result = convert_text("t'ao", convert_from='wg', convert_to='py', crumbs=True)
+            self.assertEqual(result, "tao")
+            console_output = fake_out.getvalue().strip()
+            expected_output = "# Analyzing syllable: t'ao\n" \
+                              "## initial found: t'\n" \
+                              "## final found: ao\n" \
+                              "### \"t'ao\" valid: True\n" \
+                              "---"
+            self.assertEqual(console_output, expected_output)
 
     # ERROR_SKIP TESTING #
     @timeit_decorator()
