@@ -60,7 +60,7 @@ from RoManTools import *
 python -m RoManTools.main [action] -i [input] [other parameters]
 ```
 
-Documentation on command-line execution can be found in [CLI.md](docs/CLI.md), as well as execution within Python from [Python.md](docs/Python.md). Other documentation include requirements for inputted text as well as the package's methodology for text analysis.
+Documentation on command-line execution can be found in [CLI.md](docs/CLI.md), as well as execution within Python from [Python.md](docs/Python.md). Please refer to [Input_Requirements.md](docs/Input_Requirements.md) for guidelines on how text should be formatted for input, and [Methodology.md](docs/Methodology.md) will provide details on the text analysis process.
 
 ## Possible Future Goals (suggestions welcome!)
 
