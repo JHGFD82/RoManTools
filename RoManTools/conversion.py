@@ -40,4 +40,5 @@ class RomanizationConverter:
 
         lowercased_text = text.lower()
         # FUTURE: Add error handling for missing conversion mappings
+        self.config.print_crumb(4, "Converting text", text)
         return self.conversion_dicts.get(lowercased_text, text + '(!)')
