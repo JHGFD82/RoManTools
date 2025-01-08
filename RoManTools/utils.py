@@ -80,7 +80,6 @@ def _process_text(text: str, method: str, config: Config) -> List[Union[List[Syl
 
 
 # Segmentation actions
-@lru_cache(maxsize=1000000)
 def segment_text(text: str, method: str, config: Optional[Config] = None, **kwargs) \
         -> List[Union[List[Syllable], Syllable]]:
     """
@@ -100,18 +99,32 @@ def segment_text(text: str, method: str, config: Optional[Config] = None, **kwar
         [['zhong', 'guo'], ['ti', 'an'], ['tian', 'qi']]
     """
 
-    if not config:
-        config = Config(**kwargs)
-    chunks = _process_text(text, method, config)
-    segmented_result = []
-    for chunk in chunks:
-        if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
-            # Return the full syllable attribute for each Syllable object
-            segmented_result.append([syl.text_attr.full_syllable for syl in chunk])
-        else:
-            # Return the non-text elements as strings
-            segmented_result.append(chunk)
-    return segmented_result
+    @lru_cache(maxsize=1000000)
+    def _cached_segment_text(config_info: Optional[Config] = None) -> List[Union[List[Syllable], Syllable]]:
+        """
+        Segments the given text using the cached segmentation logic.
+        Args:
+            config_info: The configuration object containing processing settings. Defaults to None.
+
+        Returns:
+            List[Union[List[Syllable], Syllable]]: A list of segmented syllables or syllable chunks.
+        """
+        if not config_info:
+            config_info = Config(**kwargs)
+        chunks = _process_text(text, method, config_info)
+        segmented_result = []
+        for chunk in chunks:
+            if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
+                # Return the full syllable attribute for each Syllable object
+                segmented_result.append([syl.text_attr.full_syllable for syl in chunk])
+            else:
+                # Return the non-text elements as strings
+                segmented_result.append(chunk)
+        return segmented_result
+
+    if kwargs or (config and any([config.crumbs, config.error_skip, config.error_report])):
+        return _cached_segment_text.__wrapped__(config)
+    return _cached_segment_text()
 
 
 # Conversion actions
@@ -188,7 +201,6 @@ def convert_text(text: str, convert_from: str, convert_to: str, config: Optional
     return _cached_convert_text()
 
 
-@lru_cache(maxsize=1000000)
 def cherry_pick(text: str, convert_from: str, convert_to: str, config: Optional[Config] = None, **kwargs) -> str:
     """
     Converts the given text from one romanization standard to another if detected as a valid romanized Mandarin word, and returns all over text.
@@ -208,15 +220,29 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, config: Optional[
         'This is Chung-kuo.'
     """
 
-    if not config:
-        config = Config(error_skip=True, **kwargs)
-    stopwords = set(load_stopwords())
-    convert = {"from": convert_from, "to": convert_to}
-    return _conversion_processing(text, convert, config, stopwords, include_spaces=False)
+    @lru_cache(maxsize=1000000)
+    def _cached_cherry_pick(config_info: Optional[Config] = None) -> str:
+        """
+        Converts the given text using the cached cherry-pick logic.
+
+        Args:
+            config_info (Config, optional): The configuration object containing processing settings. Defaults to None.
+
+        Returns:
+            str: The converted text based on the selected romanization conversion mappings.
+        """
+        if not config_info:
+            config_info = Config(error_skip=True, **kwargs)
+        stopwords = set(load_stopwords())
+        convert = {"from": convert_from, "to": convert_to}
+        return _conversion_processing(text, convert, config_info, stopwords, include_spaces=False)
+
+    if kwargs or (config and any([config.crumbs, config.error_skip, config.error_report])):
+        return _cached_cherry_pick.__wrapped__(config)
+    return _cached_cherry_pick()
 
 
 # Counting actions
-@lru_cache(maxsize=1000000)
 # @profile
 def syllable_count(text: str, method: str, config: Optional[Config] = None, **kwargs) -> list[int]:
     """
@@ -236,16 +262,30 @@ def syllable_count(text: str, method: str, config: Optional[Config] = None, **kw
         [2]
     """
 
-    if not config:
-        config = Config(**kwargs)
-    chunks = _process_text(text, method, config)
-    # Return the length of each chunk if all syllables are valid, otherwise return 0 (will change to error messages
-    # in later update)
-    return [lengths if all(syllable.valid for syllable in chunk) else 0 for chunk in chunks for lengths in [len(chunk)]]
+    @lru_cache(maxsize=1000000)
+    def _cached_syllable_count(config_info: Optional[Config] = None) -> list[int]:
+        """
+        Counts the syllables for each word in the processed text using the cached logic.
+
+        Args:
+            config_info (Config, optional): The configuration object containing processing settings. Defaults to None.
+
+        Returns:
+            List[int]: A list of lengths for each valid word in the processed text.
+        """
+        if not config_info:
+            config_info = Config(**kwargs)
+        chunks = _process_text(text, method, config_info)
+        # Return the length of each chunk if all syllables are valid, otherwise return 0 (will change to error messages
+        # in later update)
+        return [lengths for chunk in chunks for lengths in [len(chunk)]]
+
+    if kwargs or (config and any([config.crumbs, config.error_skip, config.error_report])):
+        return _cached_syllable_count.__wrapped__(config)
+    return _cached_syllable_count()
 
 
 # Detection and validation actions
-@lru_cache(maxsize=1000000)
 def detect_method(text: str, per_word: bool = False, config: Optional[Config] = None, **kwargs) \
         -> Union[List[str], List[Dict[str, List[str]]]]:
     """
@@ -265,42 +305,55 @@ def detect_method(text: str, per_word: bool = False, config: Optional[Config] = 
         ['py']
     """
 
-    if not config:
-        config = Config(**kwargs)
-    methods = ['py', 'wg']
-
-    def detect_for_chunk(chunk: str) -> List[str]:
+    @lru_cache(maxsize=1000000)
+    def _cached_detect_method(config_info: Optional[Config] = None) -> Union[List[str], List[Dict[str, List[str]]]]:
         """
-        Detects the valid processing methods for a given chunk of romanized Mandarin text.
+        Detects the romanization method of the given text using the cached detection logic.
 
         Args:
-            chunk (str): A segment of romanized Mandarin text to be analyzed.
+            config_info (Config, optional): The configuration object containing processing settings. Defaults to None.
 
         Returns:
-            List[str]: A list of methods that are valid for processing the given chunk.
+            Union[List[str], List[Dict[str, List[str]]]]: A list of detected methods, either for the full text or per word.
         """
 
-        result = []
-        for method in methods:
-            chunks = _process_text(chunk, method, config)
-            if all(syllable.valid for chunk in chunks for syllable in chunk):
-                result.append(method)
-        return result
+        if not config_info:
+            config_info = Config(**kwargs)
 
-    if not per_word:
-        # Perform detection for the entire text, returning a single list of valid methods
-        return detect_for_chunk(text)
-    # Perform detection per word, returning the valid methods for each word
-    words = text.split()
-    results = []
-    for word in words:
-        valid_methods = detect_for_chunk(word)
-        results.append({"word": word, "methods": valid_methods})
-    return results
+        def detect_for_chunk(chunk: str) -> List[str]:
+            """
+            Detects the valid processing methods for a given chunk of romanized Mandarin text.
+
+            Args:
+                chunk (str): A segment of romanized Mandarin text to be analyzed.
+
+            Returns:
+                List[str]: A list of methods that are valid for processing the given chunk.
+            """
+
+            result = []
             for method in shorthand_to_full.keys():
+                chunks = _process_text(chunk, method, config_info)
+                if all(syllable.valid for chunk in chunks for syllable in chunk):
+                    result.append(method)
+            return result
+
+        if not per_word:
+            # Perform detection for the entire text, returning a single list of valid methods
+            return detect_for_chunk(text)
+        # Perform detection per word, returning the valid methods for each word
+        words = text.split()
+        results = []
+        for word in words:
+            valid_methods = detect_for_chunk(word)
+            results.append({"word": word, "methods": valid_methods})
+        return results
+
+    if kwargs or (config and any([config.crumbs, config.error_skip, config.error_report])):
+        return _cached_detect_method.__wrapped__(config)
+    return _cached_detect_method()
 
 
-@lru_cache(maxsize=1000000)
 def validator(text: str, method: str, per_word: bool = False, config: Optional[Config] = None, **kwargs) \
         -> Union[bool, list[dict]]:
     """
@@ -322,19 +375,35 @@ def validator(text: str, method: str, per_word: bool = False, config: Optional[C
         True
     """
 
-    if config is None:
-        config = Config(**kwargs)
-    chunks = _process_text(text, method, config)
-    if not per_word:
-        # Perform validation for the entire text, returning a single boolean value
-        return all(syllable.valid for chunk in chunks for syllable in chunk)
-    # Perform validation per word, returning the validity of each word
-    result = []
-    for word_chunks in chunks:
-        word_result = {
-            'word': ''.join(chunk.text_attr.full_syllable for chunk in word_chunks),
-            'syllables': [chunk.text_attr.full_syllable for chunk in word_chunks],
-            'valid': [chunk.valid for chunk in word_chunks]
-        }
-        result.append(word_result)
-    return result
+    @lru_cache(maxsize=1000000)
+    def _cached_validator(config_info: Optional[Config] = None) -> Union[bool, list[dict]]:
+        """
+        Validates the processed text or individual words using the cached validation logic.
+
+        Args:
+            config_info: The configuration object containing processing settings. Defaults to None.
+
+        Returns:
+            Union[bool, list[dict]]: Validation results, either as a boolean for the entire text or a detailed list per word.
+        """
+
+        if config_info is None:
+            config_info = Config(**kwargs)
+        chunks = _process_text(text, method, config_info)
+        if not per_word:
+            # Perform validation for the entire text, returning a single boolean value
+            return all(syllable.valid for chunk in chunks for syllable in chunk)
+        # Perform validation per word, returning the validity of each word
+        result = []
+        for word_chunks in chunks:
+            word_result = {
+                'word': ''.join(chunk.text_attr.full_syllable for chunk in word_chunks),
+                'syllables': [chunk.text_attr.full_syllable for chunk in word_chunks],
+                'valid': [chunk.valid for chunk in word_chunks]
+            }
+            result.append(word_result)
+        return result
+
+    if kwargs or (config and any([config.crumbs, config.error_skip, config.error_report])):
+        return _cached_validator.__wrapped__(config)
+    return _cached_validator()
