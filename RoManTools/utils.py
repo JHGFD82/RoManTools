@@ -51,6 +51,7 @@ from .chunker import TextChunkProcessor
 from .syllable import Syllable
 from .word import WordProcessor
 from .data_loader import load_method_params, load_stopwords
+from .constants import supported_methods, shorthand_to_full
 # from memory_profiler import profile
 
 __all__ = ['segment_text', 'convert_text', 'cherry_pick', 'syllable_count', 'detect_method', 'validator']
@@ -297,6 +298,7 @@ def detect_method(text: str, per_word: bool = False, config: Optional[Config] = 
         valid_methods = detect_for_chunk(word)
         results.append({"word": word, "methods": valid_methods})
     return results
+            for method in shorthand_to_full.keys():
 
 
 @lru_cache(maxsize=1000000)
