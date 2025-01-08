@@ -33,6 +33,10 @@ class TestMainExecutionFromIDE(unittest.TestCase):
         main(["segment", "-i", "Zhongguo ti'an tianqi", "-m", "py"])
 
     @timeit_decorator()
+    def test_main_execution_shorthand_method_segment(self):
+        main(["segment", "-i", "Zhongguo ti'an tianqi", "-m", "wade-giles"])
+
+    @timeit_decorator()
     def test_main_execution_validator(self):
         main(["validator", "-i", "Zhongguo ti'an tianqi", "-m", "py"])
 
