@@ -155,12 +155,12 @@ class TestRoManToolsActions(unittest.TestCase):
                                   ['feng', 'huang'], ['jen', 'min']])
 
     # ERROR CATCHING TESTS #
-    @timeit_decorator(repeats=1)
+    @timeit_decorator()
     def test_load_conversion_data_error(self):
         with self.assertRaises(ValueError):
             load_conversion_data('pa_wv')
 
-    @timeit_decorator(repeats=1)
+    @timeit_decorator()
     def test_load_method_params_error(self):
         with self.assertRaises(FileNotFoundError):
             load_method_params('pa')
@@ -229,7 +229,7 @@ class TestRoManToolsActions(unittest.TestCase):
                              "devoted Chan Buddhist.", convert_from='py', convert_to='wg')
         self.assertEqual(result, "Pai Chü-i lived during the Middle T'ang period. This was a period of rebuilding and recovery for the T'ang Empire, following the An Lu-shan Rebellion, and following the poetically flourishing era famous for Li Pai (701－762), Wang Wei (701－761), and Tu Fu (712－770). Pai Chü-i lived through the reigns of eight or nine emperors, being born in the Ta-li regnal era (766-779) of Emperor Tai-tsung of T'ang. He had a long and successful career both as a government official and a poet, although these two facets of his career seemed to have come in conflict with each other at certain points. Pai Chü-i was also a devoted Ch'an Buddhist.")
 
-    @timeit_decorator(repeats=1)
+    @timeit_decorator()
     def test_cherry_pick_long(self):
         self.maxDiff = None
         result = cherry_pick("Bai Juyi lived during the Middle Tang period. This was a period of rebuilding and "
@@ -408,7 +408,7 @@ class TestRoManToolsActions(unittest.TestCase):
                          )
 
     # CRUMBS TESTING #
-    @timeit_decorator(repeats=10)
+    @timeit_decorator()
     def test_convert_text_crumb(self):
         with patch('sys.stdout', new=StringIO()) as fake_out:
             result = convert_text("t'ao", convert_from='wg', convert_to='py', crumbs=True)
