@@ -18,3 +18,9 @@ vowels = {'a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ'}
 apostrophes = {"'", "’", "ʼ", "`"}
 dashes = {"-", "–", "—"}
 supported_contractions = {"s", "d", "ll"}
+supported_methods = {
+    'pinyin': {'shorthand': 'py', 'pretty': 'Pinyin'},
+    'wade-giles': {'shorthand': 'wg', 'pretty': 'Wade-Giles'}
+}
+shorthand_to_full = {v['shorthand']: k for k, v in supported_methods.items()}
+full_to_shorthand = {k: v['shorthand'] for k, v in supported_methods.items()}
