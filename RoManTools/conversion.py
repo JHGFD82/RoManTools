@@ -7,13 +7,14 @@ Classes:
 
 from functools import lru_cache
 from .data_loader import load_conversion_data
+from .config import Config
 
 
 class RomanizationConverter:
     """
     A class to convert romanized Chinese between different romanization systems.
     """
-    def __init__(self, method_combination):
+    def __init__(self, method_combination: str, config: Config):
         """
         Initializes the RomanizationConverter class.
 
@@ -23,6 +24,7 @@ class RomanizationConverter:
         """
 
         self.conversion_dicts = load_conversion_data(method_combination)
+        self.config = config
 
     @lru_cache(maxsize=10000)
     def convert(self, text: str) -> str:
