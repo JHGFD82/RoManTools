@@ -15,6 +15,7 @@ import argparse
 import sys
 from .config import Config
 from .utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
+from .constants import supported_methods, shorthand_to_full
 
 
 def _normalize_method(method: str) -> str:
@@ -23,21 +24,16 @@ def _normalize_method(method: str) -> str:
 
     Args:
         method (str): The romanization method string.
-        context (str): The context in which the method is being used.
 
     Returns:
         str: The normalized romanization method string.
     """
 
     method = method.lower()
-    method_map = {
-        'pinyin': 'py',
-        'py': 'py',
-        'wade-giles': 'wg',
-        'wg': 'wg'
-    }
-    if method in method_map:
-        return method_map[method]
+    if method in supported_methods:
+        return supported_methods[method]['shorthand']
+    if method in shorthand_to_full:
+        return method
     raise argparse.ArgumentTypeError(f"Invalid romanization method: {method}")
 
 
