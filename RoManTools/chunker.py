@@ -18,6 +18,7 @@ from typing import List
 import re
 from .config import Config
 from .syllable import SyllableProcessor, Syllable
+from .constants import supported_methods, shorthand_to_full
 
 
 class TextChunkProcessor:
@@ -117,7 +118,9 @@ class TextChunkProcessor:
             remaining_text (str): The remaining text to process.
         """
 
-        self.config.print_crumb(1, 'Analyzing syllable', remaining_text)
+        # Print crumb for syllable analysis
+        self.config.print_crumb(1, f'Analyzing text as {supported_methods[shorthand_to_full[self.method]]["pretty"]}',
+                                remaining_text)
         return self.syllable_processor.create_syllable(remaining_text)
         # This commented code is for debugging purposes to print the resulting syllable object
         # result = self.syllable_processor.create_syllable(remaining_text)
