@@ -185,8 +185,7 @@ def convert_text(text: str, convert_from: str, convert_to: str, config: Optional
 
     if kwargs or (config and any([config.crumbs, config.error_skip, config.error_report])):
         return _cached_convert_text.__wrapped__(config)
-    else:
-        return _cached_convert_text()
+    return _cached_convert_text()
 
 
 @lru_cache(maxsize=1000000)
