@@ -33,6 +33,19 @@ class Config:
         self.error_report = error_report
 
     def print_crumb(self, level: int = 0, stage: str = '', message: str = ''):
+        """
+        Prints a crumb message based on the configuration settings.
+
+        Args:
+            level (int): The level of the crumb message.
+            stage (str): The stage of processing.
+            message (str): The message to display.
+
+        Example:
+            >>> config = Config(crumbs=True)
+            >>> config.print_crumb(1, 'Segmentation', 'Processing text')
+            # Segmentation: Processing text
+        """
         if self.crumbs:
             prefix = '#' * level + ' ' if level > 0 else ''
             stage = f'{stage}: ' if stage else ''
