@@ -409,12 +409,75 @@ class TestRoManToolsActions(unittest.TestCase):
 
     # CRUMBS TESTING #
     @timeit_decorator()
+    def test_segment_text_crumb(self):
+        with patch('sys.stdout', new=StringIO()) as fake_out:
+            result = segment_text("t'ao", method='wg', crumbs=True)
+            self.assertEqual(result, [["t'ao"]])
+            console_output = fake_out.getvalue().strip()
+            expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
+                              "## initial found: t'\n" \
+                              "## final found: ao\n" \
+                              "### \"t'ao\" valid: True\n" \
+                              "---"
+            self.assertEqual(console_output, expected_output)
+
+    @timeit_decorator()
     def test_convert_text_crumb(self):
         with patch('sys.stdout', new=StringIO()) as fake_out:
             result = convert_text("t'ao", convert_from='wg', convert_to='py', crumbs=True)
             self.assertEqual(result, "tao")
             console_output = fake_out.getvalue().strip()
-            expected_output = "# Analyzing syllable: t'ao\n" \
+            expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
+                              "## initial found: t'\n" \
+                              "## final found: ao\n" \
+                              "### \"t'ao\" valid: True\n" \
+                              "---\n" \
+                              "#### Converting text: t'ao"
+            self.assertEqual(console_output, expected_output)
+
+    @timeit_decorator()
+    def test_syllable_count_crumb(self):
+        with patch('sys.stdout', new=StringIO()) as fake_out:
+            result = syllable_count("t'ao", method='wg', crumbs=True)
+            self.assertEqual(result, [1])
+            console_output = fake_out.getvalue().strip()
+            expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
+                              "## initial found: t'\n" \
+                              "## final found: ao\n" \
+                              "### \"t'ao\" valid: True\n" \
+                              "---"
+            self.assertEqual(console_output, expected_output)
+
+    @timeit_decorator()
+    def test_detect_method_crumb(self):
+        with patch('sys.stdout', new=StringIO()) as fake_out:
+            result = detect_method("t'ao", crumbs=True)
+            self.assertEqual(result, ['wg'])
+            console_output = fake_out.getvalue().strip()
+            expected_output = "# Analyzing text as Pinyin: t\n" \
+                              "## initial found: t\n" \
+                              "## final found: \n" \
+                              "### \"t\" valid: False\n" \
+                              "---\n" \
+                              "# Analyzing text as Pinyin: 'ao\n" \
+                              "## initial found: ø\n" \
+                              "## final found: ao\n" \
+                              "### \"ao\" valid: True\n" \
+                              "---\n" \
+                              "# Analyzing text as Wade-Giles: t'ao\n" \
+                              "## initial found: t'\n" \
+                              "## final found: ao\n" \
+                              "### \"t'ao\" valid: True\n" \
+                              "---"
+            self.assertEqual(console_output, expected_output)
+
+    @timeit_decorator()
+    def test_validator_crumb(self):
+        with patch('sys.stdout', new=StringIO()) as fake_out:
+            result = validator("t'ao", method='wg', crumbs=True)
+            self.assertEqual(result, True)
+            console_output = fake_out.getvalue().strip()
+            expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
                               "## initial found: t'\n" \
                               "## final found: ao\n" \
                               "### \"t'ao\" valid: True\n" \
