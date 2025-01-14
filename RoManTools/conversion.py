@@ -26,7 +26,6 @@ class RomanizationConverter:
         self.conversion_dicts = load_conversion_data(method_combination)
         self.config = config
 
-    @lru_cache(maxsize=10000)
     def convert(self, text: str) -> str:
         """
         Converts a given text.
@@ -38,7 +37,22 @@ class RomanizationConverter:
             str: The converted text based on the selected romanization conversion mappings.
         """
 
-        lowercased_text = text.lower()
-        # FUTURE: Add error handling for missing conversion mappings
-        self.config.print_crumb(4, "Converting text", text)
-        return self.conversion_dicts.get(lowercased_text, text + '(!)')
+        @lru_cache(maxsize=10000)
+        def _cached_convert(text_to_convert: str) -> str:
+            """
+            Converts a given text using an LRU cache.
+
+            Args:
+                text_to_convert (str): The text to be converted.
+
+            Returns:
+                str: The converted text based on the selected romanization conversion mappings.
+            """
+            lowercased_text = text_to_convert.lower()
+            return self.conversion_dicts.get(lowercased_text, text_to_convert + '(!)')
+
+        if any([self.config.error_skip, self.config.error_report, self.config.crumbs]):
+            # FUTURE: Add error handling for missing conversion mappings
+            self.config.print_crumb(1, "Converting text", text)
+            self.config.print_crumb(message='---')
+        return _cached_convert(text)
