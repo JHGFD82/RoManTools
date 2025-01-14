@@ -182,7 +182,6 @@ class Syllable:
         self.valid = self._validate_syllable()
         # Print the results of the syllable processing
         self.processor.config.print_crumb(3, f'"{self.text_attr.full_syllable}" valid', str(self.valid))
-        self.processor.config.print_crumb(0, '', '---')
 
     def _find_initial_final(self, text: str) -> Tuple[str, str, str, str]:
         """
