@@ -99,10 +99,15 @@ class TextChunkProcessor:
         for segment in segments:
             # Text elements are processed into syllables
             if re.match(r"[a-zA-ZüÜ]+", segment):
+                # Print crumb for syllable analysis
+                self.config.print_crumb(1,f'Analyzing text as '
+                                          f'{supported_methods[shorthand_to_full[self.method]]["pretty"]}', segment)
                 # Regular expressions are used again to split words into smaller components
                 split_words = self._split_word(segment)
                 # Process each split word into Syllable objects
                 self._process_split_words(split_words)
+                if self.config.crumbs:
+                    self.config.print_crumb(message='---')
             else:
                 # Non-text elements are directly appended as strings
                 self.chunks.append(segment)
@@ -118,9 +123,6 @@ class TextChunkProcessor:
             remaining_text (str): The remaining text to process.
         """
 
-        # Print crumb for syllable analysis
-        self.config.print_crumb(1, f'Analyzing text as {supported_methods[shorthand_to_full[self.method]]["pretty"]}',
-                                remaining_text)
         return self.syllable_processor.create_syllable(remaining_text)
         # This commented code is for debugging purposes to print the resulting syllable object
         # result = self.syllable_processor.create_syllable(remaining_text)
