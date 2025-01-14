@@ -432,7 +432,8 @@ class TestRoManToolsActions(unittest.TestCase):
                               "## final found: ao\n" \
                               "### \"t'ao\" valid: True\n" \
                               "---\n" \
-                              "#### Converting text: t'ao"
+                              "# Converting text: t'ao\n" \
+                              "---"
             self.assertEqual(console_output, expected_output)
 
     @timeit_decorator()
@@ -454,12 +455,10 @@ class TestRoManToolsActions(unittest.TestCase):
             result = detect_method("t'ao", crumbs=True)
             self.assertEqual(result, ['wg'])
             console_output = fake_out.getvalue().strip()
-            expected_output = "# Analyzing text as Pinyin: t\n" \
+            expected_output = "# Analyzing text as Pinyin: t'ao\n" \
                               "## initial found: t\n" \
                               "## final found: \n" \
                               "### \"t\" valid: False\n" \
-                              "---\n" \
-                              "# Analyzing text as Pinyin: 'ao\n" \
                               "## initial found: ø\n" \
                               "## final found: ao\n" \
                               "### \"ao\" valid: True\n" \
