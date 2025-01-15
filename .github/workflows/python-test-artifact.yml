@@ -31,7 +31,7 @@ jobs:
           name: pytest-results-${{ matrix.python-version }}
           path: junit/test-results-${{ matrix.python-version }}.xml
       - name: Test for CodeCov # CodeCov integration with pytest --cov-branch
-        run: pytest --cov-branch --cov-report=xml
+        run: PYTHONPATH=$(pwd) pytest --cov-branch --cov-report=xml
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
         with:
