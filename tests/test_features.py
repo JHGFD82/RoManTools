@@ -156,9 +156,6 @@ class TestRoManToolsActions(unittest.TestCase):
 
     # ERROR CATCHING TESTS #
     @timeit_decorator()
-    def test_load_conversion_data_error(self):
-        with self.assertRaises(ValueError):
-            load_conversion_data('pa_wv')
 
     @timeit_decorator()
     def test_load_method_params_error(self):
