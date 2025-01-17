@@ -353,7 +353,7 @@ def detect_method(text: str, per_word: bool = False, config: Optional[Config] = 
             result = []
             for method in shorthand_to_full.keys():
                 chunks = _process_text(chunk, method, config_info)
-                if all(syllable.valid for chunk in chunks for syllable in chunk):
+                if chunks and all(syllable.valid for chunk in chunks for syllable in chunk):
                     result.append(method)
                 _end_crumb(config_info)
             return result
