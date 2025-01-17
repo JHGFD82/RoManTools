@@ -46,7 +46,7 @@ class WordProcessor:
         self.convert_from = convert_from
         self.convert_to = convert_to
         self.stopwords = stopwords
-        self.converter = RomanizationConverter(f"{convert_from}_{convert_to}", self.config)
+        self.converter = RomanizationConverter(convert_from, convert_to, self.config)
 
     def create_word(self, syllables: List[Syllable]) -> "Word":
         """

@@ -54,23 +54,21 @@ def load_romanization_data(file_path: str) -> Tuple[List[str], List[str], np.nda
     return init_list, fin_list, ar
 
 
-def load_conversion_data(method_combination: str):
+def load_conversion_data() -> List[Dict[str, str]]:
     """
     Loads the conversion mappings based on the method combination specified during initialization.
 
-    Args:
-        method_combination (str): A string specifying the conversion direction (e.g., 'py_wg' for Pinyin to
-        Wade-Giles).
+    Returns:
+        List[Dict[str, str]]: A list of dictionaries containing conversion mappings between different romanization methods.
     """
 
-    accepted_methods = ['py_wg', 'wg_py']
-    if method_combination in accepted_methods:
-        source_file = os.path.join(base_path, 'data', f'{method_combination}.csv')
-        with open(source_file, encoding='utf-8') as file:
-            r = csv.reader(file)
-            return {rows[0]: rows[1] for rows in r}
-    else:
-        raise ValueError(f'Method {method_combination} not supported.')
+    source_file = os.path.join(base_path, 'data', 'conversion_mapping.csv')
+    mappings = []
+    with open(source_file, encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            mappings.append(row)
+    return mappings
 
 
 def load_method_params(method: str) -> Dict[str, Union[List[str], np.ndarray]]:
