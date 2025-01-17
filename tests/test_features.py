@@ -28,7 +28,7 @@ def generate_random_text_from_list(method, num_syllables=0):
             List[str]: A list of Pinyin syllables.
         """
         base_path = os.path.dirname(os.path.dirname(__file__))
-        source_file = os.path.join(base_path, 'RoManTools', 'data', f"{method_var}List.csv")
+        source_file = os.path.join(f"{method_var}List.csv")
         with open(source_file, encoding='utf-8') as file:
             reader = csv.reader(file)
             return [item for sublist in reader for item in sublist]
