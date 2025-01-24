@@ -16,6 +16,7 @@ Classes:
 from functools import lru_cache
 from typing import List
 import re
+import unicodedata
 from .config import Config
 from .syllable import SyllableProcessor, Syllable
 from .constants import supported_methods, shorthand_to_full
@@ -55,6 +56,9 @@ class TextChunkProcessor:
         Returns:
             List[str]: A list of split segments.
         """
+
+        # Normalize the text to NFC form
+        text = unicodedata.normalize('NFC', text)
 
         if self.config.error_skip:
             # Regular expression splits text into groups of words (including apostrophes and dashes) with
