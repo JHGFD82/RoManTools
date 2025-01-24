@@ -87,8 +87,6 @@ def load_method_params(method: str) -> Dict[str, Union[List[str], np.ndarray]]:
         init_list, fin_list, ar = load_romanization_data(os.path.join(base_path, 'data', f'{method_file}.csv'))
     except FileNotFoundError as exc:
         raise FileNotFoundError(f"Syllable array for method '{method}' not found.") from exc
-    # if config.crumbs:
-    #     print(f"# {method.upper()} romanization data loaded #")
     return {
         'ar': ar,
         'init_list': init_list,
