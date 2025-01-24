@@ -180,6 +180,8 @@ class Syllable:
             self._find_initial_final(self.text_attr.text))
         # Validate the syllable
         self.valid = self._validate_syllable()
+        # Print the results of the syllable processing
+        self.processor.config.print_crumb(3, f'"{self.text_attr.full_syllable}" valid', str(self.valid))
 
     def _find_initial_final(self, text: str) -> Tuple[str, str, str, str]:
         """
@@ -193,12 +195,14 @@ class Syllable:
         """
 
         initial = self._find_initial(text)
+        self.processor.config.print_crumb(2, "initial found", initial)  # Print the initial found
         # If a "ø" is found, indicating no initial, find the final without the initial
         if initial == 'ø':
             final = self._find_final(text, initial)
             initial = ''
         else:
             final = self._find_final(text[len(initial):], initial)
+        self.processor.config.print_crumb(2, "final found", final)  # Print the final found
         # After finding final, concatenate initial and final to get the full syllable
         full_syllable = initial + final
         remainder_start = len(full_syllable)
@@ -391,7 +395,7 @@ class Syllable:
         if initial_index == -1 or final_index == -1:
             return False
         # Returns value found in the NumPy array
-        return bool(self.processor.ar[initial_index, final_index])
+        return self.processor.ar[initial_index][final_index]
 
     def _validate_syllable(self) -> bool:
         """

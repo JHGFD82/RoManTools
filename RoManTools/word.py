@@ -46,7 +46,7 @@ class WordProcessor:
         self.convert_from = convert_from
         self.convert_to = convert_to
         self.stopwords = stopwords
-        self.converter = RomanizationConverter(f"{convert_from}_{convert_to}")
+        self.converter = RomanizationConverter(convert_from, convert_to, self.config)
 
     def create_word(self, syllables: List[Syllable]) -> "Word":
         """
@@ -217,8 +217,9 @@ class Word:
         prev_syllable = self.processed_syllables[i - 1][0]
         curr_syllable = self.processed_syllables[i][0]
         is_last_syllable = i == len(self.processed_syllables) - 1
-        # Regardless of the romanization method, all contractions require the apostrophe to be added.
-        if self.contraction and is_last_syllable:
+        # For romanization systems that don't use apostrophes in initials (aka not Wade-Giles), all contractions
+        # require the apostrophe to be added.
+        if self.contraction and is_last_syllable and self.processor.convert_from != 'wg':
             self.final_word += "'" + curr_syllable
         # For Pinyin, specific logic is applied to determine whether an apostrophe is needed between syllables.
         elif self.processor.convert_to == 'py':

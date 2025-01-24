@@ -1,2 +1,1 @@
-numpy
 setuptools~=75.6.0

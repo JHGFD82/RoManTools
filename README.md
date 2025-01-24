@@ -20,11 +20,7 @@ Version 1.0 of this project will include the following features:
 
 ## Prerequisites
 
-Python packages:
-
-* numpy
-
-Packages will be installed along with RoMantools. This package has been tested to work with Python 3.9+.
+There are no prerequisites. RoManTools was originally built using Numpy 2D arrays, but this has since been replaced with nested tuples.
 
 ## Installation
 

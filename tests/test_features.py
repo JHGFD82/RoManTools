@@ -1,38 +1,14 @@
 import unittest
-from typing import List
+from unittest.mock import patch
+from io import StringIO
 
 from RoManTools.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
 from RoManTools.data_loader import load_conversion_data, load_method_params
 from RoManTools.constants import vowels
-import os
-import csv
+from decorators import timeit_decorator
+
 import random
-import time
 # from memory_profiler import profile
-
-# Initialize the counter for the number of tests
-test_counter = 0
-
-def timeit_decorator(repeats=10):
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            global test_counter
-            test_counter += 1
-            total_time = 0.0
-            result = 0
-            for i in range(repeats):
-                start_time = time.time()
-                try:
-                    result = func(*args, **kwargs, repeat_num=i + 1)
-                except TypeError:
-                    result = func(*args, **kwargs)  # Fallback for functions that don't accept repeat_num
-                end_time = time.time()
-                total_time += end_time - start_time
-            average_time = total_time / repeats
-            print(f"Test {test_counter}: Function {func.__name__} executed in average: {average_time:.8f} seconds over {repeats} runs")
-            return result
-        return wrapper
-    return decorator
 
 
 def generate_random_syllable_from_list(syllable_list):
@@ -40,19 +16,6 @@ def generate_random_syllable_from_list(syllable_list):
 
 
 def generate_random_text_from_list(method, num_syllables=0):
-
-    def _load_syllable_list(method_var: str) -> List[str]:
-        """
-        Loads a list of Pinyin syllables from a CSV file.
-
-        Returns:
-            List[str]: A list of Pinyin syllables.
-        """
-        base_path = os.path.dirname(os.path.dirname(__file__))
-        source_file = os.path.join(base_path, 'RoManTools', 'data', f"{method_var}List.csv")
-        with open(source_file, encoding='utf-8') as file:
-            reader = csv.reader(file)
-            return [item for sublist in reader for item in sublist]
 
     def _validate_examples(random_text):
         final_words = random_text[0]
@@ -71,7 +34,7 @@ def generate_random_text_from_list(method, num_syllables=0):
                 final_words += "-" + curr_syllable
         return final_words
 
-    syllable_list = _load_syllable_list(method)
+    syllable_list = [row[method] for row in load_conversion_data() if row[method]]
     syllables = [generate_random_syllable_from_list(syllable_list) for _ in range(num_syllables)]
     return _validate_examples(syllables)
 
@@ -176,12 +139,9 @@ class TestRoManToolsActions(unittest.TestCase):
                                   ['feng', 'huang'], ['jen', 'min']])
 
     # ERROR CATCHING TESTS #
-    @timeit_decorator(repeats=1)
-    def test_load_conversion_data_error(self):
-        with self.assertRaises(ValueError):
-            load_conversion_data('pa_wv')
+    @timeit_decorator()
 
-    @timeit_decorator(repeats=1)
+    @timeit_decorator()
     def test_load_method_params_error(self):
         with self.assertRaises(FileNotFoundError):
             load_method_params('pa')
@@ -250,7 +210,7 @@ class TestRoManToolsActions(unittest.TestCase):
                              "devoted Chan Buddhist.", convert_from='py', convert_to='wg')
         self.assertEqual(result, "Pai Chü-i lived during the Middle T'ang period. This was a period of rebuilding and recovery for the T'ang Empire, following the An Lu-shan Rebellion, and following the poetically flourishing era famous for Li Pai (701－762), Wang Wei (701－761), and Tu Fu (712－770). Pai Chü-i lived through the reigns of eight or nine emperors, being born in the Ta-li regnal era (766-779) of Emperor Tai-tsung of T'ang. He had a long and successful career both as a government official and a poet, although these two facets of his career seemed to have come in conflict with each other at certain points. Pai Chü-i was also a devoted Ch'an Buddhist.")
 
-    @timeit_decorator(repeats=1)
+    @timeit_decorator()
     def test_cherry_pick_long(self):
         self.maxDiff = None
         result = cherry_pick("Bai Juyi lived during the Middle Tang period. This was a period of rebuilding and "
@@ -386,30 +346,30 @@ class TestRoManToolsActions(unittest.TestCase):
                                  "ending his exile.")
 
     # SYLLABLE_COUNT TESTING #
-    @timeit_decorator(repeats=10)
+    @timeit_decorator(repeats=100)
     def test_syllable_count_py(self):
         num_syllables = random.randint(1, 3)
         random_text = generate_random_text_from_list('py', num_syllables=num_syllables)
         result = syllable_count(random_text, method='py')
         # print(f"Test {test_counter}: {random_text} has {num_syllables} syllables")
-        self.assertEqual(result, [num_syllables])
+        self.assertEqual(result, [num_syllables], msg=f"Text analyzed: {random_text}")
 
-    @timeit_decorator(repeats=10)
+    @timeit_decorator(repeats=100)
     def test_syllable_count_wg(self):
         num_syllables = random.randint(1, 3)
         random_text = generate_random_text_from_list('wg', num_syllables=num_syllables)
         result = syllable_count(random_text, method='wg')
         # print(f"Test {test_counter}: {random_text} has {num_syllables} syllables")
-        self.assertEqual(result, [num_syllables])
+        self.assertEqual(result, [num_syllables], msg=f"Text analyzed: {random_text}")
 
     # METHOD DETECTION TESTING #
-    @timeit_decorator(repeats=10)
+    @timeit_decorator(repeats=100)
     def test_detect_method_py(self):
         random_text = generate_random_text_from_list('py', 3)
         result = detect_method(random_text)
         self.assertIn('py', result, f"'py' not found in text: {random_text}")
 
-    @timeit_decorator(repeats=10)
+    @timeit_decorator(repeats=100)
     def test_detect_method_wg(self):
         random_text = generate_random_text_from_list('wg', 3)
         result = detect_method(random_text)
@@ -427,6 +387,82 @@ class TestRoManToolsActions(unittest.TestCase):
                                   {'word': 'shoiji', 'methods': []},
                                   {'word': 'yiin', 'methods': []}]
                          )
+
+    # CRUMBS TESTING #
+    @timeit_decorator()
+    def test_segment_text_crumb(self):
+        with patch('sys.stdout', new=StringIO()) as fake_out:
+            result = segment_text("t'ao", method='wg', crumbs=True)
+            self.assertEqual(result, [["t'ao"]])
+            console_output = fake_out.getvalue().strip()
+            expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
+                              "## initial found: t'\n" \
+                              "## final found: ao\n" \
+                              "### \"t'ao\" valid: True\n" \
+                              "---"
+            self.assertEqual(console_output, expected_output)
+
+    @timeit_decorator()
+    def test_convert_text_crumb(self):
+        with patch('sys.stdout', new=StringIO()) as fake_out:
+            result = convert_text("t'ao", convert_from='wg', convert_to='py', crumbs=True)
+            self.assertEqual(result, "tao")
+            console_output = fake_out.getvalue().strip()
+            expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
+                              "## initial found: t'\n" \
+                              "## final found: ao\n" \
+                              "### \"t'ao\" valid: True\n" \
+                              "---\n" \
+                              "# Converting text: t'ao\n" \
+                              "---"
+            self.assertEqual(console_output, expected_output)
+
+    @timeit_decorator()
+    def test_syllable_count_crumb(self):
+        with patch('sys.stdout', new=StringIO()) as fake_out:
+            result = syllable_count("t'ao", method='wg', crumbs=True)
+            self.assertEqual(result, [1])
+            console_output = fake_out.getvalue().strip()
+            expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
+                              "## initial found: t'\n" \
+                              "## final found: ao\n" \
+                              "### \"t'ao\" valid: True\n" \
+                              "---"
+            self.assertEqual(console_output, expected_output)
+
+    @timeit_decorator()
+    def test_detect_method_crumb(self):
+        with patch('sys.stdout', new=StringIO()) as fake_out:
+            result = detect_method("t'ao", crumbs=True)
+            self.assertEqual(result, ['wg'])
+            console_output = fake_out.getvalue().strip()
+            expected_output = "# Analyzing text as Pinyin: t'ao\n" \
+                              "## initial found: t\n" \
+                              "## final found: \n" \
+                              "### \"t\" valid: False\n" \
+                              "## initial found: ø\n" \
+                              "## final found: ao\n" \
+                              "### \"ao\" valid: True\n" \
+                              "---\n" \
+                              "# Analyzing text as Wade-Giles: t'ao\n" \
+                              "## initial found: t'\n" \
+                              "## final found: ao\n" \
+                              "### \"t'ao\" valid: True\n" \
+                              "---"
+            self.assertEqual(console_output, expected_output)
+
+    @timeit_decorator()
+    def test_validator_crumb(self):
+        with patch('sys.stdout', new=StringIO()) as fake_out:
+            result = validator("t'ao", method='wg', crumbs=True)
+            self.assertEqual(result, True)
+            console_output = fake_out.getvalue().strip()
+            expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
+                              "## initial found: t'\n" \
+                              "## final found: ao\n" \
+                              "### \"t'ao\" valid: True\n" \
+                              "---"
+            self.assertEqual(console_output, expected_output)
 
     # ERROR_SKIP TESTING #
     @timeit_decorator()
