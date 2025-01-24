@@ -51,7 +51,7 @@ from .chunker import TextChunkProcessor
 from .syllable import Syllable
 from .word import WordProcessor
 from .data_loader import load_method_params, load_stopwords
-from .constants import supported_methods, shorthand_to_full
+from .constants import shorthand_to_full
 # from memory_profiler import profile
 
 __all__ = ['segment_text', 'convert_text', 'cherry_pick', 'syllable_count', 'detect_method', 'validator']
