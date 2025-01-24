@@ -17,19 +17,6 @@ def generate_random_syllable_from_list(syllable_list):
 
 def generate_random_text_from_list(method, num_syllables=0):
 
-    def _load_syllable_list(method_var: str) -> List[str]:
-        """
-        Loads a list of Pinyin syllables from a CSV file.
-
-        Returns:
-            List[str]: A list of Pinyin syllables.
-        """
-        base_path = os.path.dirname(os.path.dirname(__file__))
-        source_file = os.path.join(f"{method_var}List.csv")
-        with open(source_file, encoding='utf-8') as file:
-            reader = csv.reader(file)
-            return [item for sublist in reader for item in sublist]
-
     def _validate_examples(random_text):
         final_words = random_text[0]
         for i in range(1, len(random_text)):
@@ -47,7 +34,7 @@ def generate_random_text_from_list(method, num_syllables=0):
                 final_words += "-" + curr_syllable
         return final_words
 
-    syllable_list = _load_syllable_list(method)
+    syllable_list = [row[method] for row in load_conversion_data() if row[method]]
     syllables = [generate_random_syllable_from_list(syllable_list) for _ in range(num_syllables)]
     return _validate_examples(syllables)
 
@@ -365,7 +352,7 @@ class TestRoManToolsActions(unittest.TestCase):
         random_text = generate_random_text_from_list('py', num_syllables=num_syllables)
         result = syllable_count(random_text, method='py')
         # print(f"Test {test_counter}: {random_text} has {num_syllables} syllables")
-        self.assertEqual(result, [num_syllables])
+        self.assertEqual(result, [num_syllables], msg=f"Text analyzed: {random_text}")
 
     @timeit_decorator(repeats=100)
     def test_syllable_count_wg(self):
@@ -373,7 +360,7 @@ class TestRoManToolsActions(unittest.TestCase):
         random_text = generate_random_text_from_list('wg', num_syllables=num_syllables)
         result = syllable_count(random_text, method='wg')
         # print(f"Test {test_counter}: {random_text} has {num_syllables} syllables")
-        self.assertEqual(result, [num_syllables])
+        self.assertEqual(result, [num_syllables], msg=f"Text analyzed: {random_text}")
 
     # METHOD DETECTION TESTING #
     @timeit_decorator(repeats=100)
