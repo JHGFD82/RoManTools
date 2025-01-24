@@ -1,15 +1,12 @@
 import unittest
 from unittest.mock import patch
 from io import StringIO
-from typing import List
 
 from RoManTools.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
 from RoManTools.data_loader import load_conversion_data, load_method_params
 from RoManTools.constants import vowels
 from decorators import timeit_decorator
 
-import os
-import csv
 import random
 # from memory_profiler import profile
 
