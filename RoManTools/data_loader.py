@@ -10,7 +10,7 @@ including:
 - Syllable list.
 
 Functions:
-    load_romanization_data(file_path: str) -> Tuple[List[str], List[str], np.ndarray]:
+    load_romanization_data(file_path: str) -> Tuple[List[str], List[str], Tuple[Tuple[bool, ...], ...]]]:
         Loads romanization data from a CSV file and returns initials, finals, and a 2D array indicating valid combinations.
 
     load_conversion_data(method_combination: str) -> Dict[str, str]:
@@ -26,31 +26,32 @@ Functions:
 from typing import Tuple, List, Dict, Union
 import os
 import csv
-import numpy as np
 
 
 base_path = os.path.dirname(__file__)
 
 
-def load_romanization_data(file_path: str) -> Tuple[List[str], List[str], np.ndarray]:
+def load_romanization_data(file_path: str) -> Tuple[List[str], List[str], Tuple[Tuple[bool, ...], ...]]:
     """
-    Loads romanization data from a CSV file and returns the initials, finals, and a 2D array indicating valid
+    Loads romanization data from a CSV file and returns the initials, finals, and a nested tuple indicating valid
     combinations.
 
     Args:
         file_path (str): The path to the CSV file containing romanization data.
 
     Returns:
-        Tuple[List[str], List[str], np.ndarray]: A tuple containing the following:
+        Tuple[List[str], List[str], Tuple[Tuple[bool, ...], ...]]]: A tuple containing the following:
             - List of initials.
             - List of finals.
-            - A 2D numpy array representing valid initial-final combinations.
+            - A nested tuple representing valid initial-final combinations.
     """
 
-    data = np.genfromtxt(file_path, delimiter=',', dtype=str)
-    init_list = list(data[1:, 0])
-    fin_list = list(data[0, 1:])
-    ar = np.array(data[1:, 1:] == '1', dtype=np.bool_)
+    with open(file_path, newline='', encoding='utf-8') as csvfile:
+        reader = csv.reader(csvfile)
+        data = list(reader)
+    init_list = [row[0] for row in data[1:]]
+    fin_list = data[0][1:]
+    ar = tuple(tuple(cell == '1' for cell in row[1:]) for row in data[1:])
     return init_list, fin_list, ar
 
 
@@ -71,7 +72,7 @@ def load_conversion_data() -> List[Dict[str, str]]:
     return mappings
 
 
-def load_method_params(method: str) -> Dict[str, Union[List[str], np.ndarray]]:
+def load_method_params(method: str) -> Dict[str, Union[Tuple[Tuple[bool, ...], ...], List[str], str]]:
     """
     Loads romanization method parameters including initials, finals, and the valid combinations array.
 

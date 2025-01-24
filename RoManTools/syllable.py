@@ -395,7 +395,7 @@ class Syllable:
         if initial_index == -1 or final_index == -1:
             return False
         # Returns value found in the NumPy array
-        return bool(self.processor.ar[initial_index, final_index])
+        return self.processor.ar[initial_index][final_index]
 
     def _validate_syllable(self) -> bool:
         """
