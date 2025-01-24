@@ -53,7 +53,7 @@ from RoManTools import *
 python -m RoManTools.main [action] -i [input] [other parameters]
 ```
 
-Documentation on command-line execution can be found in [CLI.md](docs/CLI.md), as well as execution within Python from [Python.md](docs/Python.md). Please refer to [Input_Requirements.md](docs/Input_Requirements.md) for guidelines on how text should be formatted for input, and [Methodology.md](docs/Methodology.md) will provide details on the text analysis process.
+Documentation on command-line execution can be found in [CLI.md](https://github.com/JHGFD82/RoManTools/blob/main/docs/CLI.md), as well as execution within Python from [Python.md](https://github.com/JHGFD82/RoManTools/blob/main/docs/Python.md). Please refer to [Input_Requirements.md](https://github.com/JHGFD82/RoManTools/blob/main/docs/Input_Requirements.md) for guidelines on how text should be formatted for input, and [Methodology.md](https://github.com/JHGFD82/RoManTools/blob/main/docs/Methodology.md) will provide details on the text analysis process.
 
 ## Possible Future Goals (suggestions welcome!)
 
