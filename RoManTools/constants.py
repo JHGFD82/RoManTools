@@ -15,7 +15,7 @@ Constants:
 """
 
 vowels = {'a', 'e', 'i', 'o', 'u', 'ü', 'v', 'ê', 'ŭ'}
-apostrophes = {"'", "’", "ʼ", "`"}
+apostrophes = {"'", "’", "‘", "ʼ", "ʻ", "`"}
 dashes = {"-", "–", "—"}
 supported_contractions = {"s", "d", "ll"}
 supported_methods = {
