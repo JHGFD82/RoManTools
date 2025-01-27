@@ -45,7 +45,7 @@ jobs:
           pip install pytest pytest-cov
       - name: Test for CodeCov
         run: |
-          PYTHONPATH=$(pwd) pytest --cov=tests/ --cov-branch --cov-report=xml
+          PYTHONPATH=$(pwd) pytest --cov=tests/ --cov=RoManTools/ --cov-branch --cov-report=xml
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
         with:
