@@ -161,8 +161,7 @@ class Syllable:
             str: The text with the first character removed if it was an apostrophe or dash.
         """
 
-        first_char = self.text_attr.text[0]
-        if first_char in apostrophes:
+        if (first_char := self.text_attr.text[0]) in apostrophes:
             self.status_attr.has_apostrophe = True
         elif first_char in dashes:
             self.status_attr.has_dash = True
@@ -225,12 +224,11 @@ class Syllable:
             if c in vowels:
                 if i == 0:  # If a vowel is found at the beginning of the syllable, return 'ø' to indicate no initial
                     return 'ø'
-                initial = text[:i]  # Otherwise, all text up to this point is the initial
-                if initial not in self.processor.init_list:  # Check if the initial is valid
+                # Otherwise, all text up to this point is the initial
+                if (initial := text[:i]) not in self.processor.init_list:  # Check if the initial is valid
                     return text[:i]  # Return text up to this point if not valid
                 return initial
-            if self.processor.method == 'wg' and c in apostrophes:  # In cases of valid apostrophes in
-                # Wade-Giles
+            if self.processor.method == 'wg' and c in apostrophes:  # In cases of valid apostrophes in Wade-Giles
                 return text[:i] + "'"  # Ensure that the standard apostrophe is included in the initial
 
         return text
@@ -318,11 +316,11 @@ class Syllable:
             return text  # This is a simple final with no further characters to process, usually in cases of no
             # consonants or multi-vowel finals
         # Iterate over the list of potential finals that start with the current vowel
-        test_finals = []
         # Generate list of possible finals from this point in the text
-        for f_item in self.processor.fin_list:
-            if f_item.startswith(text[:i + 1]) and self._validate_final(initial, f_item):
-                test_finals.append(f_item)
+        test_finals = [
+            f_item for f_item in self.processor.fin_list
+            if f_item.startswith(text[:i + 1]) and self._validate_final(initial, f_item)
+        ]
         # If no valid finals are found, return the text up to the vowel
         if not test_finals:
             if i == 0:
