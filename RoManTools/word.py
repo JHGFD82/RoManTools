@@ -229,7 +229,7 @@ class Word:
             else:
                 self.final_word += curr_syllable
         # For Wade-Giles, dashes are used to separate syllables except if this happens to be a contraction.
-        elif self.processor.convert_to == 'wg':
+        else:
             self.final_word += "-" + curr_syllable
 
     @staticmethod
