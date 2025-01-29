@@ -199,6 +199,16 @@ class TestRoManToolsActions(unittest.TestCase):
         self.assertEqual(result, "NI HAO Ch'ang-an YÜAN")
 
     @timeit_decorator()
+    def test_convert_text_error(self):
+        result = convert_text('fre', convert_from='py', convert_to='wg')
+        self.assertEqual(result, "fre(!)")
+
+    @timeit_decorator()
+    def test_convert_text_rare_pinyin_error(self):
+        result = convert_text('diang', convert_from='py', convert_to='wg')
+        self.assertEqual(result, "diang(!rare Pinyin!)")
+
+    @timeit_decorator()
     def test_cherry_pick(self):
         result = cherry_pick("Bai Juyi lived during the Middle Tang period. This was a period of rebuilding and "
                              "recovery for the Tang Empire, following the An Lushan Rebellion, and following the "
