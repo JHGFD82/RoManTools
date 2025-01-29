@@ -428,6 +428,29 @@ class TestRoManToolsActions(unittest.TestCase):
             self.assertEqual(console_output, expected_output)
 
     @timeit_decorator()
+    def test_cherry_pick_crumb(self):
+        with (patch('sys.stdout', new=StringIO()) as fake_out):
+            result = cherry_pick("Hello, Xiang.", convert_from='py', convert_to='wg', crumbs=True)
+            self.assertEqual(result, "Hello, Hsiang.")
+            console_output = fake_out.getvalue().strip()
+            expected_output = "# Analyzing text as Pinyin: Hello\n" \
+                              "## initial found: h\n" \
+                              "## final found: e\n" \
+                              '### "he" valid: True\n' \
+                              "## initial found: ll\n" \
+                              "## final found: o\n" \
+                              '### "llo" valid: False\n' \
+                              "---\n" \
+                              "# Analyzing text as Pinyin: Xiang\n" \
+                              "## initial found: x\n" \
+                              "## final found: iang\n" \
+                              '### "xiang" valid: True\n' \
+                              "---\n" \
+                              "# Converting text: xiang\n" \
+                              "---"
+            self.assertEqual(console_output, expected_output)
+
+    @timeit_decorator()
     def test_syllable_count_crumb(self):
         with patch('sys.stdout', new=StringIO()) as fake_out:
             result = syllable_count("t'ao", method='wg', crumbs=True)
