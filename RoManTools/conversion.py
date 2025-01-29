@@ -54,6 +54,8 @@ class RomanizationConverter:
             lowercased_text = text_to_convert.lower()
             for row in self.conversion_mapping:
                 if row[self.convert_from].lower() == lowercased_text:
+                    if not row[self.convert_to] and row['meta'] == 'rare':
+                        return text + '(!rare Pinyin!)'
                     return row[self.convert_to]
             return text + '(!)'
 
