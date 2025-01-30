@@ -248,7 +248,7 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, config: Optional[
         Returns:
             str: The converted text based on the selected romanization conversion mappings.
         """
-        if not config_info:
+        if not config_info or config_info.error_skip is None:
             config_info = Config(error_skip=True, **kwargs)
         stopwords = set(load_stopwords())
         convert = {"from": convert_from, "to": convert_to}
@@ -420,13 +420,12 @@ def validator(text: str, method: str, per_word: bool = False, config: Optional[C
         # Perform validation per word, returning the validity of each word
         result = []
         for chunk in chunks:
-            if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
-                word_result = {
-                    'word': ''.join(syl.text_attr.full_syllable for syl in chunk),
-                    'syllables': [syl.text_attr.full_syllable for syl in chunk],
-                    'valid': [syl.valid for syl in chunk]
-                }
-                result.append(word_result)
+            word_result = {
+                'word': ''.join(syl.text_attr.full_syllable for syl in chunk),
+                'syllables': [syl.text_attr.full_syllable for syl in chunk],
+                'valid': [syl.valid for syl in chunk]
+            }
+            result.append(word_result)
         _end_crumb(config_info)
         return result
 
