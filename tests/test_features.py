@@ -3,6 +3,7 @@ from unittest.mock import patch
 from io import StringIO
 
 from RoManTools.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
+from RoManTools.config import Config
 from RoManTools.data_loader import load_conversion_data, load_method_params
 from RoManTools.constants import vowels
 from decorators import timeit_decorator
@@ -138,9 +139,44 @@ class TestRoManToolsActions(unittest.TestCase):
                                   ['yüan', 'yang'], ['erh'], ['shih', 'erh'], ['hsiung'], ['an', 'wei'],
                                   ['feng', 'huang'], ['jen', 'min']])
 
-    # ERROR CATCHING TESTS #
+    # CONFIG OBJECT TESTS #
     @timeit_decorator()
+    def test_segment_text_with_config(self):
+        config = Config(error_skip=True)
+        result = segment_text("Zhongguo ti'an tianqi", method="py", config=config)
+        self.assertIsNotNone(result)
 
+    @timeit_decorator()
+    def test_syllable_count_with_config(self):
+        config = Config(error_skip=True)
+        result = syllable_count("Zhongguo ti'an tianqi", method="py", config=config)
+        self.assertIsNotNone(result)
+
+    @timeit_decorator()
+    def test_convert_text_with_config(self):
+        config = Config(error_skip=True)
+        result = convert_text("Zhongguo ti'an tianqi", convert_from="py", convert_to="wg", config=config)
+        self.assertIsNotNone(result)
+
+    @timeit_decorator()
+    def test_cherry_pick_with_config(self):
+        config = Config(error_skip=True)
+        result = cherry_pick("Zhongguo ti'an tianqi", convert_from="py", convert_to="wg", config=config)
+        self.assertIsNotNone(result)
+
+    @timeit_decorator()
+    def test_detect_method_with_config(self):
+        config = Config(error_skip=True)
+        result = detect_method("Zhongguo ti'an tianqi", config=config)
+        self.assertIsNotNone(result)
+
+    @timeit_decorator()
+    def test_validator_with_config(self):
+        config = Config(error_skip=True)
+        result = validator("Zhongguo ti'an tianqi", method="py", config=config)
+        self.assertIsNotNone(result)
+
+    # ERROR CATCHING TESTS #
     @timeit_decorator()
     def test_load_method_params_error(self):
         with self.assertRaises(FileNotFoundError):
