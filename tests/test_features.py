@@ -30,7 +30,7 @@ def generate_random_text_from_list(method, num_syllables=0):
                     final_words += "'" + curr_syllable
                 else:
                     final_words += curr_syllable
-            elif method == 'wg':
+            else:
                 final_words += "-" + curr_syllable
         return final_words
 
