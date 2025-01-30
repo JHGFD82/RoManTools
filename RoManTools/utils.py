@@ -353,7 +353,8 @@ def detect_method(text: str, per_word: bool = False, config: Optional[Config] = 
             result = []
             for method in shorthand_to_full.keys():
                 chunks = _process_text(chunk, method, config_info)
-                if chunks and all(syllable.valid for chunk in chunks for syllable in chunk):
+                syllable_chunks = [syllable for chunk in chunks for syllable in chunk if isinstance(syllable, Syllable)]
+                if syllable_chunks and all(syllable.valid for syllable in syllable_chunks):
                     result.append(method)
                 _end_crumb(config_info)
             return result
@@ -410,19 +411,22 @@ def validator(text: str, method: str, per_word: bool = False, config: Optional[C
         if config_info is None:
             config_info = Config(**kwargs)
         chunks = _process_text(text, method, config_info)
+        syllable_chunks = [syllable for chunk in chunks if isinstance(chunk, list) for syllable in chunk if
+                           isinstance(syllable, Syllable)]
         if not per_word:
             # Perform validation for the entire text, returning a single boolean value
             _end_crumb(config_info)
-            return all(syllable.valid for chunk in chunks for syllable in chunk)
+            return all(syllable.valid for syllable in syllable_chunks)
         # Perform validation per word, returning the validity of each word
         result = []
-        for word_chunks in chunks:
-            word_result = {
-                'word': ''.join(chunk.text_attr.full_syllable for chunk in word_chunks),
-                'syllables': [chunk.text_attr.full_syllable for chunk in word_chunks],
-                'valid': [chunk.valid for chunk in word_chunks]
-            }
-            result.append(word_result)
+        for chunk in chunks:
+            if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
+                word_result = {
+                    'word': ''.join(syl.text_attr.full_syllable for syl in chunk),
+                    'syllables': [syl.text_attr.full_syllable for syl in chunk],
+                    'valid': [syl.valid for syl in chunk]
+                }
+                result.append(word_result)
         _end_crumb(config_info)
         return result
 
