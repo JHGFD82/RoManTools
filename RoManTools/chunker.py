@@ -104,8 +104,8 @@ class TextChunkProcessor:
             # Text elements are processed into syllables
             if re.match(r"[a-zA-ZüÜ]+", segment):
                 # Print crumb for syllable analysis
-                self.config.print_crumb(1,f'Analyzing text as '
-                                          f'{supported_methods[shorthand_to_full[self.method]]["pretty"]}', segment)
+                self.config.print_crumb(1, f'Analyzing text as'
+                                           f' {supported_methods[shorthand_to_full[self.method]]["pretty"]}', segment)
                 # Regular expressions are used again to split words into smaller components
                 split_words = self._split_word(segment)
                 # Process each split word into Syllable objects
