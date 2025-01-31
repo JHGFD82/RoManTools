@@ -517,6 +517,27 @@ class TestRoManToolsActions(unittest.TestCase):
                               "## initial found: t'\n" \
                               "## final found: ao\n" \
                               "### \"t'ao\" valid: True\n" \
+
+    @timeit_decorator()
+    def test_detect_method_per_word_crumb(self):
+        with patch('sys.stdout', new=StringIO()) as fake_out:
+            result = detect_method("t'ao", True, crumbs=True)
+            self.assertEqual(result, [{'methods': ['wg'], 'word': "t'ao"}])
+            console_output = fake_out.getvalue().strip()
+            expected_output = "# Analyzing text as Pinyin: t'ao\n" \
+                              "## initial found: t\n" \
+                              "## final found: \n" \
+                              "### \"t\" valid: False\n" \
+                              "## initial found: ø\n" \
+                              "## final found: ao\n" \
+                              "### \"ao\" valid: True\n" \
+                              "---\n" \
+                              "# Analyzing text as Wade-Giles: t'ao\n" \
+                              "## initial found: t'\n" \
+                              "## final found: ao\n" \
+                              "### \"t'ao\" valid: True\n" \
+                              "---\n" \
+                              "# Detect Method: Assembling methods\n" \
                               "---"
             self.assertEqual(console_output, expected_output)
 
