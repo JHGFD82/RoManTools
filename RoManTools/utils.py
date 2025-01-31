@@ -79,20 +79,6 @@ def _process_text(text: str, method: str, config: Config) -> List[Union[List[Syl
     return processor.get_chunks()
 
 
-def _end_crumb(config: Config):
-    """
-    Prints the ending bread crumb based on the configuration settings.
-
-    Args:
-        config: The configuration object containing processing settings.
-
-    Returns:
-        None
-    """
-    # if config.crumbs:
-    #     config.print_crumb(message='---')
-
-
 # Segmentation actions
 def segment_text(text: str, method: str, config: Optional[Config] = None, **kwargs) \
         -> List[Union[List[Syllable], Syllable]]:
@@ -134,7 +120,6 @@ def segment_text(text: str, method: str, config: Optional[Config] = None, **kwar
             else:
                 # Return the non-text elements as strings
                 segmented_result.append(chunk)
-        _end_crumb(config_info)
         return segmented_result
 
     if kwargs or (config and any([config.crumbs, config.error_skip, config.error_report])):
@@ -210,7 +195,6 @@ def convert_text(text: str, convert_from: str, convert_to: str, config: Optional
         stopwords = set(load_stopwords())
         convert = {"from": convert_from, "to": convert_to}
         result = _conversion_processing(text, convert, config_info, stopwords, include_spaces=True)
-        _end_crumb(config_info)
         return result
 
     if kwargs or (config and any([config.crumbs, config.error_skip, config.error_report])):
@@ -252,7 +236,6 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, config: Optional[
             config_info = Config(error_skip=True, **kwargs)
         stopwords = set(load_stopwords())
         convert = {"from": convert_from, "to": convert_to}
-        _end_crumb(config_info)
         return _conversion_processing(text, convert, config_info, stopwords, include_spaces=False)
 
     if kwargs or (config and any([config.crumbs, config.error_report])):
@@ -294,7 +277,6 @@ def syllable_count(text: str, method: str, config: Optional[Config] = None, **kw
         if not config_info:
             config_info = Config(**kwargs)
         chunks = _process_text(text, method, config_info)
-        _end_crumb(config_info)
         # Return the length of each chunk if all syllables are valid, otherwise return 0 (will change to error messages
         # in later update)
         return [lengths for chunk in chunks for lengths in [len(chunk)]]
@@ -356,7 +338,6 @@ def detect_method(text: str, per_word: bool = False, config: Optional[Config] = 
                 syllable_chunks = [syllable for chunk in chunks for syllable in chunk if isinstance(syllable, Syllable)]
                 if syllable_chunks and all(syllable.valid for syllable in syllable_chunks):
                     result.append(method)
-                _end_crumb(config_info)
             return result
 
         if not per_word:
@@ -415,7 +396,6 @@ def validator(text: str, method: str, per_word: bool = False, config: Optional[C
                            isinstance(syllable, Syllable)]
         if not per_word:
             # Perform validation for the entire text, returning a single boolean value
-            _end_crumb(config_info)
             return all(syllable.valid for syllable in syllable_chunks)
         # Perform validation per word, returning the validity of each word
         result = []
@@ -426,7 +406,6 @@ def validator(text: str, method: str, per_word: bool = False, config: Optional[C
                 'valid': [syl.valid for syl in chunk]
             }
             result.append(word_result)
-        _end_crumb(config_info)
         return result
 
     if kwargs or (config and any([config.crumbs, config.error_skip, config.error_report])):
