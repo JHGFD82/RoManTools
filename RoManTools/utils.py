@@ -323,12 +323,13 @@ def detect_method(text: str, per_word: bool = False, config: Optional[Config] = 
         if not config_info:
             config_info = Config(**kwargs)
 
-        def detect_for_chunk(chunk: str) -> List[str]:
+        def detect_for_chunk(chunk: str, crumbs: bool = False) -> List[str]:
             """
             Detects the valid processing methods for a given chunk of romanized Mandarin text.
 
             Args:
                 chunk (str): A segment of romanized Mandarin text to be analyzed.
+                crumbs (bool, optional): Whether to include intermediate outputs (crumbs) during processing. Defaults to False.
 
             Returns:
                 List[str]: A list of methods that are valid for processing the given chunk.
@@ -346,7 +347,7 @@ def detect_method(text: str, per_word: bool = False, config: Optional[Config] = 
 
         if not per_word:
             # Perform detection for the entire text, returning a single list of valid methods
-            return detect_for_chunk(text)
+            return detect_for_chunk(text, True)
         # Perform detection per word, returning the valid methods for each word
         words = text.split()
         results = []
