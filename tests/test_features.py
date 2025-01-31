@@ -445,6 +445,8 @@ class TestRoManToolsActions(unittest.TestCase):
                               "## initial found: t'\n" \
                               "## final found: ao\n" \
                               "### \"t'ao\" valid: True\n" \
+                              "---\n" \
+                              "# Segment Text: Assembling segments\n" \
                               "---"
             self.assertEqual(console_output, expected_output)
 
@@ -496,6 +498,8 @@ class TestRoManToolsActions(unittest.TestCase):
                               "## initial found: t'\n" \
                               "## final found: ao\n" \
                               "### \"t'ao\" valid: True\n" \
+                              "---\n" \
+                              "# Syllable Count: Assembling counts\n" \
                               "---"
             self.assertEqual(console_output, expected_output)
 
@@ -517,6 +521,10 @@ class TestRoManToolsActions(unittest.TestCase):
                               "## initial found: t'\n" \
                               "## final found: ao\n" \
                               "### \"t'ao\" valid: True\n" \
+                              "---\n" \
+                              "# Detect Method: Assembling methods for all syllables\n" \
+                              "---"
+            self.assertEqual(console_output, expected_output)
 
     @timeit_decorator()
     def test_detect_method_per_word_crumb(self):
