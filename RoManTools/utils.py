@@ -248,7 +248,7 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, config: Optional[
         Returns:
             str: The converted text based on the selected romanization conversion mappings.
         """
-        if not config_info or config_info.error_skip is None:
+        if not config_info:
             config_info = Config(error_skip=True, **kwargs)
         stopwords = set(load_stopwords())
         convert = {"from": convert_from, "to": convert_to}
