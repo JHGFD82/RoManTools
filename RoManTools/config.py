@@ -32,7 +32,7 @@ class Config:
         self.error_skip = error_skip
         self.error_report = error_report
 
-    def print_crumb(self, level: int = 0, stage: str = '', message: str = ''):
+    def print_crumb(self, level: int = 0, stage: str = '', message: str = '', footer: bool = False):
         """
         Prints a crumb message based on the configuration settings.
 
@@ -40,6 +40,7 @@ class Config:
             level (int): The level of the crumb message.
             stage (str): The stage of processing.
             message (str): The message to display.
+            footer (bool): If True, adds a footer to the crumb message.
 
         Example:
             >>> config = Config(crumbs=True)
@@ -50,3 +51,5 @@ class Config:
             prefix = '#' * level + ' ' if level > 0 else ''
             stage = f'{stage}: ' if stage else ''
             print(f'{prefix}{stage}{message}')
+            if footer:
+                print("---")
