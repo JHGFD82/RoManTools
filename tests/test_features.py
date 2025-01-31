@@ -160,7 +160,7 @@ class TestRoManToolsActions(unittest.TestCase):
 
     @timeit_decorator()
     def test_cherry_pick_with_config(self):
-        config = Config(crumbs=True)
+        config = Config(error_report=True)
         result = cherry_pick("Zhongguo ti'an tianqi", convert_from="py", convert_to="wg", config=config)
         self.assertIsNotNone(result)
 
