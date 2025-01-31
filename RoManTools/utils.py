@@ -113,6 +113,7 @@ def segment_text(text: str, method: str, config: Optional[Config] = None, **kwar
             config_info = Config(**kwargs)
         chunks = _process_text(text, method, config_info)
         segmented_result = []
+        config_info.print_crumb(1, 'Segment Text', 'Assembling segments', True)
         for chunk in chunks:
             if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
                 # Return the full syllable attribute for each Syllable object
@@ -277,6 +278,7 @@ def syllable_count(text: str, method: str, config: Optional[Config] = None, **kw
         if not config_info:
             config_info = Config(**kwargs)
         chunks = _process_text(text, method, config_info)
+        config_info.print_crumb(1, 'Syllable Count', 'Assembling counts', True)
         # Return the length of each chunk if all syllables are valid, otherwise return 0 (will change to error messages
         # in later update)
         return [lengths for chunk in chunks for lengths in [len(chunk)]]
@@ -338,6 +340,8 @@ def detect_method(text: str, per_word: bool = False, config: Optional[Config] = 
                 syllable_chunks = [syllable for chunk in chunks for syllable in chunk if isinstance(syllable, Syllable)]
                 if syllable_chunks and all(syllable.valid for syllable in syllable_chunks):
                     result.append(method)
+            if crumbs:
+                config_info.print_crumb(1, 'Detect Method', 'Assembling methods for all syllables', True)
             return result
 
         if not per_word:
@@ -349,6 +353,7 @@ def detect_method(text: str, per_word: bool = False, config: Optional[Config] = 
         for word in words:
             valid_methods = detect_for_chunk(word)
             results.append({"word": word, "methods": valid_methods})
+        config_info.print_crumb(1, 'Detect Method', 'Assembling methods', True)
         return results
 
     if kwargs or (config and any([config.crumbs, config.error_skip, config.error_report])):
