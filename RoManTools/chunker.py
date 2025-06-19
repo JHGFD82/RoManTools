@@ -14,7 +14,7 @@ Classes:
 """
 
 from functools import lru_cache
-from typing import List
+from typing import List, Union
 import re
 import unicodedata
 from .config import Config
@@ -43,7 +43,7 @@ class TextChunkProcessor:
         self.method = method_params['method']
         # Syllable processor is initialized with the configuration and romanization method parameters
         self.syllable_processor = SyllableProcessor(config, method_params)
-        self.chunks = []
+        self.chunks: List[Union[List[Syllable], str]] = []
         self._process_text()
 
     def _split_text_into_segments(self, text: str) -> List[str]:
@@ -151,7 +151,7 @@ class TextChunkProcessor:
                 remaining_text = syllable_obj.text_attr.remainder
         self.chunks.append(syllables)
 
-    def get_chunks(self) -> List[List[Syllable]]:
+    def get_chunks(self) -> List[Union[List[Syllable], str]]:
         """
         Returns the processed chunks of text.
 
