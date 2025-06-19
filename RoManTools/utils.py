@@ -80,7 +80,7 @@ def _process_text(text: str, method: str, config: Config) -> Sequence[Union[Sequ
 
 
 # Segmentation actions
-def segment_text(text: str, method: str, config: Optional[Config] = None, **kwargs) \
+def segment_text(text: str, method: str, config: Optional[Config] = None, **kwargs: bool) \
         -> Sequence[Union[Sequence[Syllable], Syllable]]:
     """
     Segments the given text into syllables based on the selected method.
@@ -160,7 +160,7 @@ def _conversion_processing(text: str, convert: dict, config: Config, stopwords: 
     return " ".join(concat_text) if include_spaces else "".join(concat_text)
 
 
-def convert_text(text: str, convert_from: str, convert_to: str, config: Optional[Config] = None, **kwargs) -> str:
+def convert_text(text: str, convert_from: str, convert_to: str, config: Optional[Config] = None, **kwargs: bool) -> str:
     """
     Converts the given text from one romanization standard to another, returning errors for any invalid syllables.
 
@@ -203,7 +203,7 @@ def convert_text(text: str, convert_from: str, convert_to: str, config: Optional
     return _cached_convert_text()
 
 
-def cherry_pick(text: str, convert_from: str, convert_to: str, config: Optional[Config] = None, **kwargs) -> str:
+def cherry_pick(text: str, convert_from: str, convert_to: str, config: Optional[Config] = None, **kwargs: bool) -> str:
     """
     Converts the given text from one romanization standard to another if detected as a valid romanized Mandarin word, and returns all over text.
 
@@ -246,7 +246,7 @@ def cherry_pick(text: str, convert_from: str, convert_to: str, config: Optional[
 
 # Counting actions
 # @profile
-def syllable_count(text: str, method: str, config: Optional[Config] = None, **kwargs) -> list[int]:
+def syllable_count(text: str, method: str, config: Optional[Config] = None, **kwargs: bool) -> list[int]:
     """
     Returns the count of syllables for each word in the processed text.
 
@@ -289,7 +289,7 @@ def syllable_count(text: str, method: str, config: Optional[Config] = None, **kw
 
 
 # Detection and validation actions
-def detect_method(text: str, per_word: bool = False, config: Optional[Config] = None, **kwargs) \
+def detect_method(text: str, per_word: bool = False, config: Optional[Config] = None, **kwargs: bool) \
         -> Union[List[str], List[Dict[str, List[str]]]]:
     """
     Detects the romanization method of the given text or individual words.
@@ -362,8 +362,8 @@ def detect_method(text: str, per_word: bool = False, config: Optional[Config] = 
     return _cached_detect_method()
 
 
-def validator(text: str, method: str, per_word: bool = False, config: Optional[Config] = None, **kwargs) \
-        -> Union[bool, list[dict]]:
+def validator(text: str, method: str, per_word: bool = False, config: Optional[Config] = None, **kwargs: bool) \
+        -> Union[bool, list[dict[str, Union[str, list[str], list[bool]]]]]:
     """
     Validates the processed text or individual words based on the selected method.
 
@@ -384,7 +384,7 @@ def validator(text: str, method: str, per_word: bool = False, config: Optional[C
     """
 
     @lru_cache(maxsize=1000000)
-    def _cached_validator(config_info: Optional[Config] = None) -> Union[bool, list[dict]]:
+    def _cached_validator(config_info: Optional[Config] = None) -> Union[bool, list[dict[str, Union[str, list[str], list[bool]]]]]:
         """
         Validates the processed text or individual words using the cached validation logic.
 
