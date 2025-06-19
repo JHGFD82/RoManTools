@@ -112,7 +112,7 @@ def segment_text(text: str, method: str, config: Optional[Config] = None, **kwar
         if not config_info:
             config_info = Config(**kwargs)
         chunks = _process_text(text, method, config_info)
-        segmented_result = []
+        segmented_result: Sequence[Union[Sequence[Syllable], Syllable]] = []
         config_info.print_crumb(1, 'Segment Text', 'Assembling segments', True)
         for chunk in chunks:
             if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):

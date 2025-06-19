@@ -64,7 +64,7 @@ def load_conversion_data() -> List[Dict[str, str]]:
     """
 
     source_file = os.path.join(base_path, 'data', 'conversion_mapping.csv')
-    mappings = []
+    mappings: List[Dict[str, str]] = []
     with open(source_file, encoding='utf-8') as file:
         reader = csv.DictReader(file)
         for row in reader:
