@@ -45,7 +45,7 @@ Usage Example:
 """
 
 from functools import lru_cache
-from typing import Dict, Union, List, Set, Optional
+from typing import Dict, Union, List, Set, Optional, Sequence
 from .config import Config
 from .chunker import TextChunkProcessor
 from .syllable import Syllable
@@ -59,7 +59,7 @@ __all__ = ['segment_text', 'convert_text', 'cherry_pick', 'syllable_count', 'det
 
 # Processing actions
 @lru_cache(maxsize=1000000)
-def _process_text(text: str, method: str, config: Config) -> List[Union[List[Syllable], Syllable]]:
+def _process_text(text: str, method: str, config: Config) -> Sequence[Union[Sequence[Syllable], Syllable, str]]:
     """
     Processes the given text using the specified method and configuration.
 
@@ -69,8 +69,8 @@ def _process_text(text: str, method: str, config: Config) -> List[Union[List[Syl
         config (Config): The configuration object containing processing settings.
 
     Returns:
-        List[Union[List[Syllable], Syllable]]: A list of processed text chunks,
-        which could be individual syllables or lists of syllables.
+        Sequence[Union[Sequence[Syllable], Syllable, str]]: A sequence of processed text chunks,
+        which could be individual syllables, sequences of syllables, or strings.
     """
 
     # if config.crumbs:
@@ -81,7 +81,7 @@ def _process_text(text: str, method: str, config: Config) -> List[Union[List[Syl
 
 # Segmentation actions
 def segment_text(text: str, method: str, config: Optional[Config] = None, **kwargs) \
-        -> List[Union[List[Syllable], Syllable]]:
+        -> Sequence[Union[Sequence[Syllable], Syllable]]:
     """
     Segments the given text into syllables based on the selected method.
 
@@ -100,14 +100,14 @@ def segment_text(text: str, method: str, config: Optional[Config] = None, **kwar
     """
 
     @lru_cache(maxsize=1000000)
-    def _cached_segment_text(config_info: Optional[Config] = None) -> List[Union[List[Syllable], Syllable]]:
+    def _cached_segment_text(config_info: Optional[Config] = None) -> Sequence[Union[Sequence[Syllable], Syllable]]:
         """
         Segments the given text using the cached segmentation logic.
         Args:
             config_info: The configuration object containing processing settings. Defaults to None.
 
         Returns:
-            List[Union[List[Syllable], Syllable]]: A list of segmented syllables or syllable chunks.
+            Sequence[Union[Sequence[Syllable], Syllable]]: A sequence of segmented syllables or syllable chunks.
         """
         if not config_info:
             config_info = Config(**kwargs)
