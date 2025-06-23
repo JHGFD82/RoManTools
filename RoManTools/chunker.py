@@ -14,7 +14,7 @@ Classes:
 """
 
 from functools import lru_cache
-from typing import List, Union
+from typing import List, Union, Dict, Tuple
 import re
 import unicodedata
 from .config import Config
@@ -37,10 +37,10 @@ class TextChunkProcessor:
         syllables or a string.
     """
 
-    def __init__(self, text: str, config: Config, method_params: dict):
+    def __init__(self, text: str, config: Config, method_params: Dict[str, Union[Tuple[Tuple[bool, ...], ...], List[str], str]]):
         self.text = text
         self.config = config
-        self.method = method_params['method']
+        self.method = str(method_params['method'])
         # Syllable processor is initialized with the configuration and romanization method parameters
         self.syllable_processor = SyllableProcessor(config, method_params)
         self.chunks: List[Union[List[Syllable], str]] = []
@@ -104,8 +104,9 @@ class TextChunkProcessor:
             # Text elements are processed into syllables
             if re.match(r"[a-zA-ZüÜ]+", segment):
                 # Print crumb for syllable analysis
+                fullName = shorthand_to_full[self.method]
                 self.config.print_crumb(1, f'Analyzing text as'
-                                           f' {supported_methods[shorthand_to_full[self.method]]["pretty"]}', segment)
+                                           f' {supported_methods[fullName]["pretty"]}', segment)
                 # Regular expressions are used again to split words into smaller components
                 split_words = self._split_word(segment)
                 # Process each split word into Syllable objects
@@ -139,9 +140,12 @@ class TextChunkProcessor:
 
         Args:
             split_words (List[str]): The split words to process.
+
+        Side Effects:
+            Appends a list of Syllable objects to self.chunks for each word processed.
         """
 
-        syllables = []
+        syllables: List[Syllable] = []
         for syllable in split_words:
             remaining_text = syllable
             while remaining_text:
@@ -156,8 +160,7 @@ class TextChunkProcessor:
         Returns the processed chunks of text.
 
         Returns:
-            List[Union[List[Syllable], str]]: A list of processed chunks where each chunk is either a list of Syllable
-            objects or a string.
+            List[Union[List[Syllable], str]]: A list where each element is either a list of Syllable objects (for text segments) or a string (for non-text segments).
         """
 
         return self.chunks

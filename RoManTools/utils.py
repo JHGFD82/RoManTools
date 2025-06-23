@@ -81,7 +81,7 @@ def _process_text(text: str, method: str, config: Config) -> Sequence[Union[Sequ
 
 # Segmentation actions
 def segment_text(text: str, method: str, config: Optional[Config] = None, **kwargs: bool) \
-        -> Sequence[Union[Sequence[Syllable], Syllable]]:
+        -> List[Union[List[str], str]]:
     """
     Segments the given text into syllables based on the selected method.
 
@@ -100,7 +100,7 @@ def segment_text(text: str, method: str, config: Optional[Config] = None, **kwar
     """
 
     @lru_cache(maxsize=1000000)
-    def _cached_segment_text(config_info: Optional[Config] = None) -> Sequence[Union[Sequence[Syllable], Syllable]]:
+    def _cached_segment_text(config_info: Optional[Config] = None) -> List[Union[List[str], str]]:
         """
         Segments the given text using the cached segmentation logic.
         Args:
@@ -112,15 +112,18 @@ def segment_text(text: str, method: str, config: Optional[Config] = None, **kwar
         if not config_info:
             config_info = Config(**kwargs)
         chunks = _process_text(text, method, config_info)
-        segmented_result: Sequence[Union[Sequence[Syllable], Syllable]] = []
+        segmented_result: List[Union[List[str], str]] = []
         config_info.print_crumb(1, 'Segment Text', 'Assembling segments', True)
         for chunk in chunks:
-            if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
+            if isinstance(chunk, list):
                 # Return the full syllable attribute for each Syllable object
                 segmented_result.append([syl.text_attr.full_syllable for syl in chunk])
-            else:
+            elif isinstance(chunk, str):
                 # Return the non-text elements as strings
                 segmented_result.append(chunk)
+            else:
+                # In all oher cases, raise an error
+                raise ValueError(f"Unexpected chunk type: {type(chunk)} in segment_text")
         return segmented_result
 
     if kwargs or (config and any([config.crumbs, config.error_skip, config.error_report])):
@@ -129,7 +132,7 @@ def segment_text(text: str, method: str, config: Optional[Config] = None, **kwar
 
 
 # Conversion actions
-def _conversion_processing(text: str, convert: dict, config: Config, stopwords: Set[str], include_spaces: bool) \
+def _conversion_processing(text: str, convert: Dict[str, str], config: Config, stopwords: Set[str], include_spaces: bool) \
         -> str:
     """
     Processes the given text for conversion between two romanization standards.
@@ -146,15 +149,18 @@ def _conversion_processing(text: str, convert: dict, config: Config, stopwords: 
     """
 
     word_processor = WordProcessor(config, convert['from'], convert['to'], stopwords)
-    concat_text = []
+    concat_text: List[str] = []
     for chunk in _process_text(text, convert['from'], config):
-        if isinstance(chunk, list) and all(isinstance(syl, Syllable) for syl in chunk):
+        if isinstance(chunk, list):
             # When the chunk is a list of syllables, process them as a word, then append the result as strings
             word = word_processor.create_word(chunk)
             concat_text.append(word.process_syllables())
-        else:
+        elif isinstance(chunk, str):
             # When the chunk is a string, append it to the result
             concat_text.append(chunk)
+        else:
+            # In all other cases, raise an error
+            raise ValueError(f"Unexpected chunk type: {type(chunk)} in _conversion_processing")
     # Return the concatenated text, with cherry_pick including spaces and symbols from original text,
     # and convert_text adding spaces between words
     return " ".join(concat_text) if include_spaces else "".join(concat_text)
@@ -281,7 +287,7 @@ def syllable_count(text: str, method: str, config: Optional[Config] = None, **kw
         config_info.print_crumb(1, 'Syllable Count', 'Assembling counts', True)
         # Return the length of each chunk if all syllables are valid, otherwise return 0 (will change to error messages
         # in later update)
-        return [lengths for chunk in chunks for lengths in [len(chunk)]]
+        return [len(chunk) for chunk in chunks if isinstance(chunk, list)]
 
     if kwargs or (config and any([config.crumbs, config.error_skip, config.error_report])):
         return _cached_syllable_count.__wrapped__(config)
@@ -290,7 +296,7 @@ def syllable_count(text: str, method: str, config: Optional[Config] = None, **kw
 
 # Detection and validation actions
 def detect_method(text: str, per_word: bool = False, config: Optional[Config] = None, **kwargs: bool) \
-        -> Union[List[str], List[Dict[str, List[str]]]]:
+        -> Union[List[str], List[Dict[str, Union[str, List[str]]]]]:
     """
     Detects the romanization method of the given text or individual words.
 
@@ -300,7 +306,7 @@ def detect_method(text: str, per_word: bool = False, config: Optional[Config] = 
         config (Config, optional): The configuration object containing processing settings. Defaults to None.
 
     Returns:
-        Union[List[str], List[Dict[str, List[str]]]]: A list of detected methods, either for the full text or per word.
+        Union[List[str], List[Dict[str, Union[str, List[str]]]]]: A list of detected methods, either for the full text or per word.
 
     Example:
         >>> text = "Zhongguo"
@@ -309,7 +315,7 @@ def detect_method(text: str, per_word: bool = False, config: Optional[Config] = 
     """
 
     @lru_cache(maxsize=1000000)
-    def _cached_detect_method(config_info: Optional[Config] = None) -> Union[List[str], List[Dict[str, List[str]]]]:
+    def _cached_detect_method(config_info: Optional[Config] = None) -> Union[List[str], List[Dict[str, Union[str, List[str]]]]]:
         """
         Detects the romanization method of the given text using the cached detection logic.
 
@@ -335,10 +341,14 @@ def detect_method(text: str, per_word: bool = False, config: Optional[Config] = 
                 List[str]: A list of methods that are valid for processing the given chunk.
             """
 
-            result = []
+            result: List[str] = []
             for method in shorthand_to_full.keys():
-                chunks = _process_text(chunk, method, config_info)
-                syllable_chunks = [syllable for chunk in chunks for syllable in chunk if isinstance(syllable, Syllable)]
+                processed_chunks = _process_text(chunk, method, config_info)
+                syllable_chunks: List[Syllable] = []
+                for processed_chunk in processed_chunks:
+                    if isinstance(processed_chunk, list):
+                        for syllable in processed_chunk:
+                            syllable_chunks.append(syllable)
                 if syllable_chunks and all(syllable.valid for syllable in syllable_chunks):
                     result.append(method)
             if crumbs:
@@ -350,7 +360,7 @@ def detect_method(text: str, per_word: bool = False, config: Optional[Config] = 
             return detect_for_chunk(text, True)
         # Perform detection per word, returning the valid methods for each word
         words = text.split()
-        results = []
+        results: List[Dict[str, Union[str, List[str]]]] = []
         for word in words:
             valid_methods = detect_for_chunk(word)
             results.append({"word": word, "methods": valid_methods})
@@ -384,7 +394,7 @@ def validator(text: str, method: str, per_word: bool = False, config: Optional[C
     """
 
     @lru_cache(maxsize=1000000)
-    def _cached_validator(config_info: Optional[Config] = None) -> Union[bool, list[dict[str, Union[str, list[str], list[bool]]]]]:
+    def _cached_validator(config_info: Optional[Config] = None) -> Union[bool, List[Dict[str, Union[str, List[str], List[bool]]]]]:
         """
         Validates the processed text or individual words using the cached validation logic.
 
@@ -398,20 +408,24 @@ def validator(text: str, method: str, per_word: bool = False, config: Optional[C
         if config_info is None:
             config_info = Config(**kwargs)
         chunks = _process_text(text, method, config_info)
-        syllable_chunks = [syllable for chunk in chunks if isinstance(chunk, list) for syllable in chunk if
-                           isinstance(syllable, Syllable)]
+        syllable_chunks: List[Syllable] = []
+        for chunk in chunks:
+            if isinstance(chunk, list):
+                for syllable in chunk:
+                    syllable_chunks.append(syllable)
         if not per_word:
             # Perform validation for the entire text, returning a single boolean value
             return all(syllable.valid for syllable in syllable_chunks)
         # Perform validation per word, returning the validity of each word
-        result = []
+        result: List[Dict[str, Union[str, List[str], List[bool]]]] = []
         for chunk in chunks:
-            word_result = {
-                'word': ''.join(syl.text_attr.full_syllable for syl in chunk),
-                'syllables': [syl.text_attr.full_syllable for syl in chunk],
-                'valid': [syl.valid for syl in chunk]
-            }
-            result.append(word_result)
+            if isinstance(chunk, list):
+                word_result: Dict[str, Union[str, List[str], List[bool]]] = {
+                    'word': ''.join(syl.text_attr.full_syllable for syl in chunk),
+                    'syllables': [syl.text_attr.full_syllable for syl in chunk],
+                    'valid': [bool(syl.valid) for syl in chunk]
+                }
+                result.append(word_result)
         return result
 
     if kwargs or (config and any([config.crumbs, config.error_skip, config.error_report])):

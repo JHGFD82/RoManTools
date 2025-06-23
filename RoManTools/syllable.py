@@ -16,9 +16,13 @@ Classes:
 
 # from functools import lru_cache
 import re
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Dict, Union, List
 from .config import Config
 from .constants import vowels, apostrophes, dashes
+
+
+# Type alias for method_params for clarity and maintainability
+type MethodParams = Dict[str, Union[Tuple[Tuple[bool, ...], ...], List[str], str]]
 
 
 class SyllableProcessor:
@@ -27,13 +31,13 @@ class SyllableProcessor:
     syllables.
     """
 
-    def __init__(self, config: Config, method_params: dict):
+    def __init__(self, config: Config, method_params: MethodParams):
         """
         Initializes the SyllableProcessor with configuration settings and lists for processing.
 
         Args:
             config (Config): The configuration object with settings like error_skip and crumbs.
-            method_params (dict): The parameters for the romanization method, including the validation array.
+            method_params (MethodParams): The parameters for the romanization method, including the validation array.
         """
 
         self.config = config
@@ -118,7 +122,7 @@ class Syllable:
     Represents a syllable and its components (initial, final) in the context of a romanization method.
     """
 
-    def __init__(self, text: str, processor: SyllableProcessor, remainder):
+    def __init__(self, text: str, processor: SyllableProcessor, remainder: str = ""):
 
         """
         Initializes a Syllable object with provided configuration and text.
@@ -255,7 +259,7 @@ class Syllable:
             'py': _send_to_find_final_py,
             'wg': _send_to_find_final_wg
         }
-        find_final_func = method_map.get(self.processor.method, lambda: text)
+        find_final_func = method_map.get(str(self.processor.method), lambda: text)
         return find_final_func()
 
     def _find_final_py(self, text: str, initial: str) -> str:
@@ -319,7 +323,7 @@ class Syllable:
         # Generate list of possible finals from this point in the text
         test_finals = [
             f_item for f_item in self.processor.fin_list
-            if f_item.startswith(text[:i + 1]) and self._validate_final(initial, f_item)
+            if isinstance(f_item, str) and f_item.startswith(text[:i + 1]) and self._validate_final(initial, f_item)
         ]
         # If no valid finals are found, return the text up to the vowel
         if not test_finals:
@@ -370,7 +374,7 @@ class Syllable:
         return text[:i]
 
     # @lru_cache(maxsize=100000)
-    def _validate_final(self, initial, final: str) -> bool:
+    def _validate_final(self, initial: str, final: str) -> bool:
         """
         Validates the final part of the syllable by checking against a predefined list of valid combinations. This
         function is also referred to by _validate_syllable and is used to validate an entire syllable once it is fully
@@ -393,7 +397,7 @@ class Syllable:
         if initial_index == -1 or final_index == -1:
             return False
         # Returns value found in the NumPy array
-        return self.processor.ar[initial_index][final_index]
+        return bool(self.processor.ar[initial_index][final_index])
 
     def _validate_syllable(self) -> bool:
         """

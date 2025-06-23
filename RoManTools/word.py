@@ -3,7 +3,7 @@ Word processing for romanized Mandarin text.
 
 This module provides the `WordProcessor` and `Word` classes, which are used to process words and their syllables
 based on the specified romanization method (e.g., Pinyin, Wade-Giles). It includes functionality for:
-- Creating words from syllables.
+- Creating words from syllables (as a list of Syllable objects).
 - Validating and converting syllables.
 - Handling contractions and stopwords.
 
@@ -12,7 +12,7 @@ Classes:
     Word: Represents a word and its syllables, providing methods for validation and conversion.
 """
 
-from typing import List, Set
+from typing import List, Set, Tuple
 from .config import Config
 from .syllable import Syllable
 from .constants import supported_contractions, vowels
@@ -50,9 +50,9 @@ class WordProcessor:
 
     def create_word(self, syllables: List[Syllable]) -> "Word":
         """
-        Creates a Word object from a list of syllables.
+        Creates a Word object from a list of Syllable objects.
         Args:
-            syllables (List[Syllable]): A list of syllables to be processed.
+            syllables (List[Syllable]): A list of Syllable objects to be processed.
 
         Returns:
             Word: A Word object created from the given syllables.
@@ -66,9 +66,9 @@ class Word:
     Represents a word and its syllables, providing methods for validation and conversion.
 
     Attributes:
-        syllables (List[Syllable]): A list of syllables that make up the word.
+        syllables (List[Syllable]): A list of Syllable objects that make up the word.
         processor (WordProcessor): The processor object used to handle syllable validation and conversion.
-        processed_syllables (List[Tuple[str, Syllable]]): A list of tuples containing the converted syllable and the original syllable.
+        processed_syllables (List[Tuple[str, Syllable]]): A list of tuples containing the converted syllable and the original Syllable object.
         preview_word (str): A preview of the word used to determine if it is a stopword.
         final_word (str): The final processed word.
         valid (bool): Indicates if all syllables in the word are valid.
@@ -86,7 +86,7 @@ class Word:
 
         self.syllables = syllables
         self.processor = processor
-        self.processed_syllables = []  # Will contain tuples with the converted syllable and the original syllable
+        self.processed_syllables: List[Tuple[str, Syllable]] = []  # Will contain tuples with the converted syllable and the original syllable
         self.preview_word = self._create_preview_word()
         self.final_word = ""
         self.valid = self.all_valid()
@@ -102,7 +102,7 @@ class Word:
             str: The preview word
         """
 
-        word_parts = []
+        word_parts: List[str] = []
         for syl in self.syllables:
             if syl.status_attr.has_apostrophe and self.processor.convert_from != 'wg':
                 word_parts.append("'" + syl.text_attr.full_syllable)
