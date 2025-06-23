@@ -22,7 +22,7 @@ from .constants import vowels, apostrophes, dashes
 
 
 # Type alias for method_params for clarity and maintainability
-type MethodParams = Dict[str, Union[Tuple[Tuple[bool, ...], ...], List[str], str]]
+MethodParams = Dict[str, Union[Tuple[Tuple[bool, ...], ...], List[str], str]]
 
 
 class SyllableProcessor:
