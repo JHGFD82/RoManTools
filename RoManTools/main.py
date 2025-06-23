@@ -13,6 +13,7 @@ Usage Example:
 
 import argparse
 import sys
+from typing import Optional, List, Dict, Callable
 from .config import Config
 from .utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
 from .constants import supported_methods, shorthand_to_full
@@ -87,7 +88,7 @@ def _detect_method_action(args: argparse.Namespace, config: Config):
 
 
 # Map actions to functions
-ACTIONS = {
+ACTIONS: Dict[str, Callable[[argparse.Namespace, Config], object]] = {
     "segment": _segment_action,
     "validator": _validator_action,
     "convert": _convert_action,
@@ -97,7 +98,7 @@ ACTIONS = {
 }
 
 
-def main(arg_list: list[str] | None = None):
+def main(arg_list: Optional[List[str]] = None):
     """
     The main entry point for the script. Sets up command-line argument parsing and calls the appropriate function.
 
@@ -154,7 +155,7 @@ def main(arg_list: list[str] | None = None):
     config = Config(crumbs=args.crumbs, error_skip=args.error_skip, error_report=args.error_report)
 
     # Call the appropriate function with the Config object
-    print(ACTIONS[args.action](args, config))
+    print(str(ACTIONS[args.action](args, config)))
 
 
 if __name__ == '__main__':  # pragma: no cover
