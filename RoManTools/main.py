@@ -37,12 +37,12 @@ def _normalize_method(method: str) -> str:
     raise argparse.ArgumentTypeError(f"Invalid romanization method: {method}")
 
 
-def _validate_arguments(args):
+def _validate_arguments(args: argparse.Namespace):
     """
     Validates the arguments based on the chosen action.
 
     Args:
-        args: The parsed command-line arguments.
+        args (argparse.Namespace): The parsed command-line arguments.
 
     Returns:
         None
@@ -61,28 +61,28 @@ def _validate_arguments(args):
 
 
 # ACTION FUNCTIONS #
-def _segment_action(args, config):
+def _segment_action(args: argparse.Namespace, config: Config):
     return segment_text(args.text, args.method, config)
 
 
-def _validator_action(args, config):
+def _validator_action(args: argparse.Namespace, config: Config):
     return validator(args.text, args.method, args.per_word, config)
 
 
-def _convert_action(args, config):
+def _convert_action(args: argparse.Namespace, config: Config):
     return convert_text(args.text, args.convert_from, args.convert_to, config)
 
 
-def _cherry_pick_action(args, config):
+def _cherry_pick_action(args: argparse.Namespace, config: Config):
     config.error_skip = True  # Set the specific value for cherry_pick
     return cherry_pick(args.text, args.convert_from, args.convert_to, config)
 
 
-def _syllable_count_action(args, config):
+def _syllable_count_action(args: argparse.Namespace, config: Config):
     return syllable_count(args.text, args.method, config)
 
 
-def _detect_method_action(args, config):
+def _detect_method_action(args: argparse.Namespace, config: Config):
     return detect_method(args.text, args.per_word, config)
 
 
@@ -97,7 +97,7 @@ ACTIONS = {
 }
 
 
-def main(args=None):
+def main(arg_list: list[str] | None = None):
     """
     The main entry point for the script. Sets up command-line argument parsing and calls the appropriate function.
 
@@ -142,10 +142,10 @@ def main(args=None):
     parser.add_argument('-R', '--error_report', action='store_true',
                         help='Include error messages in the output')
 
-    if args is None:
+    if arg_list is None:
         args = parser.parse_args()
     else:
-        args = parser.parse_args(args)
+        args = parser.parse_args(arg_list)
 
     # Validate common arguments here
     _validate_arguments(args)
