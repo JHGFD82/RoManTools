@@ -25,5 +25,5 @@ Usage Example:
 
 from .utils import segment_text, validator, convert_text, cherry_pick, syllable_count, detect_method
 
-__version__ = '0.2.0-beta.2'
+__version__ = '0.3.0-beta.1'
 __all__ = ['segment_text', 'validator', 'convert_text', 'cherry_pick', 'syllable_count', 'detect_method']
