@@ -16,7 +16,7 @@ import sys
 from typing import Optional, List, Dict, Callable
 from .config import Config
 from .utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
-from .constants import supported_methods, shorthand_to_full
+from .constants import method_shorthand_to_full, supported_methods, supported_actions, supported_config
 
 
 def _normalize_method(method: str) -> str:
@@ -33,7 +33,7 @@ def _normalize_method(method: str) -> str:
     method = method.lower()
     if method in supported_methods:
         return supported_methods[method]['shorthand']
-    if method in shorthand_to_full:
+    if method in method_shorthand_to_full:
         return method
     raise argparse.ArgumentTypeError(f"Invalid romanization method: {method}")
 

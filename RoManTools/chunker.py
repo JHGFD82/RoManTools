@@ -19,7 +19,7 @@ import re
 import unicodedata
 from .config import Config
 from .syllable import SyllableProcessor, Syllable
-from .constants import supported_methods, shorthand_to_full
+from .constants import supported_methods, method_shorthand_to_full, nontext_chars
 
 
 class TextChunkProcessor:
@@ -104,18 +104,21 @@ class TextChunkProcessor:
             # Text elements are processed into syllables
             if re.match(r"[a-zA-ZüÜ]+", segment):
                 # Print crumb for syllable analysis
-                fullName = shorthand_to_full[self.method]
-                self.config.print_crumb(1, f'Analyzing text as'
-                                           f' {supported_methods[fullName]["pretty"]}', segment)
+                pretty_method = supported_methods[method_shorthand_to_full[self.method]]["pretty"]
+                self.config.print_crumb(1, f'Analyzing text as {pretty_method}', segment)
                 # Regular expressions are used again to split words into smaller components
                 split_words = self._split_word(segment)
                 # Process each split word into Syllable objects
                 self._process_split_words(split_words)
-                if self.config.crumbs:
-                    self.config.print_crumb(message='---')
+                self.config.print_crumb(footer=True)
             else:
                 # Non-text elements are directly appended as strings
                 self.chunks.append(segment)
+                # Print crumb for non-text segment
+                if segment in nontext_chars:
+                    segment = nontext_chars[segment]['pretty']
+                self.config.print_crumb(1, 'Non-text segment', segment)
+                self.config.print_crumb(footer=True)
         # Print cache information to ensure proper usage
         # print(self._send_to_syllable_processor.cache_info())  # Displays cache statistics
 
@@ -153,6 +156,11 @@ class TextChunkProcessor:
                 syllable_obj = self._send_to_syllable_processor(remaining_text)
                 syllables.append(syllable_obj)
                 remaining_text = syllable_obj.text_attr.remainder
+        # Add crumb summarizing the validity of the word
+        if self.config.crumbs and syllables:
+            validity = "valid" if all(syl.valid for syl in syllables) else "invalid"
+            word_str = "".join(syl.text_attr.full_syllable for syl in syllables)
+            self.config.print_crumb(level=1, stage="Word Validation", message=f'"{word_str}" is {validity}.')
         self.chunks.append(syllables)
 
     def get_chunks(self) -> List[Union[List[Syllable], str]]:
