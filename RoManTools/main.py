@@ -154,8 +154,27 @@ def main(arg_list: Optional[List[str]] = None):
     # Create the Config object
     config = Config(crumbs=args.crumbs, error_skip=args.error_skip, error_report=args.error_report)
 
+    # Print starting timestamp if crumbs is enabled
+    from datetime import datetime
+    config.print_crumb(level=1, stage='Start', message=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+    # Use alias_maps to get pretty action name
+    pretty_action = supported_actions[args.action]['pretty']
+    config.print_crumb(level=1, stage='Performing action', message=f'{pretty_action}')
+
+    # Report configuration if crumbs is enabled
+    enabled_configs = [supported_config[key]['pretty'] for key, val in config.__dict__.items() if val and key in supported_config]
+    if enabled_configs:
+        config.print_crumb(level=1, stage='Configuration', message=', '.join(enabled_configs))
+        config.print_crumb(footer=True)
+
     # Call the appropriate function with the Config object
-    print(str(ACTIONS[args.action](args, config)))
+    result = ACTIONS[args.action](args, config)
+
+    # Print ending timestamp if crumbs is enabled
+    config.print_crumb(level=1, stage='End', message=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+    print(str(result))
 
 
 if __name__ == '__main__':  # pragma: no cover

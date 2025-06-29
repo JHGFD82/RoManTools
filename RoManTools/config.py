@@ -11,6 +11,8 @@ Classes:
     Config: Manages configuration settings for text processing.
 """
 
+import logging
+
 
 class Config:
     """
@@ -31,10 +33,13 @@ class Config:
         self.crumbs = crumbs
         self.error_skip = error_skip
         self.error_report = error_report
+        self.logger = logging.getLogger(__name__)
+        if not logging.getLogger().hasHandlers():
+            logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
     def print_crumb(self, level: int = 0, stage: str = '', message: str = '', footer: bool = False):
         """
-        Prints a crumb message based on the configuration settings.
+        Prints a crumb message based on the configuration settings using logging.
 
         Args:
             level (int): The level of the crumb message.
@@ -48,8 +53,9 @@ class Config:
             # Segmentation: Processing text
         """
         if self.crumbs:
-            prefix = '#' * level + ' ' if level > 0 else ''
-            stage = f'{stage}: ' if stage else ''
-            print(f'{prefix}{stage}{message}')
+            if message:
+                prefix = '#' * level + ' ' if level > 0 else ''
+                stage_str = f'{stage}: ' if stage else ''
+                self.logger.info(f'{prefix}{stage_str}{message}')
             if footer:
-                print("---")
+                self.logger.info('---')

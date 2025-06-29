@@ -62,5 +62,5 @@ class RomanizationConverter:
         if any([self.config.error_skip, self.config.error_report, self.config.crumbs]):
             # FUTURE: Add error handling for missing conversion mappings
             self.config.print_crumb(1, "Converting text", text)
-            self.config.print_crumb(message='---')
+            # self.config.print_crumb(message='---')
         return _cached_convert(text)

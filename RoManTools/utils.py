@@ -161,6 +161,7 @@ def _conversion_processing(text: str, convert: Dict[str, str], config: Config, s
         else:
             # In all other cases, raise an error
             raise ValueError(f"Unexpected chunk type: {type(chunk)} in _conversion_processing")
+    config.print_crumb(footer=True)
     # Return the concatenated text, with cherry_pick including spaces and symbols from original text,
     # and convert_text adding spaces between words
     return " ".join(concat_text) if include_spaces else "".join(concat_text)

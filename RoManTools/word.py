@@ -150,14 +150,18 @@ class Word:
             bool: True if the word is valid or a contraction and not a stopword, False otherwise
         """
 
-        return (self.valid or self.contraction) and self.preview_word not in self.processor.stopwords
+        if self.preview_word in self.processor.stopwords:
+            self.processor.config.logger.error(
+                f"Word '{self.preview_word}' is a stopword and cannot be processed."
+            )
+            return False
+        return self.valid or self.contraction
 
     def convert(self):
         """
         Converts the syllables of the word, returning error messages for invalid syllables if error_skip is False.
         Otherwise, errors are ignored.
         """
-
         # For standard conversion requests, process syllables with error messages.
         if not self.processor.config.error_skip:
             self.processed_syllables = [(self.processor.converter.convert(syl.text_attr.full_syllable), syl) for syl in self.syllables]
