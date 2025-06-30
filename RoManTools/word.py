@@ -91,6 +91,7 @@ class Word:
         self.final_word = ""
         self.valid = self.all_valid()
         self.contraction = self.is_contraction()
+        self._stopword_logged = False 
 
     def _create_preview_word(self) -> str:
         """
