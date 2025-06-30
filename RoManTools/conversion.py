@@ -24,22 +24,22 @@ class RomanizationConverter:
             convert_to (str): The romanization system to convert to.
             config (Config): The configuration object for the conversion.
         """
-
         self.conversion_mapping = load_conversion_data()
         self.convert_from = convert_from
         self.convert_to = convert_to
         self.config = config
+        self._cached_convert = self._make_cached_convert()
 
-    def convert(self, text: str) -> str:
+    def _make_cached_convert(self):
         """
-        Converts a given text.
-
-        Args:
-            text (str): The text to be converted.
+        Creates a cached conversion function bound to the current instance's mapping and settings.
 
         Returns:
-            str: The converted text based on the selected romanization conversion mappings.
+            Callable[[str], str]: A function that converts text using an LRU cache.
         """
+        conversion_mapping = self.conversion_mapping
+        convert_from = self.convert_from
+        convert_to = self.convert_to
 
         @lru_cache(maxsize=10000)
         def _cached_convert(text_to_convert: str) -> str:
@@ -53,12 +53,29 @@ class RomanizationConverter:
                 str: The converted text based on the selected romanization conversion mappings.
             """
             lowercased_text = text_to_convert.lower()
-            for row in self.conversion_mapping:
-                if row[self.convert_from].lower() == lowercased_text:
-                    if not row[self.convert_to] and row['meta'] == 'rare':
-                        return text + '(!rare Pinyin!)'
-                    return row[self.convert_to]
-            return text + '(!)'
+            for row in conversion_mapping:
+                if row[convert_from].lower() == lowercased_text:
+                    if not row[convert_to] and row['meta'] == 'rare':
+                        return text_to_convert + '(!rare Pinyin!)'
+                    return row[convert_to]
+            return text_to_convert + '(!)'
+        return _cached_convert
+
+    def convert(self, text: str) -> str:
+        """
+        Converts a given text and prints a crumb if enabled in the config.
+        Also prints a crumb if the result was loaded from the cache.
+
+        Args:
+            text (str): The text to be converted.
+
+        Returns:
+            str: The converted text based on the selected romanization conversion mappings.
+        """
+        cache = self._cached_convert.cache_info()
+        before_hits = cache.hits
+        result = self._cached_convert(text)
+        after_hits = self._cached_convert.cache_info().hits
 
         if after_hits > before_hits and self.config.crumbs:
             self.config.print_crumb(2, "Cached", f'"{text}" -> "{result}"')
