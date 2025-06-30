@@ -151,9 +151,11 @@ class Word:
         """
 
         if self.preview_word in self.processor.stopwords:
-            self.processor.config.logger.error(
-                f"Word '{self.preview_word}' is a stopword and cannot be processed."
-            )
+            if not self._stopword_logged:
+                self.processor.config.logger.error(
+                    f"Word '{self.preview_word}' is a stopword and cannot be processed."
+                )
+                self._stopword_logged = True
             return False
         return self.valid or self.contraction
 

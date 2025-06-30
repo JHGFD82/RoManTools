@@ -159,7 +159,7 @@ class TextChunkProcessor:
         if self.config.crumbs and syllables:
             validity = "valid" if all(syl.valid for syl in syllables) else "invalid"
             word_str = "".join(syl.text_attr.full_syllable for syl in syllables)
-            self.config.print_crumb(level=1, stage="Word Validation", message=f'"{word_str}" is {validity}.')
+            self.config.print_crumb(level=1, stage="Word Validation", message=f'"{word_str}" is {validity}')
         self.chunks.append(syllables)
 
     def get_chunks(self) -> List[Union[List[Syllable], str]]:

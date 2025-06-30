@@ -14,6 +14,7 @@ class RomanizationConverter:
     """
     A class to convert romanized Chinese between different romanization systems.
     """
+
     def __init__(self, convert_from: str, convert_to: str, config: Config):
         """
         Initializes the RomanizationConverter class.
@@ -59,8 +60,8 @@ class RomanizationConverter:
                     return row[self.convert_to]
             return text + '(!)'
 
-        if any([self.config.error_skip, self.config.error_report, self.config.crumbs]):
-            # FUTURE: Add error handling for missing conversion mappings
-            self.config.print_crumb(1, "Converting text", text)
-            # self.config.print_crumb(message='---')
-        return _cached_convert(text)
+        if after_hits > before_hits and self.config.crumbs:
+            self.config.print_crumb(2, "Cached", f'"{text}" -> "{result}"')
+        else:
+            self.config.print_crumb(2, "Converted text", f'"{text}" -> "{result}"')
+        return result

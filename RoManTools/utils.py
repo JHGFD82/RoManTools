@@ -151,6 +151,15 @@ def _conversion_processing(text: str, convert: Dict[str, str], config: Config, s
     word_processor = WordProcessor(config, convert['from'], convert['to'], stopwords)
     concat_text: List[str] = []
     for chunk in _process_text(text, convert['from'], config):
+
+    chunks = _process_text(text, convert['from'], config)
+
+    # Print conversion crumb after text analysis, before conversion
+    if config.crumbs and not getattr(config, "_crumb_conversion_printed", False):
+        from_pretty = supported_methods[method_shorthand_to_full[convert["from"]]]["pretty"]
+        to_pretty = supported_methods[method_shorthand_to_full[convert["to"]]]["pretty"]
+        config.print_crumb(1, "Converting text", f'{from_pretty} -> {to_pretty}')
+        setattr(config, "_crumb_conversion_printed", True)
         if isinstance(chunk, list):
             # When the chunk is a list of syllables, process them as a word, then append the result as strings
             word = word_processor.create_word(chunk)
