@@ -122,20 +122,19 @@ class TextChunkProcessor:
         # Print cache information to ensure proper usage
         # print(self._send_to_syllable_processor.cache_info())  # Displays cache statistics
 
-    @lru_cache(maxsize=10000)
     def _send_to_syllable_processor(self, remaining_text: str) -> Syllable:
-        """
-        Sends the remaining text to the syllable processor to create a syllable object.
+        # Check if the value is in the cache
+        cache = self._cached_syllable_processor.cache_info()
+        before_hits = cache.hits
+        result = self._cached_syllable_processor(remaining_text)
+        after_hits = self._cached_syllable_processor.cache_info().hits
+        if after_hits > before_hits:
+            self.config.print_crumb(2, "Cached", f'"{remaining_text}" valid: {result.valid}')
+        return result
 
-        Args:
-            remaining_text (str): The remaining text to process.
-        """
-
+    @lru_cache(maxsize=10000)
+    def _cached_syllable_processor(self, remaining_text: str) -> Syllable:
         return self.syllable_processor.create_syllable(remaining_text)
-        # This commented code is for debugging purposes to print the resulting syllable object
-        # result = self.syllable_processor.create_syllable(remaining_text)
-        # print(result.__dict__)
-        # return result
 
     def _process_split_words(self, split_words: List[str]):
         """
