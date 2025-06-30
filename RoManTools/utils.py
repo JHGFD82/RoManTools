@@ -9,23 +9,17 @@ This module provides helper functions and methods used across the RoManTools pac
 - Counting syllables in text.
 
 Functions:
-    segment_text(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False)
-                 -> List[Union[List[Syllable], Syllable]]:
+    segment_text(text: str, method: str, config: Optional[Config] = None, **kwargs: bool) -> List[Union[List[str], str]]:
         Segments the given text into syllables based on the selected method.
-    convert_text(text: str, convert_from: str, convert_to: str, crumbs: bool = False, error_skip: bool = False,
-                 error_report: bool = False) -> str:
+    convert_text(text: str, convert_from: str, convert_to: str, config: Optional[Config] = None, **kwargs: bool) -> str:
         Converts the given text from one romanization standard to another.
-    cherry_pick(text: str, convert_from: str, convert_to: str, crumbs: bool = False, error_skip: bool = True,
-                error_report: bool = False) -> str:
-        Converts the given text from one romanization standard to another if detected as a valid romanized Mandarin word.
-    syllable_count(text: str, method: str, crumbs: bool = False, error_skip: bool = False, error_report: bool = False)
-                   -> list[int]:
+    cherry_pick(text: str, convert_from: str, convert_to: str, config: Optional[Config] = None, **kwargs: bool) -> str:
+        Converts only valid romanized Mandarin words in the text from one standard to another.
+    syllable_count(text: str, method: str, config: Optional[Config] = None, **kwargs: bool) -> list[int]:
         Returns the count of syllables for each word in the processed text.
-    detect_method(text: str, per_word: bool = False, crumbs: bool = False, error_skip: bool = False,
-                  error_report: bool = False) -> Union[List[str], List[Dict[str, List[str]]]]:
-        Detects the romanization method of the given text or individual words.
-    validator(text: str, method: str, per_word: bool = False, crumbs: bool = False, error_skip: bool = False,
-              error_report: bool = False) -> Union[bool, list[dict]]:
+    detect_method(text: str, per_word: bool = False, config: Optional[Config] = None, **kwargs: bool) -> Union[List[str], List[Dict[str, List[str]]]]:
+        Detects the romanization method(s) of the given text or individual words.
+    validator(text: str, method: str, per_word: bool = False, config: Optional[Config] = None, **kwargs: bool) -> Union[bool, list[dict]]:
         Validates the processed text or individual words based on the selected method.
 
 Usage Example:
@@ -80,22 +74,22 @@ def _process_text(text: str, method: str, config: Config) -> Sequence[Union[Sequ
 
 
 # Segmentation actions
-def segment_text(text: str, method: str, config: Optional[Config] = None, **kwargs: bool) \
-        -> List[Union[List[str], str]]:
+def segment_text(text: str, method: str, config: Optional[Config] = None, **kwargs: bool) -> List[Union[List[str], str]]:
     """
-    Segments the given text into syllables based on the selected method.
+    Segments the given text into syllables based on the selected romanization method.
 
     Args:
         text (str): The text to be segmented.
-        method (str): The method to apply for segmentation.
-        config (Config, optional): The configuration object containing processing settings. Defaults to None.
+        method (str): The romanization method to use for segmentation.
+        config (Config, optional): Configuration object for processing settings. Defaults to None.
+        **kwargs: Additional keyword arguments to initialize the Config object if not provided.
 
     Returns:
-        List[Union[List[Syllable], Syllable]]: A list of segmented syllables or syllable chunks.
+        List[Union[List[str], str]]: A list where each element is either a list of syllable strings (for words)
+            or a string (for non-text elements).
 
     Example:
-        >>> text = "Zhongguo ti'an tianqi"
-        >>> segment_text(text, method="py")
+        >>> segment_text("Zhongguo ti'an tianqi", method="py")
         [['zhong', 'guo'], ['ti', 'an'], ['tian', 'qi']]
     """
 
@@ -132,20 +126,19 @@ def segment_text(text: str, method: str, config: Optional[Config] = None, **kwar
 
 
 # Conversion actions
-def _conversion_processing(text: str, convert: Dict[str, str], config: Config, stopwords: Set[str], include_spaces: bool) \
-        -> str:
+def _conversion_processing(text: str, convert: Dict[str, str], config: Config, stopwords: Set[str], include_spaces: bool) -> str:
     """
-    Processes the given text for conversion between two romanization standards.
+    Converts the given text from one romanization standard to another.
 
     Args:
-        text (str): The text to be processed.
-        convert (Dict[str, str]): The conversion mapping for the romanization standards.
-        config (Config): The configuration object containing processing settings.
-        stopwords (Set[str]): A set of stopwords to exclude from processing.
-        include_spaces (bool): Whether to include spaces in the output.
+        text (str): The text to be converted.
+        convert (Dict[str, str]): Dictionary with 'from' and 'to' keys specifying conversion standards.
+        config (Config): Configuration object for processing settings.
+        stopwords (Set[str]): Set of stopwords to exclude from conversion.
+        include_spaces (bool): Whether to include spaces between converted words.
 
     Returns:
-        str: The converted text based on the selected romanization conversion mappings.
+        str: The converted text.
     """
 
     word_processor = WordProcessor(config, convert['from'], convert['to'], stopwords)
@@ -178,21 +171,20 @@ def _conversion_processing(text: str, convert: Dict[str, str], config: Config, s
 
 def convert_text(text: str, convert_from: str, convert_to: str, config: Optional[Config] = None, **kwargs: bool) -> str:
     """
-    Converts the given text from one romanization standard to another, returning errors for any invalid syllables.
+    Converts the given text from one romanization standard to another.
 
     Args:
         text (str): The text to be converted.
         convert_from (str): The romanization standard to convert from.
         convert_to (str): The romanization standard to convert to.
-        config (Config, optional): The configuration object containing processing settings. Defaults to None.
+        config (Config, optional): Configuration object for processing settings. Defaults to None.
         **kwargs: Additional keyword arguments to initialize the Config object if not provided.
 
     Returns:
-        str: The converted text based on the selected romanization conversion mappings.
+        str: The converted text.
 
     Example:
-        >>> text = "Zhongguo"
-        >>> convert_text(text, convert_from="py", convert_to="wg")
+        >>> convert_text("Zhongguo", convert_from="py", convert_to="wg")
         'Chung-kuo'
     """
 
@@ -221,20 +213,21 @@ def convert_text(text: str, convert_from: str, convert_to: str, config: Optional
 
 def cherry_pick(text: str, convert_from: str, convert_to: str, config: Optional[Config] = None, **kwargs: bool) -> str:
     """
-    Converts the given text from one romanization standard to another if detected as a valid romanized Mandarin word, and returns all over text.
+    Converts only valid romanized Mandarin words in the text from one standard to another.
+    Non-romanized words are left unchanged.
 
     Args:
-        text (str): The text to be converted.
+        text (str): The text to be processed.
         convert_from (str): The romanization standard to convert from.
         convert_to (str): The romanization standard to convert to.
-        config (Config, optional): The configuration object containing processing settings. Defaults to None.
+        config (Config, optional): Configuration object for processing settings. Defaults to None.
+        **kwargs: Additional keyword arguments to initialize the Config object if not provided.
 
     Returns:
-        str: The converted text based on the selected romanization conversion mappings
+        str: The text with valid romanized Mandarin words converted.
 
     Example:
-        >>> text = "This is Zhongguo."
-        >>> cherry_pick(text, convert_from="py", convert_to="wg")
+        >>> cherry_pick("This is Zhongguo.", convert_from="py", convert_to="wg")
         'This is Chung-kuo.'
     """
 
@@ -267,16 +260,16 @@ def syllable_count(text: str, method: str, config: Optional[Config] = None, **kw
     Returns the count of syllables for each word in the processed text.
 
     Args:
-        text (str): The text to be processed.
-        method (str): The method of romanization for the supplied text.
-        config (Config, optional): The configuration object containing processing settings. Defaults to None.
+        text (str): The text to be analyzed.
+        method (str): The romanization method for the supplied text.
+        config (Config, optional): Configuration object for processing settings. Defaults to None.
+        **kwargs: Additional keyword arguments to initialize the Config object if not provided.
 
     Returns:
-        List[int]: A list of lengths for each valid word in the processed text.
+        list[int]: A list of syllable counts for each valid word in the text.
 
     Example:
-        >>> text = "Zhongguo"
-        >>> syllable_count(text, method="py")
+        >>> syllable_count("Zhongguo", method="py")
         [2]
     """
 
@@ -305,22 +298,23 @@ def syllable_count(text: str, method: str, config: Optional[Config] = None, **kw
 
 
 # Detection and validation actions
-def detect_method(text: str, per_word: bool = False, config: Optional[Config] = None, **kwargs: bool) \
-        -> Union[List[str], List[Dict[str, Union[str, List[str]]]]]:
+def detect_method(text: str, per_word: bool = False, config: Optional[Config] = None, **kwargs: bool) -> Union[List[str], List[Dict[str, Union[str, List[str]]]]]:
     """
-    Detects the romanization method of the given text or individual words.
+    Detects the romanization method(s) of the given text or of each word.
 
     Args:
         text (str): The text to be analyzed.
-        per_word (bool, optional): Whether to report the possible romanization methods for each word. Defaults to False.
-        config (Config, optional): The configuration object containing processing settings. Defaults to None.
+        per_word (bool, optional): If True, returns methods for each word separately. Defaults to False.
+        config (Config, optional): Configuration object for processing settings. Defaults to None.
+        **kwargs: Additional keyword arguments to initialize the Config object if not provided.
 
     Returns:
-        Union[List[str], List[Dict[str, Union[str, List[str]]]]]: A list of detected methods, either for the full text or per word.
+        Union[List[str], List[Dict[str, Union[str, List[str]]]]]:
+            If per_word is False, returns a list of valid methods for the entire text.
+            If per_word is True, returns a list of dicts with 'word' and 'methods' keys for each word.
 
     Example:
-        >>> text = "Zhongguo"
-        >>> detect_method(text)
+        >>> detect_method("Zhongguo")
         ['py']
     """
 
@@ -382,24 +376,24 @@ def detect_method(text: str, per_word: bool = False, config: Optional[Config] = 
     return _cached_detect_method()
 
 
-def validator(text: str, method: str, per_word: bool = False, config: Optional[Config] = None, **kwargs: bool) \
-        -> Union[bool, list[dict[str, Union[str, list[str], list[bool]]]]]:
+def validator(text: str, method: str, per_word: bool = False, config: Optional[Config] = None, **kwargs: bool) -> Union[bool, list[dict[str, Union[str, list[str], list[bool]]]]]:
     """
-    Validates the processed text or individual words based on the selected method.
+    Validates the processed text or individual words based on the selected romanization method.
 
     Args:
         text (str): The text to be validated.
-        method (str): The method to apply for validation.
-        per_word (bool, optional): Whether to report the validity of the entire text or each word. Defaults to False.
-        config (Config, optional): The configuration object containing processing settings. Defaults to None.
+        method (str): The romanization method to use for validation.
+        per_word (bool, optional): If True, returns validation for each word separately. Defaults to False.
+        config (Config, optional): Configuration object for processing settings. Defaults to None.
+        **kwargs: Additional keyword arguments to initialize the Config object if not provided.
 
     Returns:
-        Union[bool, list[dict]]: Validation results, either as a boolean for the entire text or a detailed list per
-        word.
+        Union[bool, list[dict[str, Union[str, list[str], list[bool]]]]]:
+            If per_word is False, returns True if all syllables are valid, else False.
+            If per_word is True, returns a list of dicts with 'word', 'syllables', and 'valid' keys for each word.
 
     Example:
-        >>> text = "Zhongguo"
-        >>> validator(text, method="py")
+        >>> validator("Zhongguo", method="py")
         True
     """
 

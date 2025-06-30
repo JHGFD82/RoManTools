@@ -80,7 +80,7 @@ class Word:
         Initializes a Word object with the provided syllables and processor.
 
         Args:
-            syllables (List[Syllable]): A list of syllables that make up the word.
+            syllables (List[Syllable]): A list of Syllable objects that make up the word.
             processor (WordProcessor): The processor object used to handle syllable validation and conversion.
         """
 
@@ -99,7 +99,7 @@ class Word:
         "we've" and "we're," which are potentially valid romanized syllables, even though they are not Mandarin terms.
 
         Returns:
-            str: The preview word
+            str: The preview word.
         """
 
         word_parts: List[str] = []
@@ -114,22 +114,22 @@ class Word:
 
     def all_valid(self) -> bool:
         """
-        Checks if all syllables in the word are valid by referencing the valid attribute of each syllable.
+        Checks if all syllables in the word are valid.
 
         Returns:
-            bool: True if all syllables are valid, False otherwise
+            bool: True if all syllables are valid, False otherwise.
         """
 
         return all(syl.valid for syl in self.syllables)
 
     def is_contraction(self) -> bool:
         """
-        Checks if the word is a contraction by verifying that the last syllable is not valid and has an apostrophe,
-        and that the full syllable is in the supported contractions set. In the case of error_skip being False,
-        allow the contraction to be processed as an error.
+        Checks if the word is a contraction by verifying that all but the last syllable are valid,
+        the last syllable has an apostrophe, and the last syllable matches a supported contraction.
+        Only returns True if error_skip is enabled.
 
         Returns:
-            bool: True if the word is a contraction, False otherwise
+            bool: True if the word is a contraction, False otherwise.
         """
 
         valid_syllables = all(syl.valid for syl in self.syllables[:-1])
@@ -147,7 +147,7 @@ class Word:
         Checks if the word is valid or a contraction and not a stopword.
 
         Returns:
-            bool: True if the word is valid or a contraction and not a stopword, False otherwise
+            bool: True if the word is valid or a contraction and not a stopword, False otherwise.
         """
 
         if self.preview_word in self.processor.stopwords:
@@ -161,9 +161,10 @@ class Word:
 
     def convert(self):
         """
-        Converts the syllables of the word, returning error messages for invalid syllables if error_skip is False.
-        Otherwise, errors are ignored.
+        Converts the syllables of the word. If error_skip is False, all syllables are processed and errors are reported.
+        If error_skip is True, only valid syllables or contractions are converted, and stopwords are not processed.
         """
+
         # For standard conversion requests, process syllables with error messages.
         if not self.processor.config.error_skip:
             self.processed_syllables = [(self.processor.converter.convert(syl.text_attr.full_syllable), syl) for syl in self.syllables]
@@ -183,7 +184,7 @@ class Word:
 
     def apply_caps(self):
         """
-        Applies capitalization to the converted syllables.
+        Applies capitalization to the converted syllables based on their capitalization attributes.
         """
 
         # The apply_caps method within the Syllable object is called on each syllable to apply capitalization based on
@@ -193,9 +194,7 @@ class Word:
     def add_symbols(self):
         """
         Adds apostrophes and dashes to the converted syllables based on the conversion system and the presence of vowels.
-
-        Returns:
-            str: The final word with added symbols
+        The result is stored in self.final_word.
         """
 
         # Syllables have to be processed individually if conversion took place. Otherwise, they are combined in a
@@ -213,10 +212,7 @@ class Word:
         presence of vowels.
 
         Args:
-            i (int): The index of the syllable to be appended
-
-        Returns:
-            None
+            i (int): The index of the syllable to be appended.
         """
 
         # Specific rules for romanization are contained here.
@@ -245,11 +241,11 @@ class Word:
         syllable and the first character of the current syllable.
 
         Args:
-            prev_syllable (str): The previous syllable
-            curr_syllable (str): The current syllable
+            prev_syllable (str): The previous syllable.
+            curr_syllable (str): The current syllable.
 
         Returns:
-            bool: True if an apostrophe is needed, False otherwise
+            bool: True if an apostrophe is needed, False otherwise.
         """
 
         # The logic for apostrophes in Pinyin is based on the following rules in which the start of the next syllable
@@ -267,9 +263,6 @@ class Word:
     def _append_all_syllables(self):
         """
         Appends all syllables to the final word, adding any symbols if they were in the original text.
-
-        Returns:
-            None
         """
 
         for syl in self.processed_syllables:
@@ -283,9 +276,10 @@ class Word:
     def process_syllables(self) -> str:
         """
         Processes the syllables of the word by converting them, applying capitalization, and adding symbols.
+        Returns the final processed word as a string.
 
         Returns:
-            str: The final word after processing the syllables
+            str: The final word after processing the syllables.
         """
 
         self.convert()
