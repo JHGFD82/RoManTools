@@ -1,13 +1,16 @@
 # decorators.py
 import time
 import sys
+from typing import Callable, Any
+import functools
 
 # Initialize the counter for the number of tests
 test_counter = 0
 
-def timeit_decorator(repeats=1):
-    def decorator(func):
-        def wrapper(*args, **kwargs):
+def timeit_decorator(repeats: int = 1) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        @functools.wraps(func)
+        def wrapper(*args: Any, **kwargs: Any):
             global test_counter
             test_counter += 1
             total_time = 0.0

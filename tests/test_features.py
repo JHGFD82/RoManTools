@@ -1,6 +1,8 @@
 import unittest
 from unittest.mock import patch
 from io import StringIO
+import logging
+from typing import List
 
 from RoManTools.utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
 from RoManTools.config import Config
@@ -12,13 +14,13 @@ import random
 # from memory_profiler import profile
 
 
-def generate_random_syllable_from_list(syllable_list):
+def generate_random_syllable_from_list(syllable_list: List[str]) -> str:
     return random.choice(syllable_list)
 
 
-def generate_random_text_from_list(method, num_syllables=0):
+def generate_random_text_from_list(method: str, num_syllables: int = 0) -> str:
 
-    def _validate_examples(random_text):
+    def _validate_examples(random_text: List[str]) -> str:
         final_words = random_text[0]
         for i in range(1, len(random_text)):
             prev_syllable = random_text[i - 1]
@@ -246,6 +248,7 @@ class TestRoManToolsActions(unittest.TestCase):
 
     @timeit_decorator()
     def test_cherry_pick(self):
+        self.maxDiff = None
         result = cherry_pick("Bai Juyi lived during the Middle Tang period. This was a period of rebuilding and "
                              "recovery for the Tang Empire, following the An Lushan Rebellion, and following the "
                              "poetically flourishing era famous for Li Bai (701－762), Wang Wei (701－761), and Du Fu "
@@ -254,7 +257,7 @@ class TestRoManToolsActions(unittest.TestCase):
                              "career both as a government official and a poet, although these two facets of his career "
                              "seemed to have come in conflict with each other at certain points. Bai Juyi was also a "
                              "devoted Chan Buddhist.", convert_from='py', convert_to='wg')
-        self.assertEqual(result, "Pai Chü-i lived during the Middle T'ang period. This was a period of rebuilding and recovery for the T'ang Empire, following the An Lu-shan Rebellion, and following the poetically flourishing era famous for Li Pai (701－762), Wang Wei (701－761), and Tu Fu (712－770). Pai Chü-i lived through the reigns of eight or nine emperors, being born in the Ta-li regnal era (766-779) of Emperor Tai-tsung of T'ang. He had a long and successful career both as a government official and a poet, although these two facets of his career seemed to have come in conflict with each other at certain points. Pai Chü-i was also a devoted Ch'an Buddhist.")
+        self.assertEqual(result, "Pai Chü-i lived during the Middle T'ang period. This was a period of rebuilding and recovery for the T'ang Empire, following the An Lu-shan Rebellion, and following the poetically flourishing era famous for Li Pai (701－762), Wang Wei (701－761), and Du Fu (712－770). Pai Chü-i lived through the reigns of eight or nine emperors, being born in the Ta-li regnal era (766-779) of Emperor Tai-tsung of T'ang. He had a long and successful career both as a government official and a poet, although these two facets of his career seemed to have come in conflict with each other at certain points. Pai Chü-i was also a devoted Ch'an Buddhist.")
 
     @timeit_decorator()
     def test_cherry_pick_long(self):
@@ -434,137 +437,164 @@ class TestRoManToolsActions(unittest.TestCase):
                                   {'word': 'yiin', 'methods': []}]
                          )
 
-    # CRUMBS TESTING #
-    @timeit_decorator()
-    def test_segment_text_crumb(self):
-        with patch('sys.stdout', new=StringIO()) as fake_out:
-            result = segment_text("t'ao", method='wg', crumbs=True)
-            self.assertEqual(result, [["t'ao"]])
-            console_output = fake_out.getvalue().strip()
-            expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
-                              "## initial found: t'\n" \
-                              "## final found: ao\n" \
-                              "### \"t'ao\" valid: True\n" \
-                              "---\n" \
-                              "# Segment Text: Assembling segments\n" \
-                              "---"
-            self.assertEqual(console_output, expected_output)
-
-    @timeit_decorator()
-    def test_convert_text_crumb(self):
-        with patch('sys.stdout', new=StringIO()) as fake_out:
-            result = convert_text("t'ao", convert_from='wg', convert_to='py', crumbs=True)
-            self.assertEqual(result, "tao")
-            console_output = fake_out.getvalue().strip()
-            expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
-                              "## initial found: t'\n" \
-                              "## final found: ao\n" \
-                              "### \"t'ao\" valid: True\n" \
-                              "---\n" \
-                              "# Converting text: t'ao\n" \
-                              "---"
-            self.assertEqual(console_output, expected_output)
-
-    @timeit_decorator()
-    def test_cherry_pick_crumb(self):
-        with (patch('sys.stdout', new=StringIO()) as fake_out):
-            result = cherry_pick("Hello, Xiang.", convert_from='py', convert_to='wg', crumbs=True)
-            self.assertEqual(result, "Hello, Hsiang.")
-            console_output = fake_out.getvalue().strip()
-            expected_output = "# Analyzing text as Pinyin: Hello\n" \
-                              "## initial found: h\n" \
-                              "## final found: e\n" \
-                              '### "he" valid: True\n' \
-                              "## initial found: ll\n" \
-                              "## final found: o\n" \
-                              '### "llo" valid: False\n' \
-                              "---\n" \
-                              "# Analyzing text as Pinyin: Xiang\n" \
-                              "## initial found: x\n" \
-                              "## final found: iang\n" \
-                              '### "xiang" valid: True\n' \
-                              "---\n" \
-                              "# Converting text: xiang\n" \
-                              "---"
-            self.assertEqual(console_output, expected_output)
-
-    @timeit_decorator()
-    def test_syllable_count_crumb(self):
-        with patch('sys.stdout', new=StringIO()) as fake_out:
-            result = syllable_count("t'ao", method='wg', crumbs=True)
-            self.assertEqual(result, [1])
-            console_output = fake_out.getvalue().strip()
-            expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
-                              "## initial found: t'\n" \
-                              "## final found: ao\n" \
-                              "### \"t'ao\" valid: True\n" \
-                              "---\n" \
-                              "# Syllable Count: Assembling counts\n" \
-                              "---"
-            self.assertEqual(console_output, expected_output)
-
-    @timeit_decorator()
-    def test_detect_method_crumb(self):
-        with patch('sys.stdout', new=StringIO()) as fake_out:
-            result = detect_method("t'ao", crumbs=True)
-            self.assertEqual(result, ['wg'])
-            console_output = fake_out.getvalue().strip()
-            expected_output = "# Analyzing text as Pinyin: t'ao\n" \
-                              "## initial found: t\n" \
-                              "## final found: \n" \
-                              "### \"t\" valid: False\n" \
-                              "## initial found: ø\n" \
-                              "## final found: ao\n" \
-                              "### \"ao\" valid: True\n" \
-                              "---\n" \
-                              "# Analyzing text as Wade-Giles: t'ao\n" \
-                              "## initial found: t'\n" \
-                              "## final found: ao\n" \
-                              "### \"t'ao\" valid: True\n" \
-                              "---\n" \
-                              "# Detect Method: Assembling methods for all syllables\n" \
-                              "---"
-            self.assertEqual(console_output, expected_output)
-
-    @timeit_decorator()
-    def test_detect_method_per_word_crumb(self):
-        with patch('sys.stdout', new=StringIO()) as fake_out:
-            result = detect_method("t'ao", True, crumbs=True)
-            self.assertEqual(result, [{'methods': ['wg'], 'word': "t'ao"}])
-            console_output = fake_out.getvalue().strip()
-            expected_output = "# Analyzing text as Pinyin: t'ao\n" \
-                              "## initial found: t\n" \
-                              "## final found: \n" \
-                              "### \"t\" valid: False\n" \
-                              "## initial found: ø\n" \
-                              "## final found: ao\n" \
-                              "### \"ao\" valid: True\n" \
-                              "---\n" \
-                              "# Analyzing text as Wade-Giles: t'ao\n" \
-                              "## initial found: t'\n" \
-                              "## final found: ao\n" \
-                              "### \"t'ao\" valid: True\n" \
-                              "---\n" \
-                              "# Detect Method: Assembling methods\n" \
-                              "---"
-            self.assertEqual(console_output, expected_output)
-
-    @timeit_decorator()
-    def test_validator_crumb(self):
-        with patch('sys.stdout', new=StringIO()) as fake_out:
-            result = validator("t'ao", method='wg', crumbs=True)
-            self.assertEqual(result, True)
-            console_output = fake_out.getvalue().strip()
-            expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
-                              "## initial found: t'\n" \
-                              "## final found: ao\n" \
-                              "### \"t'ao\" valid: True\n" \
-                              "---"
-            self.assertEqual(console_output, expected_output)
-
     # ERROR_SKIP TESTING #
     @timeit_decorator()
     def test_segment_text_error_skip(self):
         result = segment_text("Bai Juyi lived during the Middle Tang period.", method='py', error_skip=True)
         self.assertEqual(result, [['bai'], ' ', ['ju', 'yi'], ' ', ['li', 'v', 'e', 'd'], ' ', ['du', 'ring'], ' ',
                                   ['the'], ' ', ['mi', 'ddle'], ' ', ['tang'], ' ', ['pe', 'ri', 'o', 'd'], '.'])
+
+    # CRUMBS AND LOGGING TESTING #
+    def setUp(self):
+        # Set up logging capture for all tests that use crumbs/logging
+        self.log_stream = StringIO()
+        self.log_handler = logging.StreamHandler(self.log_stream)
+        self.logger = logging.getLogger()
+        self.logger.addHandler(self.log_handler)
+        self.logger.setLevel(logging.INFO)
+
+    def tearDown(self):
+        # Remove logging handler after each test
+        self.logger.removeHandler(self.log_handler)
+        self.log_stream.close()
+
+    @timeit_decorator()
+    def test_segment_text_crumb(self):
+        result = segment_text("t'ao", method='wg', crumbs=True)
+        self.assertEqual(result, [["t'ao"]])
+        self.log_handler.flush()
+        console_output = self.log_stream.getvalue().strip()
+        expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
+                            "## initial found: t'\n" \
+                            "## final found: ao\n" \
+                            "### \"t'ao\" valid: True\n" \
+                            "# Word Validation: \"t'ao\" is valid\n" \
+                            "---\n" \
+                            "# Segment Text: Assembling segments\n" \
+                            "---"
+        self.assertEqual(console_output, expected_output)
+
+    @timeit_decorator()
+    def test_convert_text_crumb(self):
+        result = convert_text("t'ao", convert_from='wg', convert_to='py', crumbs=True)
+        self.assertEqual(result, "tao")
+        self.log_handler.flush()
+        console_output = self.log_stream.getvalue().strip()
+        expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
+                            "## initial found: t'\n" \
+                            "## final found: ao\n" \
+                            "### \"t'ao\" valid: True\n" \
+                            "# Word Validation: \"t'ao\" is valid\n" \
+                            "---\n" \
+                            "# Converting text: Wade-Giles -> Pinyin\n" \
+                            "## Converted text: \"t'ao\" -> \"tao\"\n" \
+                            "---"
+        self.assertEqual(console_output, expected_output)
+
+    @timeit_decorator()
+    def test_cherry_pick_crumb(self):
+        result = cherry_pick("Hello, Xiang.", convert_from='py', convert_to='wg', crumbs=True)
+        self.assertEqual(result, "Hello, Hsiang.")
+        self.log_handler.flush()
+        console_output = self.log_stream.getvalue().strip()
+        expected_output = "# Analyzing text as Pinyin: Hello\n" \
+                        "## initial found: h\n" \
+                        "## final found: e\n" \
+                        "### \"he\" valid: True\n" \
+                        "## initial found: ll\n" \
+                        "## final found: o\n" \
+                        "### \"llo\" valid: False\n" \
+                        "# Word Validation: \"hello\" is invalid\n" \
+                        "---\n" \
+                        "# Non-text segment: , \n" \
+                        "---\n" \
+                        "# Analyzing text as Pinyin: Xiang\n" \
+                        "## initial found: x\n" \
+                        "## final found: iang\n" \
+                        "### \"xiang\" valid: True\n" \
+                        "# Word Validation: \"xiang\" is valid\n" \
+                        "---\n" \
+                        "# Non-text segment: .\n" \
+                        "---\n" \
+                        "# Converting text: Pinyin -> Wade-Giles\n" \
+                        "## Converted text: \"xiang\" -> \"hsiang\"\n" \
+                        "---"
+        self.assertEqual(console_output, expected_output)
+
+    @timeit_decorator()
+    def test_syllable_count_crumb(self):
+        result = syllable_count("t'ao", method='wg', crumbs=True)
+        self.assertEqual(result, [1])
+        self.log_handler.flush()
+        console_output = self.log_stream.getvalue().strip()
+        expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
+                            "## initial found: t'\n" \
+                            "## final found: ao\n" \
+                            "### \"t'ao\" valid: True\n" \
+                            "# Word Validation: \"t'ao\" is valid\n" \
+                            "---\n" \
+                            "# Syllable Count: Assembling counts\n" \
+                            "---"
+        self.assertEqual(console_output, expected_output)
+
+    @timeit_decorator()
+    def test_detect_method_crumb(self):
+        result = detect_method("t'ao", crumbs=True)
+        self.assertEqual(result, ['wg'])
+        self.log_handler.flush()
+        console_output = self.log_stream.getvalue().strip()
+        expected_output = "# Analyzing text as Pinyin: t'ao\n" \
+                            "## initial found: t\n" \
+                            "### \"t\" valid: False\n" \
+                            "## initial found: ø\n" \
+                            "## final found: ao\n" \
+                            "### \"ao\" valid: True\n" \
+                            "# Word Validation: \"tao\" is invalid\n" \
+                            "---\n" \
+                            "# Analyzing text as Wade-Giles: t'ao\n" \
+                            "## initial found: t'\n" \
+                            "## final found: ao\n" \
+                            "### \"t'ao\" valid: True\n" \
+                            "# Word Validation: \"t'ao\" is valid\n" \
+                            "---\n" \
+                            "# Detect Method: Assembling methods for all syllables\n" \
+                            "---"
+        self.assertEqual(console_output, expected_output)
+
+    @timeit_decorator()
+    def test_detect_method_per_word_crumb(self):
+        result = detect_method("t'ao", True, crumbs=True)
+        self.assertEqual(result, [{'methods': ['wg'], 'word': "t'ao"}])
+        self.log_handler.flush()
+        console_output = self.log_stream.getvalue().strip()
+        expected_output = "# Analyzing text as Pinyin: t'ao\n" \
+                            "## initial found: t\n" \
+                            "### \"t\" valid: False\n" \
+                            "## initial found: ø\n" \
+                            "## final found: ao\n" \
+                            "### \"ao\" valid: True\n" \
+                            "# Word Validation: \"tao\" is invalid\n" \
+                            "---\n" \
+                            "# Analyzing text as Wade-Giles: t'ao\n" \
+                            "## initial found: t'\n" \
+                            "## final found: ao\n" \
+                            "### \"t'ao\" valid: True\n" \
+                            "# Word Validation: \"t'ao\" is valid\n" \
+                            "---\n" \
+                            "# Detect Method: Assembling methods\n" \
+                            "---"
+        self.assertEqual(console_output, expected_output)
+
+    @timeit_decorator()
+    def test_validator_crumb(self):
+        result = validator("t'ao", method='wg', crumbs=True)
+        self.assertEqual(result, True)
+        self.log_handler.flush()
+        console_output = self.log_stream.getvalue().strip()
+        expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
+                          "## initial found: t'\n" \
+                          "## final found: ao\n" \
+                          "### \"t'ao\" valid: True\n" \
+                          "# Word Validation: \"t'ao\" is valid\n" \
+                          "---"
+        self.assertEqual(console_output, expected_output)
