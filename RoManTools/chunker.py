@@ -1,16 +1,19 @@
 """
-Text chunking for romanized Mandarin text.
+Text chunking utilities for romanized Mandarin text.
 
 This module provides the `TextChunkProcessor` class, which is used to process text into chunks
-based on the specified romanization method (e.g., Pinyin, Wade-Giles). It includes functionality
-for:
+based on the specified romanization method (e.g., Pinyin, Wade-Giles). It includes functionality for:
 - Splitting text into segments (words and non-text).
 - Processing each segment into syllables or leaving it as is.
 - Handling different romanization methods.
 
 Classes:
-    TextChunkProcessor: Processes text into chunks for further processing based on the specified
-                        romanization method.
+    TextChunkProcessor: Processes text into chunks for further processing based on the specified romanization method.
+
+Usage Example:
+    >>> processor = TextChunkProcessor('Zhongguo tianqi', config, method_params)
+    >>> processor.get_chunks()
+    [[Syllable(...), Syllable(...)], [Syllable(...), Syllable(...)]]
 """
 
 from functools import lru_cache
@@ -24,20 +27,25 @@ from .constants import supported_methods, method_shorthand_to_full, nontext_char
 
 class TextChunkProcessor:
     """
-    Processes text into chunks for further processing based on the specified romanization method (e.g., Pinyin,
-    Wade-Giles).
+    Processes text into chunks for further processing based on the specified romanization method (e.g., Pinyin, Wade-Giles).
 
     Attributes:
         text (str): The input text to be processed.
-        config (Config): Configuration object that manages processing options like crumbs, error skipping, and error
-        reporting.
+        config (Config): Configuration object that manages processing options like crumbs, error skipping, and error reporting.
         method (str): The romanization method being used ("py" for Pinyin or "wg" for Wade-Giles).
         syllable_processor (SyllableProcessor): The processor used to handle syllable creation and validation.
-        chunks (List[Union[List[Syllable], str]]): The processed chunks of text, where each chunk is either a list of
-        syllables or a string.
+        chunks (List[Union[List[Syllable], str]]): The processed chunks of text, where each chunk is either a list of syllables or a string.
     """
 
     def __init__(self, text: str, config: Config, method_params: Dict[str, Union[Tuple[Tuple[bool, ...], ...], List[str], str]]):
+        """
+        Initialize a TextChunkProcessor with the provided text, configuration, and method parameters.
+
+        Args:
+            text (str): The input text to be processed.
+            config (Config): Configuration object that manages processing options like crumbs, error skipping, and error reporting.
+            method_params (dict): Parameters for the romanization method (e.g., syllable rules, method name).
+        """
         self.text = text
         self.config = config
         self.method = str(method_params['method'])

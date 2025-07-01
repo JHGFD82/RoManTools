@@ -1,26 +1,27 @@
 """
 Data loading utilities for romanized Mandarin text processing.
 
-This module provides functions to load various data required for processing romanized Mandarin text,
-including:
+This module provides functions to load various data required for processing romanized Mandarin text, including:
 - Romanization data (initials, finals, and valid combinations).
 - Conversion mappings between different romanization methods.
 - Method parameters for specific romanization methods.
 - Stopwords list.
-- Syllable list.
 
 Functions:
-    load_romanization_data(file_path: str) -> Tuple[List[str], List[str], Tuple[Tuple[bool, ...], ...]]]:
-        Loads romanization data from a CSV file and returns initials, finals, and a 2D array indicating valid combinations.
-
-    load_conversion_data(method_combination: str) -> Dict[str, str]:
-        Loads the conversion mappings based on the specified method combination.
-
-    load_method_params(method: str, config: Config) -> Dict[str, Union[List[str], np.ndarray]]:
-        Loads romanization method parameters including initials, finals, and the valid combinations array.
-
+    load_romanization_data(file_path: str) -> Tuple[List[str], List[str], Tuple[Tuple[bool, ...], ...]]:
+        Load romanization data from a CSV file and return initials, finals, and a 2D array indicating valid combinations.
+    load_conversion_data() -> List[Dict[str, str]]:
+        Load the conversion mappings between different romanization methods.
+    load_method_params(method: str) -> Dict[str, Union[Tuple[Tuple[bool, ...], ...], List[str], str]]:
+        Load romanization method parameters including initials, finals, and the valid combinations array.
     load_stopwords() -> List[str]:
-        Loads a list of stopwords from a text file.
+        Load a list of stopwords from a text file.
+
+Usage Example:
+    >>> initials, finals, ar = load_romanization_data('data/pyDF.csv')
+    >>> mappings = load_conversion_data()
+    >>> params = load_method_params('py')
+    >>> stopwords = load_stopwords()
 """
 
 from typing import Tuple, List, Dict, Union

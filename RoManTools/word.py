@@ -1,5 +1,5 @@
 """
-Word processing for romanized Mandarin text.
+Word processing utilities for romanized Mandarin text.
 
 This module provides the `WordProcessor` and `Word` classes, which are used to process words and their syllables
 based on the specified romanization method (e.g., Pinyin, Wade-Giles). It includes functionality for:
@@ -10,6 +10,12 @@ based on the specified romanization method (e.g., Pinyin, Wade-Giles). It includ
 Classes:
     WordProcessor: Processes words and their syllables based on the specified romanization method.
     Word: Represents a word and its syllables, providing methods for validation and conversion.
+
+Usage Example:
+    >>> processor = WordProcessor(config, 'py', 'wg', stopwords)
+    >>> word = processor.create_word([syllable1, syllable2])
+    >>> word.process_syllables()
+    'Chung-kuo'
 """
 
 from typing import List, Set, Tuple
@@ -33,7 +39,7 @@ class WordProcessor:
 
     def __init__(self, config: Config, convert_from: str, convert_to: str, stopwords: Set[str]):
         """
-        Initializes the WordProcessor with the provided configuration and romanization method parameters.
+        Initialize a WordProcessor with the provided configuration and romanization method parameters.
 
         Args:
             config (Config): Configuration object that manages processing options like crumbs, error skipping, and error reporting.
@@ -50,7 +56,8 @@ class WordProcessor:
 
     def create_word(self, syllables: List[Syllable]) -> "Word":
         """
-        Creates a Word object from a list of Syllable objects.
+        Create a Word object from a list of Syllable objects.
+
         Args:
             syllables (List[Syllable]): A list of Syllable objects to be processed.
 
@@ -77,7 +84,7 @@ class Word:
 
     def __init__(self, syllables: List[Syllable], processor: WordProcessor):
         """
-        Initializes a Word object with the provided syllables and processor.
+        Initialize a Word object with the provided syllables and processor.
 
         Args:
             syllables (List[Syllable]): A list of Syllable objects that make up the word.

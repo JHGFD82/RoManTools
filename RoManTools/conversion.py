@@ -1,8 +1,15 @@
 """
-This module contains the RomanizationConverter class, which is used to convert romanized Chinese between different romanization systems.
+Romanization conversion utilities for romanized Mandarin text.
+
+This module provides the `RomanizationConverter` class, which is used to convert romanized Chinese between different romanization systems (e.g., Pinyin, Wade-Giles).
 
 Classes:
-    RomanizationConverter: A class to convert romanized Chinese between different romanization systems.
+    RomanizationConverter: Converts romanized Chinese between different romanization systems.
+
+Usage Example:
+    >>> converter = RomanizationConverter('py', 'wg', config)
+    >>> converter.convert('zhongguo')
+    'chung-kuo'
 """
 
 from functools import lru_cache
@@ -12,12 +19,19 @@ from .config import Config
 
 class RomanizationConverter:
     """
-    A class to convert romanized Chinese between different romanization systems.
+    Converts romanized Chinese between different romanization systems.
+
+    Attributes:
+        conversion_mapping (list): The loaded conversion data mapping between systems.
+        convert_from (str): The romanization system to convert from (e.g., 'py').
+        convert_to (str): The romanization system to convert to (e.g., 'wg').
+        config (Config): The configuration object for the conversion.
+        _cached_convert (Callable): The cached conversion function.
     """
 
     def __init__(self, convert_from: str, convert_to: str, config: Config):
         """
-        Initializes the RomanizationConverter class.
+        Initialize a RomanizationConverter with the provided conversion systems and configuration.
 
         Args:
             convert_from (str): The romanization system to convert from.

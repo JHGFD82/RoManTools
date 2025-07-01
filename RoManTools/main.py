@@ -1,10 +1,17 @@
 """
-This module serves as the main entry point for the RoManTools package, providing command-line
-interface (CLI) functionality for various romanized Mandarin text processing actions.
+Command-line interface (CLI) for RoManTools: Romanized Mandarin text processing utilities.
+
+This module provides the main entry point for the RoManTools package, enabling users to perform various text processing actions via the command line, including:
+- Segmenting text into syllables.
+- Converting between romanization standards.
+- Cherry-picking romanized words for conversion.
+- Counting syllables.
+- Detecting romanization methods.
+- Validating romanized text.
 
 Functions:
-    main(): The main entry point for the script. Sets up command-line argument parsing and calls
-            the appropriate function based on the provided arguments.
+    main(arg_list: Optional[List[str]] = None):
+        Parses command-line arguments and dispatches the appropriate processing action.
 
 Usage Example:
     $ romantools segment -i "Zhongguo ti'an tianqi" -m py
@@ -21,13 +28,16 @@ from .constants import method_shorthand_to_full, supported_methods, supported_ac
 
 def _normalize_method(method: str) -> str:
     """
-    Normalizes the romanization method string to a standard format.
+    Normalize a romanization method string to a standard shorthand format.
 
     Args:
-        method (str): The romanization method string.
+        method (str): The romanization method string (e.g., 'pinyin', 'py', 'wade-giles', 'wg').
 
     Returns:
-        str: The normalized romanization method string.
+        str: The normalized shorthand for the romanization method (e.g., 'py', 'wg').
+
+    Raises:
+        argparse.ArgumentTypeError: If the method is not recognized.
     """
 
     method = method.lower()
@@ -40,13 +50,13 @@ def _normalize_method(method: str) -> str:
 
 def _validate_arguments(args: argparse.Namespace):
     """
-    Validates the arguments based on the chosen action.
+    Validate command-line arguments based on the selected action.
 
     Args:
         args (argparse.Namespace): The parsed command-line arguments.
 
-    Returns:
-        None
+    Raises:
+        SystemExit: If required arguments are missing for the chosen action.
     """
 
     # Additional checks for method-related actions
@@ -100,10 +110,17 @@ ACTIONS: Dict[str, Callable[[argparse.Namespace, Config], object]] = {
 
 def main(arg_list: Optional[List[str]] = None):
     """
-    The main entry point for the script. Sets up command-line argument parsing and calls the appropriate function.
+    Main entry point for the RoManTools CLI. Parses arguments and dispatches the requested action.
+
+    Args:
+        arg_list (Optional[List[str]]): List of arguments to parse (for testing or programmatic use). If None, uses sys.argv.
 
     Raises:
         argparse.ArgumentError: If invalid arguments are provided.
+
+    Example:
+        >>> main(['segment', '-i', "Zhongguo ti'an tianqi", '-m', 'py'])
+        [['zhong', 'guo'], ['ti', 'an'], ['tian', 'qi']]
     """
 
     parser = argparse.ArgumentParser(description='RoManTools: Romanized Mandarin Tools')
