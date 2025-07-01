@@ -115,9 +115,6 @@ def segment_text(text: str, method: str, config: Optional[Config] = None, **kwar
             elif isinstance(chunk, str):
                 # Return the non-text elements as strings
                 segmented_result.append(chunk)
-            else:
-                # In all oher cases, raise an error
-                raise ValueError(f"Unexpected chunk type: {type(chunk)} in segment_text")
         return segmented_result
 
     if kwargs or (config and any([config.crumbs, config.error_skip, config.error_report])):
@@ -158,8 +155,6 @@ def _conversion_processing(text: str, convert: Dict[str, str], config: Config, s
             concat_text.append(word.process_syllables())
         elif isinstance(chunk, str):
             concat_text.append(chunk)
-        else:
-            raise ValueError(f"Unexpected chunk type: {type(chunk)} in _conversion_processing")
     config.print_crumb(footer=True)
     return " ".join(concat_text) if include_spaces else "".join(concat_text)
 
