@@ -80,3 +80,8 @@ class TestMainExecutionFromIDE(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             main(["convert", "-i", "Zhongguo ti'an tianqi", "-f", "py"])
         self.assertEqual(cm.exception.code, 2)
+
+    # Test crumbs
+    @timeit_decorator()
+    def test_main_execution_validator_crumbs(self):
+        main(["validator", "-i", "Zhongguo ti'an tianqi", "-m", "py", "-C"])
