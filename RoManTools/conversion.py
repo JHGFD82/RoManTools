@@ -5,11 +5,6 @@ This module provides the `RomanizationConverter` class, which is used to convert
 
 Classes:
     RomanizationConverter: Converts romanized Chinese between different romanization systems.
-
-Usage Example:
-    >>> converter = RomanizationConverter('py', 'wg', config)
-    >>> converter.convert('zhongguo')
-    'chung-kuo'
 """
 
 from functools import lru_cache

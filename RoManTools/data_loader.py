@@ -16,12 +16,6 @@ Functions:
         Load romanization method parameters including initials, finals, and the valid combinations array.
     load_stopwords() -> List[str]:
         Load a list of stopwords from a text file.
-
-Usage Example:
-    >>> initials, finals, ar = load_romanization_data('data/pyDF.csv')
-    >>> mappings = load_conversion_data()
-    >>> params = load_method_params('py')
-    >>> stopwords = load_stopwords()
 """
 
 from typing import Tuple, List, Dict, Union

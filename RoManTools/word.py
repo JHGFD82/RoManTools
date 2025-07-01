@@ -10,12 +10,6 @@ based on the specified romanization method (e.g., Pinyin, Wade-Giles). It includ
 Classes:
     WordProcessor: Processes words and their syllables based on the specified romanization method.
     Word: Represents a word and its syllables, providing methods for validation and conversion.
-
-Usage Example:
-    >>> processor = WordProcessor(config, 'py', 'wg', stopwords)
-    >>> word = processor.create_word([syllable1, syllable2])
-    >>> word.process_syllables()
-    'Chung-kuo'
 """
 
 from typing import List, Set, Tuple

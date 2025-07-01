@@ -9,12 +9,6 @@ This module provides classes and methods for processing and validating syllables
 Classes:
     SyllableProcessor: Handles the loading of configuration settings and initializes data required for processing syllables.
     Syllable: Represents a syllable and its components (initial, final) in the context of a romanization method.
-
-Usage Example:
-    >>> processor = SyllableProcessor(config, method_params)
-    >>> syllable = processor.create_syllable('zhong')
-    >>> syllable.valid
-    True
 """
 
 # from functools import lru_cache

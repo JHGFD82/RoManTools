@@ -9,11 +9,6 @@ based on the specified romanization method (e.g., Pinyin, Wade-Giles). It includ
 
 Classes:
     TextChunkProcessor: Processes text into chunks for further processing based on the specified romanization method.
-
-Usage Example:
-    >>> processor = TextChunkProcessor('Zhongguo tianqi', config, method_params)
-    >>> processor.get_chunks()
-    [[Syllable(...), Syllable(...)], [Syllable(...), Syllable(...)]]
 """
 
 from functools import lru_cache
