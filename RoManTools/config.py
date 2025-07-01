@@ -48,13 +48,10 @@ class Config:
             footer (bool): If True, adds a '---' line as a crumb footer.
 
         Example:
-            >>> config = Config(crumbs=True)
-            >>> config.print_crumb(1, 'Segmentation', 'Processing text')
-            # Segmentation: Processing text
-            >>> config.print_crumb(2, 'Cached', '"foo" -> "bar"')
-            ## Cached: "foo" -> "bar"
-            >>> config.print_crumb(footer=True)
-            ---
+            config = Config(crumbs=True)
+            config.print_crumb(1, 'Segmentation', 'Processing text')
+            config.print_crumb(2, 'Cached', '"foo" -> "bar"')
+            config.print_crumb(footer=True)
         """
         if self.crumbs:
             if message:
