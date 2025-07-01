@@ -492,6 +492,28 @@ class TestRoManToolsActions(unittest.TestCase):
         self.assertEqual(console_output, expected_output)
 
     @timeit_decorator()
+    def test_convert_text_crumb_cached(self):
+        result = convert_text("t'ao t'ao", convert_from='wg', convert_to='py', crumbs=True)
+        self.assertEqual(result, "tao tao")
+        self.log_handler.flush()
+        console_output = self.log_stream.getvalue().strip()
+        expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
+                            "## initial found: t'\n" \
+                            "## final found: ao\n" \
+                            "### \"t'ao\" valid: True\n" \
+                            "# Word Validation: \"t'ao\" is valid\n" \
+                            "---\n" \
+                            "# Analyzing text as Wade-Giles: t'ao\n" \
+                            "## Cached: \"t'ao\" valid: True\n" \
+                            "# Word Validation: \"t'ao\" is valid\n" \
+                            "---\n" \
+                            "# Converting text: Wade-Giles -> Pinyin\n" \
+                            "## Converted text: \"t'ao\" -> \"tao\"\n" \
+                            "## Cached: \"t'ao\" -> \"tao\"\n" \
+                            "---"
+        self.assertEqual(console_output, expected_output)
+
+    @timeit_decorator()
     def test_cherry_pick_crumb(self):
         result = cherry_pick("Hello, Xiang.", convert_from='py', convert_to='wg', crumbs=True)
         self.assertEqual(result, "Hello, Hsiang.")
