@@ -1,3 +1,7 @@
 [run]
 branch = True
 parallel = True
+data_file = coverage_reports/.coverage
+
+[html]
+directory = coverage_reports/html
