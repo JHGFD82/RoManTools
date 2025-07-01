@@ -42,15 +42,19 @@ class Config:
         Prints a crumb message based on the configuration settings using logging.
 
         Args:
-            level (int): The level of the crumb message.
-            stage (str): The stage of processing.
-            message (str): The message to display.
-            footer (bool): If True, adds a footer to the crumb message.
+            level (int): The number of '#' symbols to prefix the crumb (0 for none).
+            stage (str): The stage or action of processing (e.g., 'Segmentation', 'Converted text').
+            message (str): The main message or detail to display after the stage.
+            footer (bool): If True, adds a '---' line as a crumb footer.
 
         Example:
             >>> config = Config(crumbs=True)
             >>> config.print_crumb(1, 'Segmentation', 'Processing text')
             # Segmentation: Processing text
+            >>> config.print_crumb(2, 'Cached', '"foo" -> "bar"')
+            ## Cached: "foo" -> "bar"
+            >>> config.print_crumb(footer=True)
+            ---
         """
         if self.crumbs:
             if message:
