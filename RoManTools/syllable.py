@@ -134,6 +134,7 @@ class Syllable:
         self.text_attr = SyllableTextAttributes(text, remainder)
         self.valid = False
         self.status_attr = SyllableStatusAttributes(text)
+        self.errors: List[str] = []
         self._handle_first_char()
         self._process_syllable()
 
@@ -227,6 +228,7 @@ class Syllable:
                     return 'ø'
                 # Otherwise, all text up to this point is the initial
                 if (initial := text[:i]) not in self.processor.init_list:  # Check if the initial is valid
+                    self.errors.append(f"invalid initial: '{initial}'")
                     return text[:i]  # Return text up to this point if not valid
                 return initial
             if self.processor.method == 'wg' and c in apostrophes:  # In cases of valid apostrophes in Wade-Giles
@@ -324,6 +326,7 @@ class Syllable:
         ]
         # If no valid finals are found, return the text up to the vowel
         if not test_finals:
+            self.errors.append(f"invalid final: '{text}'")
             if i == 0:
                 return None
             up_to_vowel = text[:i]
