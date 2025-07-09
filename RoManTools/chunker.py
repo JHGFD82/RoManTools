@@ -132,7 +132,7 @@ class TextChunkProcessor:
         result = self._cached_syllable_processor(remaining_text)
         after_hits = self._cached_syllable_processor.cache_info().hits
         if after_hits > before_hits:
-            self.config.print_crumb(2, "Cached", f'"{remaining_text}" valid: {result.valid}')
+            self.config.print_crumb(2, "Cached", f'"{result.text_attr.full_syllable}" | valid: {result.valid}')
         return result
 
     @lru_cache(maxsize=10000)
