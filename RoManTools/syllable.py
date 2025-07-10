@@ -406,7 +406,7 @@ class Syllable:
                 error_message = ", ".join(error_parts)
                 self.processor.config.print_crumb(2, "Validation error", error_message, log_level=40)
             return False
-        # Returns value found in the NumPy array
+        # Check the validity of the initial-final combination using the syllable array
         return bool(self.processor.ar[initial_index][final_index])
 
     def _validate_syllable(self) -> bool:
