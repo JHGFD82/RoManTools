@@ -154,8 +154,8 @@ class Word:
 
         if self.preview_word in self.processor.stopwords:
             if not self._stopword_logged:
-                self.processor.config.logger.error(
-                    f"Word '{self.preview_word}' is a stopword and cannot be processed."
+                self.processor.config.print_crumb(
+                    1, "Word Validation", f"'{self.preview_word}' is a stopword and cannot be processed", log_level=40
                 )
                 self._stopword_logged = True
             return False

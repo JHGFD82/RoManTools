@@ -182,7 +182,10 @@ class Syllable:
         # Validate the syllable
         self.valid = self._validate_syllable()
         # Print the results of the syllable processing
-        self.processor.config.print_crumb(3, f'"{self.text_attr.full_syllable}" valid', str(self.valid))
+        if self.valid:
+            self.processor.config.print_crumb(3, "Syllable", f'"{self.text_attr.full_syllable}" valid: {self.valid}')
+        else:
+            self.processor.config.print_crumb(3, "Syllable", f'"{self.text_attr.full_syllable}" valid: {self.valid}', log_level=40)
 
     def _find_initial_final(self, text: str) -> Tuple[str, str, str, str]:
         """
@@ -395,6 +398,13 @@ class Syllable:
         # FUTURE: Add custom error messages for invalid initials and finals (most likely no dashes for
         # multi-syllable Wade-Giles terms)
         if initial_index == -1 or final_index == -1:
+                error_parts: List[str] = []
+                if initial_index == -1:
+                    error_parts.append(f"invalid initial: '{initial}'")
+                if final_index == -1:
+                    error_parts.append(f"invalid final: '{final}'")
+                error_message = ", ".join(error_parts)
+                self.processor.config.print_crumb(2, "Validation error", error_message, log_level=40)
             return False
         # Returns value found in the NumPy array
         return bool(self.processor.ar[initial_index][final_index])

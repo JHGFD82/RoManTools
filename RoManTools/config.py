@@ -40,7 +40,7 @@ class Config:
         else:
             self.logger = None
 
-    def print_crumb(self, level: int = 0, stage: str = '', message: str = '', footer: bool = False):
+    def print_crumb(self, level: int = 0, stage: str = '', message: str = '', footer: bool = False, log_level: int = logging.INFO):
         """
         Prints a crumb message based on the configuration settings using logging.
 
@@ -49,17 +49,20 @@ class Config:
             stage (str): The stage or action of processing (e.g., 'Segmentation', 'Converted text').
             message (str): The main message or detail to display after the stage.
             footer (bool): If True, adds a '---' line as a crumb footer.
+            log_level (int): The logging level to use (logging.INFO, logging.ERROR, etc.). Defaults to logging.INFO.
 
         Example:
             config = Config(crumbs=True)
             config.print_crumb(1, 'Segmentation', 'Processing text')
             config.print_crumb(2, 'Cached', '"foo" -> "bar"')
+            config.print_crumb(2, 'Invalid combination', 'initial: "foo", final: "bar"', log_level=logging.ERROR)
             config.print_crumb(footer=True)
         """
         if self.crumbs:
+            assert self.logger is not None  # Logger is always initialized when crumbs is True
             if message:
                 prefix = '#' * level + ' ' if level > 0 else ''
                 stage_str = f'{stage}: ' if stage else ''
-                self.logger.info(f'{prefix}{stage_str}{message}')
+                self.logger.log(log_level, f'{prefix}{stage_str}{message}')
             if footer:
                 self.logger.info('---')
