@@ -325,7 +325,7 @@ class Syllable:
         # Generate list of possible finals from this point in the text
         test_finals = [
             f_item for f_item in self.processor.fin_list
-            if isinstance(f_item, str) and f_item.startswith(text[:i + 1]) and self._validate_final(initial, f_item)
+            if isinstance(f_item, str) and f_item.startswith(text[:i + 1]) and self._validate_final(initial, f_item, silent=True)
         ]
         # If no valid finals are found, return the text up to the vowel
         if not test_finals:
@@ -366,18 +366,18 @@ class Syllable:
             # is a consonant, or if the current "n" final is invalid
             # This allows for "changan" to be split into "chan" and "gan" instead of "chang" and "an"
             valid_ng = next_char_is_g and (
-                remainder == 1 or text[i + 2] not in vowels or not self._validate_final(initial, text[:i + 1]))
+                remainder == 1 or text[i + 2] not in vowels or not self._validate_final(initial, text[:i + 1], silent=True))
             if valid_ng:
                 return text[:i + 2]  # Return "ng"
             if next_char_is_g:
                 return text[:i + 1]  # Return just "n" if the "ng" final isn't valid
-            valid_n = remainder == 0 or text[i + 1] not in vowels or not self._validate_final(initial, text[:i])
+            valid_n = remainder == 0 or text[i + 1] not in vowels or not self._validate_final(initial, text[:i], silent=True)
             return text[:i + 1] if valid_n else text[:i]  # Return "n" or fall back to last vowel
         # Default case: handle all other consonants
         return text[:i]
 
     # @lru_cache(maxsize=100000)
-    def _validate_final(self, initial: str, final: str) -> bool:
+    def _validate_final(self, initial: str, final: str, silent: bool = False) -> bool:
         """
         Validates the final part of the syllable by checking against a predefined list of valid combinations. This
         function is also referred to by _validate_syllable and is used to validate an entire syllable once it is fully
@@ -386,6 +386,7 @@ class Syllable:
         Args:
             initial (str): The initial part of the syllable.
             final (str): The final part of the syllable.
+            silent (bool): If True, suppresses crumb output for validation errors. Used when testing potential finals.
 
         Returns:
             bool: True if the final is valid, otherwise False.
@@ -398,6 +399,7 @@ class Syllable:
         # FUTURE: Add custom error messages for invalid initials and finals (most likely no dashes for
         # multi-syllable Wade-Giles terms)
         if initial_index == -1 or final_index == -1:
+            if not silent:
                 error_parts: List[str] = []
                 if initial_index == -1:
                     error_parts.append(f"invalid initial: '{initial}'")
