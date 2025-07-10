@@ -33,10 +33,10 @@ class Config:
         self.crumbs = crumbs
         self.error_skip = error_skip
         self.error_report = error_report
-            logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')  # pragma: no cover
         if self.crumbs:
             self.logger = logging.getLogger(__name__)
             if not logging.getLogger().hasHandlers():  # pragma: no cover
+                logging.basicConfig(level=logging.INFO, format='%(levelname)5s: %(message)s')  # pragma: no cover
         else:
             self.logger = None
 
