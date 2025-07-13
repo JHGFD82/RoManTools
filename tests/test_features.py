@@ -427,7 +427,7 @@ class TestRoManToolsActions(unittest.TestCase):
     def test_detect_method_per_word(self):
         result = detect_method(f"ni linping shang chang'an erh shier shoiji yiin", per_word=True)
         self.assertEqual(result, [{'word': 'ni', 'methods': ['py', 'wg']},
-                                  {'word': 'linping', 'methods': ['py']},
+                                  {'word': 'linping', 'methods': ['py', 'wg']},
                                   {'word': 'shang', 'methods': ['py', 'wg']},
                                   {'word': "chang'an", 'methods': ['py']},
                                   {'word': 'erh', 'methods': ['wg']},
@@ -466,7 +466,7 @@ class TestRoManToolsActions(unittest.TestCase):
         expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
                             "## initial found: t'\n" \
                             "## final found: ao\n" \
-                            "### \"t'ao\" valid: True\n" \
+                            "### Syllable: \"t'ao\" valid: True\n" \
                             "# Word Validation: \"t'ao\" is valid\n" \
                             "---\n" \
                             "# Segment Text: Assembling segments\n" \
@@ -482,7 +482,7 @@ class TestRoManToolsActions(unittest.TestCase):
         expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
                             "## initial found: t'\n" \
                             "## final found: ao\n" \
-                            "### \"t'ao\" valid: True\n" \
+                            "### Syllable: \"t'ao\" valid: True\n" \
                             "# Word Validation: \"t'ao\" is valid\n" \
                             "---\n" \
                             "# Converting text: Wade-Giles -> Pinyin\n" \
@@ -499,11 +499,11 @@ class TestRoManToolsActions(unittest.TestCase):
         expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
                             "## initial found: t'\n" \
                             "## final found: ao\n" \
-                            "### \"t'ao\" valid: True\n" \
+                            "### Syllable: \"t'ao\" valid: True\n" \
                             "# Word Validation: \"t'ao\" is valid\n" \
                             "---\n" \
                             "# Analyzing text as Wade-Giles: t'ao\n" \
-                            "## Cached: \"t'ao\" valid: True\n" \
+                            "## Cached: \"t'ao\" | valid: True\n" \
                             "# Word Validation: \"t'ao\" is valid\n" \
                             "---\n" \
                             "# Converting text: Wade-Giles -> Pinyin\n" \
@@ -514,6 +514,7 @@ class TestRoManToolsActions(unittest.TestCase):
 
     @timeit_decorator()
     def test_cherry_pick_crumb(self):
+        self.maxDiff = None
         result = cherry_pick("Hello, Xiang.", convert_from='py', convert_to='wg', crumbs=True)
         self.assertEqual(result, "Hello, Hsiang.")
         self.log_handler.flush()
@@ -521,10 +522,11 @@ class TestRoManToolsActions(unittest.TestCase):
         expected_output = "# Analyzing text as Pinyin: Hello\n" \
                         "## initial found: h\n" \
                         "## final found: e\n" \
-                        "### \"he\" valid: True\n" \
+                        "### Syllable: \"he\" valid: True\n" \
                         "## initial found: ll\n" \
                         "## final found: o\n" \
-                        "### \"llo\" valid: False\n" \
+                        "### Validation: invalid initial: 'll'\n" \
+                        "### Syllable: \"llo\" valid: False\n" \
                         "# Word Validation: \"hello\" is invalid\n" \
                         "---\n" \
                         "# Non-text segment: , \n" \
@@ -532,7 +534,7 @@ class TestRoManToolsActions(unittest.TestCase):
                         "# Analyzing text as Pinyin: Xiang\n" \
                         "## initial found: x\n" \
                         "## final found: iang\n" \
-                        "### \"xiang\" valid: True\n" \
+                        "### Syllable: \"xiang\" valid: True\n" \
                         "# Word Validation: \"xiang\" is valid\n" \
                         "---\n" \
                         "# Non-text segment: .\n" \
@@ -551,7 +553,7 @@ class TestRoManToolsActions(unittest.TestCase):
         expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
                             "## initial found: t'\n" \
                             "## final found: ao\n" \
-                            "### \"t'ao\" valid: True\n" \
+                            "### Syllable: \"t'ao\" valid: True\n" \
                             "# Word Validation: \"t'ao\" is valid\n" \
                             "---\n" \
                             "# Syllable Count: Assembling counts\n" \
@@ -566,16 +568,17 @@ class TestRoManToolsActions(unittest.TestCase):
         console_output = self.log_stream.getvalue().strip()
         expected_output = "# Analyzing text as Pinyin: t'ao\n" \
                             "## initial found: t\n" \
-                            "### \"t\" valid: False\n" \
+                            "### Validation: invalid final: ''\n" \
+                            "### Syllable: \"t\" valid: False\n" \
                             "## initial found: ø\n" \
                             "## final found: ao\n" \
-                            "### \"ao\" valid: True\n" \
+                            "### Syllable: \"ao\" valid: True\n" \
                             "# Word Validation: \"tao\" is invalid\n" \
                             "---\n" \
                             "# Analyzing text as Wade-Giles: t'ao\n" \
                             "## initial found: t'\n" \
                             "## final found: ao\n" \
-                            "### \"t'ao\" valid: True\n" \
+                            "### Syllable: \"t'ao\" valid: True\n" \
                             "# Word Validation: \"t'ao\" is valid\n" \
                             "---\n" \
                             "# Detect Method: Assembling methods for all syllables\n" \
@@ -590,16 +593,17 @@ class TestRoManToolsActions(unittest.TestCase):
         console_output = self.log_stream.getvalue().strip()
         expected_output = "# Analyzing text as Pinyin: t'ao\n" \
                             "## initial found: t\n" \
-                            "### \"t\" valid: False\n" \
+                            "### Validation: invalid final: ''\n" \
+                            "### Syllable: \"t\" valid: False\n" \
                             "## initial found: ø\n" \
                             "## final found: ao\n" \
-                            "### \"ao\" valid: True\n" \
+                            "### Syllable: \"ao\" valid: True\n" \
                             "# Word Validation: \"tao\" is invalid\n" \
                             "---\n" \
                             "# Analyzing text as Wade-Giles: t'ao\n" \
                             "## initial found: t'\n" \
                             "## final found: ao\n" \
-                            "### \"t'ao\" valid: True\n" \
+                            "### Syllable: \"t'ao\" valid: True\n" \
                             "# Word Validation: \"t'ao\" is valid\n" \
                             "---\n" \
                             "# Detect Method: Assembling methods\n" \
@@ -615,7 +619,7 @@ class TestRoManToolsActions(unittest.TestCase):
         expected_output = "# Analyzing text as Wade-Giles: t'ao\n" \
                           "## initial found: t'\n" \
                           "## final found: ao\n" \
-                          "### \"t'ao\" valid: True\n" \
+                          "### Syllable: \"t'ao\" valid: True\n" \
                           "# Word Validation: \"t'ao\" is valid\n" \
                           "---"
         self.assertEqual(console_output, expected_output)
