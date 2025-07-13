@@ -13,6 +13,7 @@ Classes:
 
 # from functools import lru_cache
 import re
+import logging
 from typing import Tuple, Optional, Dict, Union, List
 from .config import Config
 from .constants import vowels, apostrophes, dashes
@@ -185,7 +186,9 @@ class Syllable:
         if self.valid:
             self.processor.config.print_crumb(3, "Syllable", f'"{self.text_attr.full_syllable}" valid: {self.valid}')
         else:
-            self.processor.config.print_crumb(3, "Syllable", f'"{self.text_attr.full_syllable}" valid: {self.valid}', log_level=40)
+            error_msg = f'"{self.text_attr.full_syllable}" valid: {self.valid}'
+            self.errors.append(error_msg)
+            self.processor.config.print_crumb(3, "Syllable", error_msg, log_level=logging.ERROR)
 
     def _find_initial_final(self, text: str) -> Tuple[str, str, str, str]:
         """
@@ -406,7 +409,7 @@ class Syllable:
                 if final_index == -1:
                     error_parts.append(f"invalid final: '{final}'")
                 error_message = ", ".join(error_parts)
-                self.processor.config.print_crumb(2, "Validation error", error_message, log_level=40)
+                self.processor.config.print_crumb(3, "Validation", error_message, log_level=logging.ERROR)
             return False
         # Check the validity of the initial-final combination using the syllable array
         return bool(self.processor.ar[initial_index][final_index])

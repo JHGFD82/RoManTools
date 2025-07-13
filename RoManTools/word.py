@@ -12,6 +12,7 @@ Classes:
     Word: Represents a word and its syllables, providing methods for validation and conversion.
 """
 
+import logging
 from typing import List, Set, Tuple
 from .config import Config
 from .syllable import Syllable
@@ -155,7 +156,7 @@ class Word:
         if self.preview_word in self.processor.stopwords:
             if not self._stopword_logged:
                 self.processor.config.print_crumb(
-                    1, "Word Validation", f"'{self.preview_word}' is a stopword and cannot be processed", log_level=40
+                    1, "Word Validation", f"'{self.preview_word}' is a stopword and cannot be processed", log_level=logging.ERROR
                 )
                 self._stopword_logged = True
             return False
