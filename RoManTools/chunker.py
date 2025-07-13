@@ -85,8 +85,8 @@ class TextChunkProcessor:
         """
 
         if self.method == 'wg':
-            # Splits string with respect to Wade-Giles's use of apostrophes in syllable initials and dashes for
-            # between syllables
+            # Splits string with respect to Wade-Giles's use of apostrophes in syllable initials and dashes
+            # between syllables (dashes strongly recommended for reliable parsing)
             pattern = r"[a-zA-ZüÜ'’ʼ`]+|[\-–—][a-zA-ZüÜ'’ʼ`]+"
         else:
             # Splits string with respect to Pinyin's use of apostrophes for multi-syllable words
