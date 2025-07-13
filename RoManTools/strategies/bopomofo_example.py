@@ -7,7 +7,7 @@ Chinese phonetic symbols, but this example shows how it could be integrated if n
 for transliteration or mixed-script processing.
 """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from .base import RomanizationStrategy
 from ..constants import vowels
 
@@ -94,6 +94,56 @@ class BopomofoStrategy(RomanizationStrategy):
         # Bopomofo doesn't use apostrophes, so remove them
         return text[:index]
     
+    def find_initial(self, text: str, syllable: "Syllable") -> str:
+        """
+        Handles the initial part extraction for Bopomofo method.
+        
+        Args:
+            text: The text from which to extract the initial.
+            syllable: The Syllable instance for accessing helper methods.
+            
+        Returns:
+            The initial part of the syllable, or 'ø' if no initial exists.
+        """
+        # Bopomofo initial detection with tone mark handling
+        from ..constants import vowels, apostrophes, dashes
+        
+        # Remove tone marks first
+        text_clean = self._remove_tone_marks(text)
+        
+        for i, c in enumerate(text_clean):
+            if c in vowels:
+                if i == 0:  # If a vowel is found at the beginning, return 'ø'
+                    return 'ø'
+                # Check if the initial is valid for Bopomofo
+                if (initial := text_clean[:i]) not in self.processor.init_list:
+                    syllable.errors.append(f"invalid Bopomofo initial: '{initial}'")
+                    return text_clean[:i]
+                return initial
+            if c in apostrophes:  # Bopomofo doesn't use apostrophes
+                return self.handle_apostrophe_in_initial(text_clean, i)
+            if c in dashes:  # Handle dashes
+                return self.handle_dash_in_initial(text_clean, i)
+
+        return text_clean
+    
+    def validate_syllable(self, initial: str, final: str, syllable: "Syllable") -> bool:
+        """
+        Validate a complete syllable for Bopomofo method.
+        
+        Args:
+            initial: The initial part of the syllable.
+            final: The final part of the syllable.
+            syllable: The Syllable instance for accessing helper methods.
+            
+        Returns:
+            True if the syllable is valid, False otherwise.
+        """
+        # Use the processor's validation method with Bopomofo-specific considerations
+        if initial == '':
+            return self.processor.validate_final_using_array('ø', final)
+        return self.processor.validate_final_using_array(initial, final)
+    
     def _remove_tone_marks(self, text: str) -> str:
         """
         Remove Bopomofo tone marks from the text.
@@ -112,7 +162,7 @@ class BopomofoStrategy(RomanizationStrategy):
             text = text.replace(mark, '')
         return text
     
-    def _handle_bopomofo_vowel_case(self, text: str, i: int, initial: str, syllable: "Syllable") -> str | None:
+    def _handle_bopomofo_vowel_case(self, text: str, i: int, initial: str, syllable: "Syllable") -> Optional[str]:
         """
         Handle Bopomofo-specific vowel patterns.
         
