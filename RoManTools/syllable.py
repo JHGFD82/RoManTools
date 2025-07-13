@@ -17,6 +17,7 @@ import logging
 from typing import Tuple, Optional, Dict, Union, List
 from .config import Config
 from .constants import vowels, apostrophes, dashes
+from .strategies import RomanizationStrategyFactory
 
 
 # Type alias for method_params for clarity and maintainability
@@ -43,6 +44,9 @@ class SyllableProcessor:
         self.init_list = method_params['init_list']
         self.fin_list = method_params['fin_list']
         self.method = method_params['method']
+        
+        # Initialize the appropriate strategy for this romanization method
+        self.strategy = RomanizationStrategyFactory.create_strategy(str(self.method), self)
 
     def create_syllable(self, text: str, remainder: str = "") -> "Syllable":
         """
@@ -60,6 +64,38 @@ class SyllableProcessor:
         # print(result.__dict__)
         # return result
         return Syllable(text, self, remainder)
+    
+    def validate_final_using_array(self, initial: str, final: str, silent: bool = False) -> bool:
+        """
+        Validates the final part of the syllable by checking against the validation array.
+        This method is used by strategies to validate syllable components.
+
+        Args:
+            initial (str): The initial part of the syllable.
+            final (str): The final part of the syllable.
+            silent (bool): If True, suppresses crumb output for validation errors.
+
+        Returns:
+            bool: True if the final is valid, otherwise False.
+        """
+        # Indexes for both initial and final are both determined
+        initial_index = self.init_list.index(initial) if initial in self.init_list else -1
+        final_index = self.fin_list.index(final) if final in self.fin_list else -1
+        
+        # If no valid indexes are found, return False
+        if initial_index == -1 or final_index == -1:
+            if not silent:
+                error_parts: List[str] = []
+                if initial_index == -1:
+                    error_parts.append(f"invalid initial: '{initial}'")
+                if final_index == -1:
+                    error_parts.append(f"invalid final: '{final}'")
+                error_message = ", ".join(error_parts)
+                self.config.print_crumb(3, "Validation", error_message, log_level=logging.ERROR)
+            return False
+            
+        # Check the validity of the initial-final combination using the syllable array
+        return bool(self.ar[initial_index][final_index])
 
 
 class SyllableTextAttributes:
@@ -237,14 +273,14 @@ class Syllable:
                     self.errors.append(f"invalid initial: '{initial}'")
                     return text[:i]  # Return text up to this point if not valid
                 return initial
-            if self.processor.method == 'wg' and c in apostrophes:  # In cases of valid apostrophes in Wade-Giles
-                return text[:i] + "'"  # Ensure that the standard apostrophe is included in the initial
+            if c in apostrophes:  # Handle apostrophes using strategy
+                return self.processor.strategy.handle_apostrophe_in_initial(text, i)
 
         return text
 
     def _find_final(self, text: str, initial: str) -> str:
         """
-        Determines the final part of the syllable based on the input text.
+        Determines the final part of the syllable based on the input text using the strategy pattern.
 
         Args:
             text (str): The syllable text from which the final part is extracted.
@@ -253,184 +289,9 @@ class Syllable:
         Returns:
             str: The final part of the syllable.
         """
+        return self.processor.strategy.find_final(text, initial, self)
 
-        def _send_to_find_final_py():
-            return self._find_final_py(text, initial)
-
-        def _send_to_find_final_wg():
-            return self._find_final_wg(text, initial)
-
-        method_map = {
-            'py': _send_to_find_final_py,
-            'wg': _send_to_find_final_wg
-        }
-        find_final_func = method_map.get(str(self.processor.method), lambda: text)
-        return find_final_func()
-
-    def _find_final_py(self, text: str, initial: str) -> str:
-        """
-        Handles the final part extraction for Pinyin method.
-
-        Args:
-            text (str): The syllable text to be processed.
-            initial (str): The initial part of the syllable used for validation.
-
-        Returns:
-            str: The final part of the syllable.
-        """
-
-        for i, c in enumerate(text):
-            # Handle cases where the final starts with a vowel or consonant, otherwise return whatever remaining
-            # text is left
-            if c in vowels:
-                final = self._handle_vowel_case(text, i, initial)
-                if final is not None:
-                    return final
-            else:
-                return self._handle_consonant_case(text, i, initial)
-        return text
-
-    def _find_final_wg(self, text: str, initial: str) -> str:
-        """
-        Handles the final part extraction for Wade-Giles method with systematic ambiguity resolution.
-
-        Args:
-            text (str): The syllable text to be processed.
-            initial (str): The initial part of the syllable used for validation.
-
-        Returns:
-            str: The final part of the syllable.
-        """
-
-        # Handle apostrophes first (existing Wade-Giles functionality)
-        for i, c in enumerate(text):
-            if c in apostrophes:
-                return text[:i]
-        
-        # If we have an initial, we're looking for just the final part
-        if initial and initial != 'ø':
-            return self._find_wg_final_with_backtrack(text, initial)
-        
-        # If no initial, use systematic boundary detection
-        return self._find_wg_syllable_boundaries(text)
-    
-    def _find_wg_final_with_backtrack(self, text: str, initial: str) -> str:
-        """
-        Find the final part when we already have an initial, using Wade-Giles specific logic.
-        """
-        # For Wade-Giles, we need to check if the remaining text after this final
-        # can form valid syllables. We prefer longer finals when possible.
-
-        valid_finals: list[tuple[str, str]] = []
-
-        # Try different final lengths, from longest to shortest
-        for final_end in range(len(text), 0, -1):
-            potential_final = text[:final_end]
-            remaining_text = text[final_end:]
-            
-            # Check if this initial + final combination is valid
-            if self._validate_final(initial, potential_final, silent=True):
-                # If no remaining text, this is the complete final
-                if not remaining_text:
-                    return potential_final
-                # If there is remaining text, check if it can form valid syllables
-                elif self._can_form_valid_wg_syllables(remaining_text):
-                    valid_finals.append((potential_final, remaining_text))
-        
-        # If we found valid combinations, return the one with the longest final
-        # (this prefers keeping syllables together when possible)
-        if valid_finals:
-            return valid_finals[0][0]  # Return the longest valid final
-        
-        # Fallback: return the full text
-        return text
-        
-    def _find_wg_syllable_boundaries(self, text: str) -> str:
-        """
-        Systematic approach to find syllable boundaries in Wade-Giles text without explicit separators.
-        """
-        # Try to find the best syllable boundary by testing complete syllables
-        for syllable_end in range(2, len(text) + 1):  # Start from 2 to ensure we have at least a minimal syllable
-            potential_syllable = text[:syllable_end]
-            remaining_text = text[syllable_end:]
-            
-            # Check if this potential syllable is valid
-            if self._is_complete_wg_syllable_valid(potential_syllable):
-                # If there's remaining text, check if it can form valid syllables
-                if not remaining_text:
-                    return potential_syllable  # This completes the entire text as one syllable
-                elif self._can_form_valid_wg_syllables(remaining_text):
-                    return potential_syllable  # This syllable is valid and remainder can be parsed
-        
-        # Default: return full text (original behavior)
-        return text
-    
-    def _is_complete_wg_syllable_valid(self, syllable_text: str) -> bool:
-        """
-        Check if a complete syllable text forms a valid Wade-Giles syllable by trying different initial/final splits.
-        """
-        # Try different ways to split this syllable into initial + final
-        
-        # Get all initials from the processor, excluding 'ø' and sort by length (longest first for greedy matching)
-        all_initials = [init for init in self.processor.init_list if isinstance(init, str) and init != 'ø']
-        all_initials.sort(key=len, reverse=True)
-        
-        # Try each possible initial
-        for initial in all_initials:
-            if syllable_text.startswith(initial):
-                final = syllable_text[len(initial):]
-                if self._validate_final(initial, final, silent=True):
-                    return True
-        
-        # Try no initial (starts with vowel)
-        if syllable_text and syllable_text[0] in vowels:
-            if self._validate_final('ø', syllable_text, silent=True):
-                return True
-                
-        return False
-    
-    def _is_valid_wg_syllable(self, initial: str, final: str) -> bool:
-        """
-        Check if an initial-final combination forms a valid Wade-Giles syllable.
-        """
-        if not initial:
-            initial = 'ø'
-        
-        # Check if initial is valid using the processor's init_list
-        if initial not in self.processor.init_list:
-            return False
-            
-        # Use existing validation logic
-        return self._validate_final(initial, final, silent=True)
-    
-    def _can_form_valid_wg_syllables(self, text: str) -> bool:
-        """
-        Check if remaining text can be broken down into valid Wade-Giles syllables.
-        This is a simplified check - in a full implementation, this would recursively
-        try to parse the remaining text.
-        """
-        if len(text) <= 1:
-            return False
-            
-        # For now, do a simple check for common patterns
-        # This could be expanded to do full recursive parsing
-        
-        # Check if it starts with a valid initial (using data from processor)
-        # Sort by length (longest first) for proper greedy matching
-        all_initials = [init for init in self.processor.init_list if isinstance(init, str) and init != 'ø']
-        all_initials.sort(key=len, reverse=True)
-        
-        for init in all_initials:
-            if text.startswith(init):
-                return True
-                
-        # Check if it starts with a vowel (no initial)
-        if text[0] in vowels:
-            return True
-            
-        return False
-
-    def _handle_vowel_case(self, text: str, i: int, initial: str) -> Optional[str]:
+    def handle_vowel_case(self, text: str, i: int, initial: str) -> Optional[str]:
         """
         Handles cases where the final starts with a vowel.
 
@@ -461,7 +322,7 @@ class Syllable:
             return up_to_vowel
         return None
 
-    def _handle_consonant_case(self, text: str, i: int, initial: str) -> str:
+    def handle_consonant_case(self, text: str, i: int, initial: str) -> str:
         """
         Handles cases where the final starts with a consonant, including special cases like "er", "n", and "ng".
 
@@ -520,25 +381,7 @@ class Syllable:
         Returns:
             bool: True if the final is valid, otherwise False.
         """
-
-        # Indexes for both initial and final are both determined
-        initial_index = self.processor.init_list.index(initial) if initial in self.processor.init_list else -1
-        final_index = self.processor.fin_list.index(final) if final in self.processor.fin_list else -1
-        # If no valid indexes are found, return False
-        # FUTURE: Add custom error messages for invalid initials and finals (most likely no dashes for
-        # multi-syllable Wade-Giles terms)
-        if initial_index == -1 or final_index == -1:
-            if not silent:
-                error_parts: List[str] = []
-                if initial_index == -1:
-                    error_parts.append(f"invalid initial: '{initial}'")
-                if final_index == -1:
-                    error_parts.append(f"invalid final: '{final}'")
-                error_message = ", ".join(error_parts)
-                self.processor.config.print_crumb(3, "Validation", error_message, log_level=logging.ERROR)
-            return False
-        # Check the validity of the initial-final combination using the syllable array
-        return bool(self.processor.ar[initial_index][final_index])
+        return self.processor.validate_final_using_array(initial, final, silent)
 
     def _validate_syllable(self) -> bool:
         """
