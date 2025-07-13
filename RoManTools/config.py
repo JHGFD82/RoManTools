@@ -33,12 +33,9 @@ class Config:
         self.crumbs = crumbs
         self.error_skip = error_skip
         self.error_report = error_report
-        if self.crumbs:
-            self.logger = logging.getLogger(__name__)
-            if not logging.getLogger().hasHandlers():  # pragma: no cover
-                logging.basicConfig(level=logging.INFO, format='%(levelname)5s: %(message)s')  # pragma: no cover
-        else:
-            self.logger = None
+        self.logger = logging.getLogger(__name__)
+        if not logging.getLogger().hasHandlers():  # pragma: no cover
+            logging.basicConfig(level=logging.INFO, format='%(levelname)5s: %(message)s')  # pragma: no cover
 
     def print_crumb(self, level: int = 0, stage: str = '', message: str = '', footer: bool = False, log_level: int = logging.INFO):
         """
