@@ -258,7 +258,7 @@ class Syllable:
             return self._find_final_py(text, initial)
 
         def _send_to_find_final_wg():
-            return self._find_final_wg(text)
+            return self._find_final_wg(text, initial)
 
         method_map = {
             'py': _send_to_find_final_py,
@@ -290,23 +290,145 @@ class Syllable:
                 return self._handle_consonant_case(text, i, initial)
         return text
 
-    @staticmethod
-    def _find_final_wg(text: str) -> str:
+    def _find_final_wg(self, text: str, initial: str) -> str:
         """
-        Handles the final part extraction for Wade-Giles method.
+        Handles the final part extraction for Wade-Giles method with systematic ambiguity resolution.
 
         Args:
             text (str): The syllable text to be processed.
+            initial (str): The initial part of the syllable used for validation.
 
         Returns:
             str: The final part of the syllable.
         """
 
-        # FUTURE: expand on this to handle missing dashes (very likely), involves linking to _handle_consonant_case.
+        # Handle apostrophes first (existing Wade-Giles functionality)
         for i, c in enumerate(text):
             if c in apostrophes:
                 return text[:i]
+        
+        # If we have an initial, we're looking for just the final part
+        if initial and initial != 'ø':
+            return self._find_wg_final_with_backtrack(text, initial)
+        
+        # If no initial, use systematic boundary detection
+        return self._find_wg_syllable_boundaries(text)
+    
+    def _find_wg_final_with_backtrack(self, text: str, initial: str) -> str:
+        """
+        Find the final part when we already have an initial, using Wade-Giles specific logic.
+        """
+        # For Wade-Giles, we need to check if the remaining text after this final
+        # can form valid syllables. We prefer longer finals when possible.
+
+        valid_finals: list[tuple[str, str]] = []
+
+        # Try different final lengths, from longest to shortest
+        for final_end in range(len(text), 0, -1):
+            potential_final = text[:final_end]
+            remaining_text = text[final_end:]
+            
+            # Check if this initial + final combination is valid
+            if self._validate_final(initial, potential_final, silent=True):
+                # If no remaining text, this is the complete final
+                if not remaining_text:
+                    return potential_final
+                # If there is remaining text, check if it can form valid syllables
+                elif self._can_form_valid_wg_syllables(remaining_text):
+                    valid_finals.append((potential_final, remaining_text))
+        
+        # If we found valid combinations, return the one with the longest final
+        # (this prefers keeping syllables together when possible)
+        if valid_finals:
+            return valid_finals[0][0]  # Return the longest valid final
+        
+        # Fallback: return the full text
         return text
+        
+    def _find_wg_syllable_boundaries(self, text: str) -> str:
+        """
+        Systematic approach to find syllable boundaries in Wade-Giles text without explicit separators.
+        """
+        # Try to find the best syllable boundary by testing complete syllables
+        for syllable_end in range(2, len(text) + 1):  # Start from 2 to ensure we have at least a minimal syllable
+            potential_syllable = text[:syllable_end]
+            remaining_text = text[syllable_end:]
+            
+            # Check if this potential syllable is valid
+            if self._is_complete_wg_syllable_valid(potential_syllable):
+                # If there's remaining text, check if it can form valid syllables
+                if not remaining_text:
+                    return potential_syllable  # This completes the entire text as one syllable
+                elif self._can_form_valid_wg_syllables(remaining_text):
+                    return potential_syllable  # This syllable is valid and remainder can be parsed
+        
+        # Default: return full text (original behavior)
+        return text
+    
+    def _is_complete_wg_syllable_valid(self, syllable_text: str) -> bool:
+        """
+        Check if a complete syllable text forms a valid Wade-Giles syllable by trying different initial/final splits.
+        """
+        # Try different ways to split this syllable into initial + final
+        
+        # Get all initials from the processor, excluding 'ø' and sort by length (longest first for greedy matching)
+        all_initials = [init for init in self.processor.init_list if isinstance(init, str) and init != 'ø']
+        all_initials.sort(key=len, reverse=True)
+        
+        # Try each possible initial
+        for initial in all_initials:
+            if syllable_text.startswith(initial):
+                final = syllable_text[len(initial):]
+                if self._validate_final(initial, final, silent=True):
+                    return True
+        
+        # Try no initial (starts with vowel)
+        if syllable_text and syllable_text[0] in vowels:
+            if self._validate_final('ø', syllable_text, silent=True):
+                return True
+                
+        return False
+    
+    def _is_valid_wg_syllable(self, initial: str, final: str) -> bool:
+        """
+        Check if an initial-final combination forms a valid Wade-Giles syllable.
+        """
+        if not initial:
+            initial = 'ø'
+        
+        # Check if initial is valid using the processor's init_list
+        if initial not in self.processor.init_list:
+            return False
+            
+        # Use existing validation logic
+        return self._validate_final(initial, final, silent=True)
+    
+    def _can_form_valid_wg_syllables(self, text: str) -> bool:
+        """
+        Check if remaining text can be broken down into valid Wade-Giles syllables.
+        This is a simplified check - in a full implementation, this would recursively
+        try to parse the remaining text.
+        """
+        if len(text) <= 1:
+            return False
+            
+        # For now, do a simple check for common patterns
+        # This could be expanded to do full recursive parsing
+        
+        # Check if it starts with a valid initial (using data from processor)
+        # Sort by length (longest first) for proper greedy matching
+        all_initials = [init for init in self.processor.init_list if isinstance(init, str) and init != 'ø']
+        all_initials.sort(key=len, reverse=True)
+        
+        for init in all_initials:
+            if text.startswith(init):
+                return True
+                
+        # Check if it starts with a vowel (no initial)
+        if text[0] in vowels:
+            return True
+            
+        return False
 
     def _handle_vowel_case(self, text: str, i: int, initial: str) -> Optional[str]:
         """
@@ -355,12 +477,16 @@ class Syllable:
         remainder = len(text) - i - 1
         # Handle "er" and "erh"
         if text[i - 1:i + 1] == 'er':
-            if remainder == 0 or (self.processor.method != 'wg' and text[i + 1] not in vowels):
+            if self.processor.method == 'wg':
+                # In Wade-Giles, 'er' is not valid, so if we see 'erh', it must be the 'erh' final
+                if remainder > 0 and text[i + 1] == 'h':
+                    return text[:i + 2]  # Return "erh"
+                # If no 'h' follows, just return 'er' (which will be invalid and caught by validation)
                 return text[:i + 1]
-            # FUTURE: adjust logic below for Wade-Giles (currently unused)
-            # if self.processor.method == 'wg':
-            #     if remainder > 0 and text[i + 1] == 'h':
-            #         return text[:i + 2]
+            else:
+                # Pinyin logic
+                if remainder == 0 or text[i + 1] not in vowels:
+                    return text[:i + 1]
         # Handle "n" and "ng"
         if text[i] == 'n':
             # Determine whether we are dealing with "ng" or just "n"
