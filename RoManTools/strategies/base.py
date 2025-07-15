@@ -26,21 +26,6 @@ class RomanizationStrategy(ABC):
         self.processor = processor
     
     @abstractmethod
-    def find_final(self, text: str, initial: str, syllable: "Syllable") -> str:
-        """
-        Find the final part of a syllable for this romanization method.
-        
-        Args:
-            text: The text from which to extract the final.
-            initial: The initial part of the syllable.
-            syllable: The Syllable instance for accessing helper methods.
-            
-        Returns:
-            The final part of the syllable.
-        """
-        pass
-    
-    @abstractmethod
     def find_initial(self, text: str, syllable: "Syllable") -> str:
         """
         Find the initial part of a syllable for this romanization method.
@@ -51,21 +36,6 @@ class RomanizationStrategy(ABC):
             
         Returns:
             The initial part of the syllable, or 'ø' if no initial exists.
-        """
-        pass
-    
-    @abstractmethod
-    def validate_syllable(self, initial: str, final: str, syllable: "Syllable") -> bool:
-        """
-        Validate a complete syllable for this romanization method.
-        
-        Args:
-            initial: The initial part of the syllable.
-            final: The final part of the syllable.
-            syllable: The Syllable instance for accessing helper methods.
-            
-        Returns:
-            True if the syllable is valid, False otherwise.
         """
         pass
     
@@ -97,3 +67,33 @@ class RomanizationStrategy(ABC):
             The initial part including dash handling.
         """
         return text[:index]
+    
+    @abstractmethod
+    def find_final(self, text: str, initial: str, syllable: "Syllable") -> str:
+        """
+        Find the final part of a syllable for this romanization method.
+        
+        Args:
+            text: The text from which to extract the final.
+            initial: The initial part of the syllable.
+            syllable: The Syllable instance for accessing helper methods.
+            
+        Returns:
+            The final part of the syllable.
+        """
+        pass
+    
+    @abstractmethod
+    def validate_syllable(self, initial: str, final: str, syllable: "Syllable") -> bool:
+        """
+        Validate a complete syllable for this romanization method.
+        
+        Args:
+            initial: The initial part of the syllable.
+            final: The final part of the syllable.
+            syllable: The Syllable instance for accessing helper methods.
+            
+        Returns:
+            True if the syllable is valid, False otherwise.
+        """
+        pass

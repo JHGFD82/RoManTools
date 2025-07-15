@@ -25,75 +25,6 @@ class YaleStrategy(RomanizationStrategy):
     - Unique vowel combinations
     """
     
-    def find_final(self, text: str, initial: str, syllable: "Syllable") -> str:
-        """
-        Handles the final part extraction for Yale method.
-        
-        Yale has some unique characteristics in final detection that differ
-        from both Pinyin and Wade-Giles.
-        
-        Args:
-            text: The text from which to extract the final.
-            initial: The initial part of the syllable.
-            syllable: The Syllable instance for accessing helper methods.
-            
-        Returns:
-            The final part of the syllable.
-        """
-        for i, c in enumerate(text):
-            if c in vowels:
-                # Yale might have different vowel combination rules
-                final = syllable.handle_vowel_case(text, i, initial)
-                if final is not None:
-                    return final
-            else:
-                # Yale consonant endings might be handled differently
-                return self._handle_yale_consonant_case(text, i, initial, syllable)
-        return text
-    
-    def handle_apostrophe_in_initial(self, text: str, index: int) -> str:
-        """
-        Yale typically doesn't use apostrophes in the same way as Wade-Giles.
-        
-        Args:
-            text: The text being processed.
-            index: The index where the apostrophe was found.
-            
-        Returns:
-            The initial part without the apostrophe.
-        """
-        # Yale romanization typically doesn't use apostrophes in initials
-        # So we use the default behavior (remove them)
-        return text[:index]
-    
-    def _handle_yale_consonant_case(self, text: str, i: int, initial: str, syllable: "Syllable") -> str:
-        """
-        Yale-specific consonant handling.
-        
-        Args:
-            text: The syllable text to be processed.
-            i: The index of the consonant in the text.
-            initial: The initial part of the syllable.
-            syllable: The Syllable instance for accessing helper methods.
-            
-        Returns:
-            The final part of the syllable.
-        """
-        # Example: Yale might handle 'r' endings differently than Pinyin
-        if text[i] == 'r':
-            # Yale-specific 'r' handling logic
-            # Check if this is a valid Yale 'r' ending
-            if self.processor.validate_final_using_array(initial, text[:i + 1], silent=True):
-                return text[:i + 1]
-        
-        # Yale might handle 'w' endings uniquely
-        if text[i] == 'w':
-            # Yale-specific 'w' handling
-            return text[:i + 1]
-        
-        # Fall back to standard consonant handling for other cases
-        return syllable.handle_consonant_case(text, i, initial)
-    
     def find_initial(self, text: str, syllable: "Syllable") -> str:
         """
         Handles the initial part extraction for Yale method.
@@ -123,6 +54,75 @@ class YaleStrategy(RomanizationStrategy):
                 return self.handle_dash_in_initial(text, i)
 
         return text
+    
+    def handle_apostrophe_in_initial(self, text: str, index: int) -> str:
+        """
+        Yale typically doesn't use apostrophes in the same way as Wade-Giles.
+        
+        Args:
+            text: The text being processed.
+            index: The index where the apostrophe was found.
+            
+        Returns:
+            The initial part without the apostrophe.
+        """
+        # Yale romanization typically doesn't use apostrophes in initials
+        # So we use the default behavior (remove them)
+        return text[:index]
+    
+    def find_final(self, text: str, initial: str, syllable: "Syllable") -> str:
+        """
+        Handles the final part extraction for Yale method.
+        
+        Yale has some unique characteristics in final detection that differ
+        from both Pinyin and Wade-Giles.
+        
+        Args:
+            text: The text from which to extract the final.
+            initial: The initial part of the syllable.
+            syllable: The Syllable instance for accessing helper methods.
+            
+        Returns:
+            The final part of the syllable.
+        """
+        for i, c in enumerate(text):
+            if c in vowels:
+                # Yale might have different vowel combination rules
+                final = syllable.handle_vowel_case(text, i, initial)
+                if final is not None:
+                    return final
+            else:
+                # Yale consonant endings might be handled differently
+                return self._handle_yale_consonant_case(text, i, initial, syllable)
+        return text
+    
+    def _handle_yale_consonant_case(self, text: str, i: int, initial: str, syllable: "Syllable") -> str:
+        """
+        Yale-specific consonant handling.
+        
+        Args:
+            text: The syllable text to be processed.
+            i: The index of the consonant in the text.
+            initial: The initial part of the syllable.
+            syllable: The Syllable instance for accessing helper methods.
+            
+        Returns:
+            The final part of the syllable.
+        """
+        # Example: Yale might handle 'r' endings differently than Pinyin
+        if text[i] == 'r':
+            # Yale-specific 'r' handling logic
+            # Check if this is a valid Yale 'r' ending
+            if self.processor.validate_final_using_array(initial, text[:i + 1], silent=True):
+                return text[:i + 1]
+        
+        # Yale might handle 'w' endings uniquely
+        if text[i] == 'w':
+            # Yale-specific 'w' handling
+            return text[:i + 1]
+        
+        # Fall back to standard consonant handling for other cases
+        return syllable.handle_consonant_case(text, i, initial)
     
     def validate_syllable(self, initial: str, final: str, syllable: "Syllable") -> bool:
         """

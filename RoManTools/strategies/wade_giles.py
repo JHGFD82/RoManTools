@@ -24,43 +24,6 @@ class WadeGilesStrategy(RomanizationStrategy):
     - Different final patterns compared to Pinyin
     """
     
-    def find_final(self, text: str, initial: str, syllable: "Syllable") -> str:
-        """
-        Handles the final part extraction for Wade-Giles method with systematic ambiguity resolution.
-        
-        Args:
-            text: The text from which to extract the final.
-            initial: The initial part of the syllable.
-            syllable: The Syllable instance for accessing helper methods.
-            
-        Returns:
-            The final part of the syllable.
-        """
-        # Handle apostrophes first (existing Wade-Giles functionality)
-        for i, c in enumerate(text):
-            if c in apostrophes:
-                return text[:i]
-        
-        # If we have an initial, we're looking for just the final part
-        if initial and initial != 'ø':
-            return self._find_wg_final_with_backtrack(text, initial)
-        
-        # If no initial, use systematic boundary detection
-        return self._find_wg_syllable_boundaries(text)
-    
-    def handle_apostrophe_in_initial(self, text: str, index: int) -> str:
-        """
-        Handle apostrophes in Wade-Giles initials by including the apostrophe.
-        
-        Args:
-            text: The text being processed.
-            index: The index where the apostrophe was found.
-            
-        Returns:
-            The initial part including the apostrophe.
-        """
-        return text[:index] + "'"
-    
     def find_initial(self, text: str, syllable: "Syllable") -> str:
         """
         Handles the initial part extraction for Wade-Giles method.
@@ -91,22 +54,42 @@ class WadeGilesStrategy(RomanizationStrategy):
 
         return text
     
-    def validate_syllable(self, initial: str, final: str, syllable: "Syllable") -> bool:
+    def handle_apostrophe_in_initial(self, text: str, index: int) -> str:
         """
-        Validate a complete syllable for Wade-Giles method.
+        Handle apostrophes in Wade-Giles initials by including the apostrophe.
         
         Args:
+            text: The text being processed.
+            index: The index where the apostrophe was found.
+            
+        Returns:
+            The initial part including the apostrophe.
+        """
+        return text[:index] + "'"
+    
+    def find_final(self, text: str, initial: str, syllable: "Syllable") -> str:
+        """
+        Handles the final part extraction for Wade-Giles method with systematic ambiguity resolution.
+        
+        Args:
+            text: The text from which to extract the final.
             initial: The initial part of the syllable.
-            final: The final part of the syllable.
             syllable: The Syllable instance for accessing helper methods.
             
         Returns:
-            True if the syllable is valid, False otherwise.
+            The final part of the syllable.
         """
-        # Use the processor's validation method
-        if initial == '':
-            return self.processor.validate_final_using_array('ø', final)
-        return self.processor.validate_final_using_array(initial, final)
+        # Handle apostrophes first (existing Wade-Giles functionality)
+        for i, c in enumerate(text):
+            if c in apostrophes:
+                return text[:i]
+        
+        # If we have an initial, we're looking for just the final part
+        if initial and initial != 'ø':
+            return self._find_wg_final_with_backtrack(text, initial)
+        
+        # If no initial, use systematic boundary detection
+        return self._find_wg_syllable_boundaries(text)
     
     def _find_wg_final_with_backtrack(self, text: str, initial: str) -> str:
         """
@@ -141,6 +124,23 @@ class WadeGilesStrategy(RomanizationStrategy):
         
         # Fallback: return the full text
         return text
+    
+    def validate_syllable(self, initial: str, final: str, syllable: "Syllable") -> bool:
+        """
+        Validate a complete syllable for Wade-Giles method.
+        
+        Args:
+            initial: The initial part of the syllable.
+            final: The final part of the syllable.
+            syllable: The Syllable instance for accessing helper methods.
+            
+        Returns:
+            True if the syllable is valid, False otherwise.
+        """
+        # Use the processor's validation method
+        if initial == '':
+            return self.processor.validate_final_using_array('ø', final)
+        return self.processor.validate_final_using_array(initial, final)
         
     def _find_wg_syllable_boundaries(self, text: str) -> str:
         """

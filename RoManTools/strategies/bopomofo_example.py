@@ -49,51 +49,6 @@ class BopomofoStrategy(RomanizationStrategy):
         'er': 'ㄦ'
     }
     
-    def find_final(self, text: str, initial: str, syllable: "Syllable") -> str:
-        """
-        Handles the final part extraction for Bopomofo method.
-        
-        Bopomofo has a more compact representation and different phonetic boundaries
-        compared to other romanization systems.
-        
-        Args:
-            text: The text from which to extract the final.
-            initial: The initial part of the syllable.
-            syllable: The Syllable instance for accessing helper methods.
-            
-        Returns:
-            The final part of the syllable.
-        """
-        # Handle tone markers first (Bopomofo uses specific tone marks)
-        text_without_tones = self._remove_tone_marks(text)
-        
-        # Bopomofo has specific final patterns
-        for i, c in enumerate(text_without_tones):
-            if c in vowels:
-                # Bopomofo vowel combinations follow different rules
-                final = self._handle_bopomofo_vowel_case(text_without_tones, i, initial, syllable)
-                if final is not None:
-                    return final
-            else:
-                # Bopomofo consonant endings are more limited
-                return self._handle_bopomofo_consonant_case(text_without_tones, i, initial, syllable)
-        
-        return text_without_tones
-    
-    def handle_apostrophe_in_initial(self, text: str, index: int) -> str:
-        """
-        Bopomofo doesn't use apostrophes in initials.
-        
-        Args:
-            text: The text being processed.
-            index: The index where the apostrophe was found.
-            
-        Returns:
-            The initial part without the apostrophe.
-        """
-        # Bopomofo doesn't use apostrophes, so remove them
-        return text[:index]
-    
     def find_initial(self, text: str, syllable: "Syllable") -> str:
         """
         Handles the initial part extraction for Bopomofo method.
@@ -126,6 +81,51 @@ class BopomofoStrategy(RomanizationStrategy):
                 return self.handle_dash_in_initial(text_clean, i)
 
         return text_clean
+    
+    def handle_apostrophe_in_initial(self, text: str, index: int) -> str:
+        """
+        Bopomofo doesn't use apostrophes in initials.
+        
+        Args:
+            text: The text being processed.
+            index: The index where the apostrophe was found.
+            
+        Returns:
+            The initial part without the apostrophe.
+        """
+        # Bopomofo doesn't use apostrophes, so remove them
+        return text[:index]
+    
+    def find_final(self, text: str, initial: str, syllable: "Syllable") -> str:
+        """
+        Handles the final part extraction for Bopomofo method.
+        
+        Bopomofo has a more compact representation and different phonetic boundaries
+        compared to other romanization systems.
+        
+        Args:
+            text: The text from which to extract the final.
+            initial: The initial part of the syllable.
+            syllable: The Syllable instance for accessing helper methods.
+            
+        Returns:
+            The final part of the syllable.
+        """
+        # Handle tone markers first (Bopomofo uses specific tone marks)
+        text_without_tones = self._remove_tone_marks(text)
+        
+        # Bopomofo has specific final patterns
+        for i, c in enumerate(text_without_tones):
+            if c in vowels:
+                # Bopomofo vowel combinations follow different rules
+                final = self._handle_bopomofo_vowel_case(text_without_tones, i, initial, syllable)
+                if final is not None:
+                    return final
+            else:
+                # Bopomofo consonant endings are more limited
+                return self._handle_bopomofo_consonant_case(text_without_tones, i, initial, syllable)
+        
+        return text_without_tones
     
     def validate_syllable(self, initial: str, final: str, syllable: "Syllable") -> bool:
         """

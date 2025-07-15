@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Dict, Type
 from .base import RomanizationStrategy
 from .pinyin import PinyinStrategy
 from .wade_giles import WadeGilesStrategy
+from ..constants import method_shorthand_to_full
 
 if TYPE_CHECKING:
     from ..syllable import SyllableProcessor
@@ -44,7 +45,7 @@ class RomanizationStrategyFactory:
         
         strategy_class = strategies.get(method)
         if strategy_class is None:
-            available_methods = ', '.join(strategies.keys())
+            available_methods = ', '.join(method_shorthand_to_full.keys())
             raise ValueError(f"Unsupported romanization method: '{method}'. Available methods: {available_methods}")
             
         return strategy_class(processor)
@@ -57,7 +58,7 @@ class RomanizationStrategyFactory:
         Returns:
             List of available method identifiers.
         """
-        return ['py', 'wg']
+        return list(method_shorthand_to_full.keys())
     
     @staticmethod
     def register_strategy(method: str, strategy_class: Type[RomanizationStrategy]) -> None:

@@ -22,28 +22,6 @@ class PinyinStrategy(RomanizationStrategy):
     - Clear syllable boundaries
     """
     
-    def find_final(self, text: str, initial: str, syllable: "Syllable") -> str:
-        """
-        Handles the final part extraction for Pinyin method.
-        
-        Args:
-            text: The text from which to extract the final.
-            initial: The initial part of the syllable.
-            syllable: The Syllable instance for accessing helper methods.
-            
-        Returns:
-            The final part of the syllable.
-        """
-        for i, c in enumerate(text):
-            # Handle cases where the final starts with a vowel or consonant
-            if c in vowels:
-                final = syllable.handle_vowel_case(text, i, initial)
-                if final is not None:
-                    return final
-            else:
-                return syllable.handle_consonant_case(text, i, initial)
-        return text
-    
     def find_initial(self, text: str, syllable: "Syllable") -> str:
         """
         Handles the initial part extraction for Pinyin method.
@@ -73,6 +51,28 @@ class PinyinStrategy(RomanizationStrategy):
             if c in dashes:  # Handle dashes using strategy  
                 return self.handle_dash_in_initial(text, i)
 
+        return text
+    
+    def find_final(self, text: str, initial: str, syllable: "Syllable") -> str:
+        """
+        Handles the final part extraction for Pinyin method.
+        
+        Args:
+            text: The text from which to extract the final.
+            initial: The initial part of the syllable.
+            syllable: The Syllable instance for accessing helper methods.
+            
+        Returns:
+            The final part of the syllable.
+        """
+        for i, c in enumerate(text):
+            # Handle cases where the final starts with a vowel or consonant
+            if c in vowels:
+                final = syllable.handle_vowel_case(text, i, initial)
+                if final is not None:
+                    return final
+            else:
+                return syllable.handle_consonant_case(text, i, initial)
         return text
     
     def validate_syllable(self, initial: str, final: str, syllable: "Syllable") -> bool:
