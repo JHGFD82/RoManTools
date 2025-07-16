@@ -19,7 +19,6 @@ Usage Example:
 """
 
 import argparse
-import sys
 from typing import Optional, List, Dict, Callable
 from .config import Config
 from .utils import convert_text, cherry_pick, segment_text, syllable_count, detect_method, validator
@@ -46,29 +45,6 @@ def _normalize_method(method: str) -> str:
     if method in method_shorthand_to_full:
         return method
     raise argparse.ArgumentTypeError(f"Invalid romanization method: {method}")
-
-
-def _validate_arguments(args: argparse.Namespace):
-    """
-    Validate command-line arguments based on the selected action.
-
-    Args:
-        args (argparse.Namespace): The parsed command-line arguments.
-
-    Raises:
-        SystemExit: If required arguments are missing for the chosen action.
-    """
-
-    # Additional checks for method-related actions
-    if args.action in ['segment', 'validator', 'syllable_count']:
-        if not args.method:
-            print(f'The --method argument is required for the {args.action} action.', file=sys.stderr)
-            raise SystemExit(2)
-
-    if args.action in ['convert', 'cherry_pick']:
-        if not args.convert_from or not args.convert_to:
-            print(f'Both --convert_from and --convert_to arguments are required for the {args.action} action.', file=sys.stderr)
-            raise SystemExit(2)
 
 
 # ACTION FUNCTIONS #
@@ -119,79 +95,126 @@ def main(arg_list: Optional[List[str]] = None):
         argparse.ArgumentError: If invalid arguments are provided.
 
     Example:
-        >>> main(['segment', '-i', "Zhongguo ti'an tianqi", '-m', 'py'])
+        >>> main(['segment', "Zhongguo ti'an tianqi", '-m', 'py'])
         [['zhong', 'guo'], ['ti', 'an'], ['tian', 'qi']]
     """
 
+    from .__init__ import __version__
+    
     parser = argparse.ArgumentParser(description='RoManTools: Romanized Mandarin Tools')
+    
+    # Global arguments
+    parser.add_argument('--version', action='version', version=f'RoManTools {__version__}')
+    parser.add_argument('--list-methods', action='store_true', 
+                       help='List all supported romanization methods')
+    
+    # Create subparsers
+    subparsers = parser.add_subparsers(dest='action', help='Available actions')
 
-    # REQUIRED PARAMETERS
-    parser.add_argument('action', choices=[
-        'convert',
-        'cherry_pick',
-        'segment',
-        'syllable_count',
-        'detect_method',
-        'validator'
-    ], help='Action to perform')
-    parser.add_argument('-i', '--input', type=str, dest='text', required=True,
-                        help='Text to process')
-
-    # CONDITIONAL PARAMETERS (BASED ON CHOSEN ACTION)
-    parser.add_argument('-m', '--method', type=_normalize_method,
-                        help='Romanization method for functions (pinyin/py, wade-giles/wg)')
-    parser.add_argument('-f', '--convert_from', type=_normalize_method,
-                        help='Source romanization method for convert and cherry_pick actions '
-                             '(pinyin/py, wade-giles/wg)')
-    parser.add_argument('-t', '--convert_to', type=_normalize_method,
-                        help='Target romanization method for convert and cherry_pick actions '
-                             '(pinyin/py, wade-giles/wg)')
-
-    # OPTIONAL PARAMETERS
-    parser.add_argument('-w', '--per_word', action='store_true',
-                        help='Perform action on each word within a multi-word string (currently only supported for '
-                             'detect_method and validator process)')
-
-    # OPTIONAL DEBUG PARAMETERS
-    parser.add_argument('-C', '--crumbs', action='store_true',
-                        help='Include step-by-step analysis in the output')
-    parser.add_argument('-S', '--error_skip', action='store_true',
-                        help='Skip errors instead of aborting (defaulted to True if --cherry_pick is used)')
-    parser.add_argument('-R', '--error_report', action='store_true',
-                        help='Include error messages in the output')
-
+    # Create a parent parser for common arguments shared by all subcommands
+    parent_parser = argparse.ArgumentParser(add_help=False)
+    parent_parser.add_argument('-C', '--crumbs', action='store_true',
+                              help='Include step-by-step analysis in the output')
+    parent_parser.add_argument('-S', '--error_skip', action='store_true',
+                              help='Skip errors instead of aborting')
+    parent_parser.add_argument('-R', '--error_report', action='store_true',
+                              help='Include error messages in the output')
+    
+    # SEGMENT subcommand
+    segment_parser = subparsers.add_parser('segment', help='Segment text into syllables', parents=[parent_parser])
+    segment_parser.add_argument('text', help='Text to segment')
+    segment_parser.add_argument('-m', '--method', type=_normalize_method, required=True,
+                              help='Romanization method (pinyin/py, wade-giles/wg)')
+    
+    # CONVERT subcommand
+    convert_parser = subparsers.add_parser('convert', help='Convert between romanization methods', parents=[parent_parser])
+    convert_parser.add_argument('text', help='Text to convert')
+    convert_parser.add_argument('-f', '--from', type=_normalize_method, required=True,
+                              dest='convert_from', help='Source romanization method')
+    convert_parser.add_argument('-t', '--to', type=_normalize_method, required=True,
+                              dest='convert_to', help='Target romanization method')
+    
+    # CHERRY_PICK subcommand
+    cherry_parser = subparsers.add_parser('cherry-pick', help='Cherry-pick romanized words for conversion', parents=[parent_parser])
+    cherry_parser.add_argument('text', help='Text to process')
+    cherry_parser.add_argument('-f', '--from', type=_normalize_method, required=True,
+                             dest='convert_from', help='Source romanization method')
+    cherry_parser.add_argument('-t', '--to', type=_normalize_method, required=True,
+                             dest='convert_to', help='Target romanization method')
+    
+    # SYLLABLE_COUNT subcommand
+    syllable_parser = subparsers.add_parser('syllable-count', help='Count syllables in text', parents=[parent_parser])
+    syllable_parser.add_argument('text', help='Text to analyze')
+    syllable_parser.add_argument('-m', '--method', type=_normalize_method, required=True,
+                               help='Romanization method (pinyin/py, wade-giles/wg)')
+    
+    # DETECT_METHOD subcommand
+    detect_parser = subparsers.add_parser('detect-method', help='Detect romanization method', parents=[parent_parser])
+    detect_parser.add_argument('text', help='Text to analyze')
+    detect_parser.add_argument('-w', '--per-word', action='store_true',
+                             help='Perform detection on each word separately')
+    
+    # VALIDATOR subcommand
+    validator_parser = subparsers.add_parser('validator', help='Validate romanized text', parents=[parent_parser])
+    validator_parser.add_argument('text', help='Text to validate')
+    validator_parser.add_argument('-m', '--method', type=_normalize_method, required=True,
+                                help='Romanization method (pinyin/py, wade-giles/wg)')
+    validator_parser.add_argument('-w', '--per-word', action='store_true',
+                                help='Validate each word separately')
+    
+    # Parse arguments
     if arg_list is None:
         args = parser.parse_args()
     else:
         args = parser.parse_args(arg_list)
-
-    # Validate common arguments here
-    _validate_arguments(args)
-
-    # Create the Config object
+    
+    # Handle special cases
+    if args.list_methods:
+        _list_methods()
+        return
+    
+    # If no action is specified, show help
+    if not args.action:
+        parser.print_help()
+        return
+    
+    # Create the Config object (only when we have an action)
     config = Config(crumbs=args.crumbs, error_skip=args.error_skip, error_report=args.error_report)
-
+    
     # Print starting timestamp if crumbs is enabled
     from datetime import datetime
     config.print_crumb(level=1, stage='Start', message=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-
-    # Use alias_maps to get pretty action name
-    pretty_action = supported_actions[args.action]['pretty']
+    
+    # Use alias_maps to get pretty action name (handle hyphenated names)
+    action_key = args.action.replace('-', '_')
+    pretty_action = supported_actions[action_key]['pretty']
     config.print_crumb(level=1, stage='Performing action', message=f'{pretty_action}')
-
+    
     # Report configuration if crumbs is enabled
     enabled_configs = [supported_config[key]['pretty'] for key, val in config.__dict__.items() if val and key in supported_config]
     if enabled_configs:
         config.print_crumb(level=1, stage='Configuration', message=', '.join(enabled_configs))
         config.print_crumb(footer=True)
-
+    
+    # Handle cherry-pick special case
+    if args.action == 'cherry-pick':
+        config.error_skip = True
+        args.action = 'cherry_pick'  # Normalize for ACTIONS dict
+    
     # Call the appropriate function with the Config object
-    result = ACTIONS[args.action](args, config)
-
+    result = ACTIONS[action_key](args, config)
+    
     # Print ending timestamp if crumbs is enabled
     config.print_crumb(level=1, stage='End', message=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-
+    
     print(str(result))
+
+
+def _list_methods():
+    """List all supported romanization methods."""
+    print("Supported romanization methods:")
+    for key, value in supported_methods.items():
+        print(f"  {key} or {value['shorthand']}: {value['pretty']}")
 
 
 if __name__ == '__main__':  # pragma: no cover

@@ -30,31 +30,31 @@ class TestMainExecutionFromIDE(unittest.TestCase):
 
     @timeit_decorator()
     def test_main_execution_segment(self):
-        main(["segment", "-i", "Zhongguo ti'an tianqi", "-m", "py"])
+        main(["segment", "Zhongguo ti'an tianqi", "--method", "py"])
 
     @timeit_decorator()
     def test_main_execution_shorthand_method_segment(self):
-        main(["segment", "-i", "Zhongguo ti'an tianqi", "-m", "wade-giles"])
+        main(["segment", "Zhongguo ti'an tianqi", "-m", "wade-giles"])
 
     @timeit_decorator()
     def test_main_execution_validator(self):
-        main(["validator", "-i", "Zhongguo ti'an tianqi", "-m", "py"])
+        main(["validator", "Zhongguo ti'an tianqi", "-m", "py"])
 
     @timeit_decorator()
     def test_main_execution_convert_text(self):
-        main(["convert", "-i", "Zhongguo ti'an tianqi", "-f", "py", "-t", "wg"])
+        main(["convert", "Zhongguo ti'an tianqi", "--from", "py", "--to", "wg"])
 
     @timeit_decorator()
     def test_main_execution_cherry_pick(self):
-        main(["cherry_pick", "-i", "Zhongguo ti'an tianqi", "-f", "py", "-t", "wg"])
+        main(["cherry-pick", "Zhongguo ti'an tianqi", "-f", "py", "-t", "wg"])
 
     @timeit_decorator()
     def test_main_execution_syllable_count(self):
-        main(["syllable_count", "-i", "Zhongguo ti'an tianqi", "-m", "py"])
+        main(["syllable-count", "Zhongguo ti'an tianqi", "-m", "py"])
 
     @timeit_decorator()
     def test_main_execution_detect_method(self):
-        main(["detect_method", "-i", "Zhongguo ti'an tianqi"])
+        main(["detect-method", "Zhongguo ti'an tianqi"])
 
     # Test error handling
     @timeit_decorator()
@@ -84,4 +84,4 @@ class TestMainExecutionFromIDE(unittest.TestCase):
     # Test crumbs
     @timeit_decorator()
     def test_main_execution_validator_crumbs(self):
-        main(["validator", "-i", "Zhongguo ti'an tianqi", "-m", "py", "-C"])
+        main(["validator", "Zhongguo ti'an tianqi", "--method", "py", "-C"])
